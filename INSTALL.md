@@ -26,8 +26,12 @@ On Chrome, open `chrome://extensions`, enable **Developer mode**, choose **Load 
 
 Abra a cidade uma vez para identificar o personagem. Pelo ícone da extensão, abra o painel em uma aba independente. Clique **Conectar janela do client** e selecione a janela do jogo no navegador. Confira a prévia e, se necessário, arraste um retângulo em volta da linha LV/XP. Espere uma leitura estável e clique **Iniciar sessão**. Mantenha a aba aberta e abra a janela flutuante.
 
+**Autorize a janela certa:** mantenha o client aberto e, no seletor do navegador, escolha a janela do **Dead Frontier**, confirmando em **Compartilhar / Permitir**. Prefira só a janela do jogo, em vez da tela inteira ou da aba da cidade. Se uma nova aba do addon abrir, clique novamente em Conectar nessa aba. A prévia deve mostrar o jogo com a linha LV/XP. Escolheu outra janela? Pare a captura e conecte novamente. Sem autorização não há leitura; cada nova conexão solicita a escolha da janela outra vez.
+
 O OCR funciona localmente, sem gravar ou enviar imagens, e sem áudio. **Parar captura** libera a janela compartilhada. O HUD em K limita a precisão a aproximadamente 1.000 XP. A XP base depende do multiplicador efetivo informado; ajuste o fator quando os bônus mudarem.
 
 Open the city once to identify your character, then open the extension in its own tab. Click **Connect client window**, select the game window, verify the preview and crop the LV/XP line if needed. Wait for a stable reading, then click **Start session**. Keep the tab open and open the floating window. OCR is local, without recording, uploads or audio. Stop capture to release the window. K values have roughly 1,000 XP precision. Base XP depends on your effective multiplier; update it when bonuses change.
+
+**Allow the correct window:** keep the client open. In the browser picker, select the **Dead Frontier game window** and confirm **Share / Allow**. Prefer only that window instead of your entire screen or the outpost browser tab. If a new add-on tab opens, click Connect again there. Verify the preview shows the game and its LV/XP line. For a wrong selection, stop capture and reconnect. No permission means no readouts; each new connection asks you to choose a window again.
 
 Documentação / Documentation: https://github.com/raryson/deadfrontier-overview

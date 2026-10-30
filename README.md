@@ -89,11 +89,13 @@ Nomes oficiais dos itens permanecem como no jogo para facilitar sua identificaç
 ### XP da sessão e XP por hora
 
 1. Abra uma página da cidade para identificar o personagem. Abra o painel em uma **aba independente**, pelo ícone da extensão.
-2. Com o client aberto, clique **Conectar janela do client** e selecione a janela do jogo no seletor de compartilhamento do navegador.
+2. Com o client aberto, clique **Conectar janela do client**. Se o painel abrir uma nova aba, clique novamente no botão dessa aba. No seletor de compartilhamento do navegador, escolha a **janela do client Dead Frontier** e confirme em **Compartilhar / Permitir**. Prefira apenas essa janela, em vez da tela inteira ou da aba da cidade.
 3. Confira a leitura na prévia. Se necessário, arraste um retângulo em volta da linha **LV + XP atual / XP necessária**, no canto superior esquerdo. Alterar o recorte zera a sessão para evitar comparar áreas diferentes.
 4. Espere a leitura estabilizar e confira se os números correspondem ao HUD. Clique **Iniciar sessão**: a XP anterior não entra nos ganhos.
 5. Para estimar XP sem bônus, abra **Configurar estimativa sem bônus** e informe o **multiplicador efetivo de XP**. Um bônus efetivo total de +100% equivale a 2×. Inclua alimentação, profissão, eventos e equipamentos no fator.
 6. Abra a janela flutuante para ver XP recebida, XP/h e estimativas sem bônus. Ao mudar de bônus, ajuste o multiplicador; o novo fator vale para os próximos intervalos. Intervalos sem fator ficam marcados como estimativa parcial.
+
+O addon só consegue ler a janela que você autorizar. Confira se a prévia mostra o jogo e a linha LV/XP; se ela mostrar outra aplicação ou a página da cidade, clique **Parar captura** e conecte novamente escolhendo a janela correta. Se cancelar ou negar a autorização, a leitura não começa; clique no botão para tentar de novo. Parar de compartilhar pelo navegador também encerra a leitura. O acesso não é concedido permanentemente: você escolhe e autoriza a janela a cada nova conexão.
 
 **A XP base é uma estimativa, não um valor separado lido do servidor.** A XP recebida vem de diferenças nas leituras de XP do personagem e pode incluir várias fontes, não apenas combate. Perdas e ganho líquido ficam separados. Mudanças de nível são tratadas pela tabela de XP quando disponível; lacunas são indicadas em vez de gerar ganhos inventados.
 
@@ -146,3 +148,5 @@ Fontes do catálogo: [Drugs](https://deadfrontier.fandom.com/wiki/Drugs), [Food]
 Use the **Language** selector at the top for English, Portuguese, or automatic browser language detection. Keep the extension tab open when using the floating timer window. Never share credentials, cookies, HAR files, or full request payloads in an issue.
 
 **Live XP:** open the city once to identify your character, then open the extension in its own tab. Click **Connect client window**, select the game window, and verify the OCR preview. Drag a rectangle around the LV/XP line if needed. Wait for a stable reading, then start the session. Keep this tab open. OCR runs locally with bundled assets; frames are never uploaded or recorded and audio is disabled. HUD values shown in K have roughly 1,000 XP precision. Base XP is estimated from your effective multiplier. Stop capture to release the shared window.
+
+**Capture permission:** keep the client open. If clicking Connect opens a new add-on tab, click the button again there. In the browser picker, select the **Dead Frontier client window**, then confirm **Share / Allow**. Prefer only the game window instead of your entire screen or the outpost browser tab. Verify that the preview includes the game's LV/XP line. If you selected the wrong window, stop capture and reconnect. Canceling or denying the prompt prevents readouts; click Connect to try again. Stopping browser sharing ends capture, and each new connection asks you to choose and authorize a window again.

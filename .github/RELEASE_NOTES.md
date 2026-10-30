@@ -1,3 +1,13 @@
+## Diagnóstico de atualização 0.7.2 / Update diagnostics
+
+O painel agora mostra a versão do manifesto realmente carregado pelo navegador. OCR verifica manifesto e permissão de WebAssembly antes de iniciar; arquivos novos com manifesto antigo recebem instruções de atualização. O selo Pronto só aparece após uma leitura válida. As etapas de carregamento do motor e do modelo são exibidas separadamente.
+
+The panel now displays the manifest version actually loaded by the browser. OCR checks the manifest and WebAssembly permission before starting; mixed old/new installations receive update instructions. Ready is shown only after a valid readout. Engine and model loading stages are displayed separately.
+
+**Atualização Firefox:** se instalou pelo ZIP, use Carregar extensão temporária e selecione o ZIP novo. Se usa uma pasta, substitua todos os arquivos incluindo manifest.json, clique Recarregar na extensão e feche as abas antigas do addon. Atualizar apenas a página do jogo não recarrega o manifesto.
+
+**Firefox update:** when installed from a ZIP, use Load Temporary Add-on and select the new ZIP. For a folder, replace all files including manifest.json, reload the extension and close old add-on tabs. Reloading only the game page does not reload the manifest.
+
 ## Correção Firefox 0.7.1 / Firefox fix
 
 Corrige `chrome.tabs is undefined` ao conectar o OCR ou abrir a janela flutuante pelo painel incorporado na cidade. A abertura da aba independente agora passa pelo processo de fundo da extensão. Recarregue a extensão **e a página do jogo** após atualizar.

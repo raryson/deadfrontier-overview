@@ -8,6 +8,8 @@
 
 O Firefox remove instalações temporárias ao reiniciar. Para instalação permanente, este pacote precisa ser assinado pela Mozilla. Este ZIP não é um XPI assinado.
 
+**Atualizar:** se usa ZIP, clique novamente em **Carregar extensão temporária…** e selecione o ZIP novo. Se usa uma pasta, substitua todos os arquivos, incluindo `manifest.json`, e clique **Recarregar** na extensão. Feche as abas antigas do addon e abra outra pelo ícone. Recarregar só o jogo não atualiza o manifesto.
+
 ## Chrome
 
 Extraia o ZIP. Abra `chrome://extensions`, ative **Modo do desenvolvedor**, clique **Carregar sem compactação** e escolha a pasta extraída. Recarregue o jogo.
@@ -17,6 +19,8 @@ Extraia o ZIP. Abra `chrome://extensions`, ative **Modo do desenvolvedor**, cliq
 On Firefox 140+, open `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on…**, and choose this ZIP directly (or `manifest.json` if already extracted). Reload the game. This temporary installation ends when Firefox restarts; permanent installation requires Mozilla signing. This ZIP is not a signed XPI.
 
 On Chrome, open `chrome://extensions`, enable **Developer mode**, choose **Load unpacked**, and select the extracted folder.
+
+**Updating Firefox:** for a ZIP installation, use **Load Temporary Add-on…** and select the new ZIP. For a folder, replace all files including `manifest.json`, then click **Reload** on the extension. Close old add-on tabs and reopen through its toolbar icon. Reloading only the game page does not update the manifest.
 
 ## XP / Experience
 

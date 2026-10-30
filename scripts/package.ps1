@@ -9,7 +9,7 @@ $archivePath = Join-Path $outputDirectory 'deadfrontier-overview.zip'
 # Explicit allowlist: no profiles, screenshots, test fixtures or local secrets.
 $packageFiles = @(
   'manifest.json', 'background.js', 'bank-request.js', 'catalog.js', 'content.js',
-  'core.js', 'dashboard.html', 'dashboard.js', 'experience.js', 'i18n.js', 'icon.png', 'capture-controller.js', 'ocr-parser.js',
+  'core.js', 'dashboard.html', 'dashboard.js', 'experience.js', 'i18n.js', 'icon.png', 'capture-controller.js', 'ocr-parser.js', 'ocr-environment.js',
   'page-observer.js', 'server-sync.js', 'styles.css', 'xp-protocol.js', 'xp-request.js',
   '_locales/en/messages.json', '_locales/pt/messages.json', 'INSTALL.md'
 )

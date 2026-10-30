@@ -46,12 +46,12 @@ O Firefox é o navegador usado na validação real do addon. O Chrome possui sup
 
 ## Atualizar
 
-1. Baixe a versão nova e extraia os arquivos, ou atualize seu clone do repositório.
-2. No Firefox, abra `about:debugging#/runtime/this-firefox` e clique em **Recarregar** no cartão da extensão. Se ela não estiver mais listada, carregue o `manifest.json` novamente.
+1. Baixe o ZIP da versão nova, ou atualize seu clone do repositório.
+2. No Firefox, abra `about:debugging#/runtime/this-firefox`. Se instalou pelo ZIP, use **Carregar extensão temporária…** e selecione o **ZIP novo**. Se usa uma pasta ou clone, atualize **todos** os arquivos nessa mesma pasta, incluindo `manifest.json`, e clique **Recarregar** no cartão da extensão. Apenas atualizar a página do jogo não recarrega o manifesto.
 3. No Chrome, abra `chrome://extensions` e clique no botão de recarregar da extensão.
 4. Recarregue as abas do jogo. Feche a janela flutuante antiga e abra outra pelo painel atualizado.
 
-O número da versão aparece no topo do painel. O identificador interno permanece estável entre versões para preservar os dados locais; instalações temporárias não devem ser usadas como backup.
+Feche as abas antigas do addon e abra uma nova pelo ícone da extensão. Desde 0.7.2, o número no topo mostra a versão do manifesto realmente carregado pelo navegador. Se o OCR indicar manifesto antigo ou WebAssembly bloqueado, carregue o pacote atualizado seguindo os passos acima. O identificador interno permanece estável entre versões para preservar os dados locais; instalações temporárias não devem ser usadas como backup.
 
 ## Como usar
 

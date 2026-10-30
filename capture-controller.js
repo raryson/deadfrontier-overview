@@ -21,7 +21,7 @@ export function prepareOcrFrame(video,region,canvas,threshold=80) {
   context.putImageData(pixels,0,0);return canvas;
 }
 
-export function createCaptureController({preview,crop,onBegin,onEnd,onSample,onStatus,onCandidate,onRegionChange,loadRegion,saveRegion}) {
+export function createCaptureController({preview,crop,onBegin,onEnd,onSample,onStatus,onCandidate,onRegionChange,loadRegion,saveRegion,checkEnvironment=()=>{}}) {
   let stream=null,worker=null,video=null,region=null,epoch=0,regionEpoch=0;
   let previewTimer,readTimer,inFlight=null,captureId=null,drag=null;
   const gate=createOcrGate();
@@ -93,6 +93,7 @@ export function createCaptureController({preview,crop,onBegin,onEnd,onSample,onS
     if(stream)return;
     const thisEpoch=++epoch;
     try {
+      checkEnvironment();
       if(!navigator.mediaDevices?.getDisplayMedia)throw Error('unsupported');
       // This call must remain directly tied to the user's click/permission picker.
       const selectedStream=await navigator.mediaDevices.getDisplayMedia({video:true,audio:false});
@@ -107,11 +108,20 @@ export function createCaptureController({preview,crop,onBegin,onEnd,onSample,onS
       if(epoch!==thisEpoch)return;
       region=saved?.sourceWidth===video.videoWidth&&saved?.sourceHeight===video.videoHeight?saved:defaultHudRegion(video.videoWidth,video.videoHeight);
       gate.reset();drawPreview();previewTimer=setInterval(drawPreview,500);onStatus('ocrLoading');
+      // Check actual compilation permission before starting a library whose
+      // initialization promise may stay pending after a WASM rejection.
+      try {await WebAssembly.compile(new Uint8Array([0,97,115,109,1,0,0,0]));}
+      catch {const error=new Error('ocrWasmBlocked');error.code='ocrWasmBlocked';throw error;}
+      if(epoch!==thisEpoch)return;
       const loaded=await createWorker('eng',1,{
         workerPath:new URL('./vendor/ocr/worker.min.js',import.meta.url).href,
         corePath:new URL('./vendor/ocr',import.meta.url).href,
         langPath:new URL('./vendor/ocr',import.meta.url).href,
-        workerBlobURL:false,cacheMethod:'none',logger:()=>{},
+        workerBlobURL:false,cacheMethod:'none',logger:entry=>{
+          if(epoch!==thisEpoch)return;
+          const phase=({'loading tesseract core':'ocrLoadingCore','initializing tesseract':'ocrLoadingCore','loading language traineddata':'ocrLoadingLanguage','initializing api':'ocrInitializing'})[entry.status];
+          if(phase)onStatus(phase);
+        },
       });
       if(epoch!==thisEpoch){await loaded.terminate();return;}
       worker=loaded;
@@ -120,7 +130,7 @@ export function createCaptureController({preview,crop,onBegin,onEnd,onSample,onS
       await loop();
     } catch(error) {
       await stop();
-      onStatus(error.name==='NotAllowedError'||error.name==='AbortError'?'ocrCancelled':'ocrFailed');
+      onStatus(error?.code?.startsWith('ocr')?error.code:error?.name==='NotAllowedError'||error?.name==='AbortError'?'ocrCancelled':'ocrFailed');
     }
   }
   return {start,stop,readNow,resetRegion:()=>video?setRegion(defaultHudRegion(video.videoWidth,video.videoHeight)):Promise.resolve(),get active(){return !!stream;}};

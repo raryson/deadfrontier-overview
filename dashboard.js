@@ -3,7 +3,12 @@ import { duration, remaining } from './core.js';
 import { t as translate, resolveLanguage, localeFor, effectLabel, translateMessage } from './i18n.js';
 import {experienceStats} from './experience.js';
 import {createCaptureController} from './capture-controller.js';
+import {assertOcrEnvironment} from './ocr-environment.js';
 const chrome = globalThis.browser ?? globalThis.chrome;
+const versionElement=document.querySelector('.version');
+const bundledVersion=versionElement.textContent.trim();
+const loadedManifest=chrome.runtime.getManifest?.();
+versionElement.textContent=loadedManifest?.version??'?';
 let languagePreference = (await chrome.storage.local.get('language')).language ?? 'auto';
 let language = resolveLanguage(languagePreference, navigator.languages ?? [navigator.language]);
 const t = (key, values) => translate(key, language, values);
@@ -79,7 +84,7 @@ function render() {
 }
 function renderExperience() {
   const xp=state.experience, stats=experienceStats(xp);
-  $('xp-mode').textContent=xp?.capture?.active?t(xp?.session?.running?'ocrRunning':'ocrReady'):t('xpStopped');
+  $('xp-mode').textContent=xp?.capture?.active?t(xp?.session?.running?'ocrRunning':xp.latest?.source==='ocr'&&!stats.stale?'ocrReady':'ocrWaiting'):t('xpStopped');
   $('xp-gained').textContent=xp?.session?money(stats.gained):'—';
   $('xp-rate').textContent=xp?.session?money(Math.round(stats.perHour)):'—';
   const baseAvailable=xp?.session && (xp.multiplier || stats.baseGained>0);
@@ -101,6 +106,7 @@ function renderExperience() {
 }
 let ocrStatusKey='ocrNeedCapture';
 const capture=createCaptureController({
+  checkEnvironment:()=>assertOcrEnvironment(chrome.runtime.getManifest?.(),bundledVersion),
   preview:$('ocr-preview'),crop:$('ocr-crop-preview'),
   onBegin:async()=>{state=await request({type:'ocrBegin'});render();return state.experience.capture.id;},
   onEnd:async()=>{state=await request({type:'ocrEnd'});render();},

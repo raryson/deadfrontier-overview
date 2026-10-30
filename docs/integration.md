@@ -11,6 +11,8 @@
 | `background.js` | Serializa alterações de estado, persiste relógios e gerencia alarmes/notificações. |
 | `dashboard.js` | Interface, idioma e vídeo local dos relógios para PiP. |
 | `i18n.js` | Textos PT/EN, preferência de idioma e formatação. |
+| `experience.js` | Sessão de XP, perdas, taxas e estimativas sem bônus por intervalo. |
+| `xp-protocol.js` / `xp-request.js` | Extração limitada de XP e consulta somente de leitura a `get_values.php`. |
 
 ## Rotas observadas
 
@@ -40,6 +42,10 @@ O POST para `bank.php` segue a serialização do código nativo. A autenticaçã
 Uma confirmação exige HTTP 200, endpoint final correspondente, ausência de status de erro e ambos os saldos válidos. Erros, redirecionamentos e timeout não causam reenvio automático. A interface recomenda consultar o saldo antes de repetir uma operação incerta.
 
 ## Validação e dados publicados
+
+A XP é amostrada do estado inicial e das respostas de `get_values.php`, com consultas a cada ~30 s somente enquanto uma sessão está ativa e sua aba responsável permanece aberta. Não há leitura do client. Os limites de nível vêm das chaves `EXPTABLE_exp_lvlN` disponíveis no jogo; se faltarem, saltos de nível são marcados como lacuna. Perdas de XP são separadas dos ganhos. A XP base é estimada apenas para intervalos com multiplicador configurado pelo jogador; não é inferida apenas pelo buff de EXP de +50%.
+
+O pacote de instalação usa uma lista explícita de arquivos em `scripts/package.ps1`. A automação de release não usa credenciais da conta do jogo e recebe apenas o token efêmero do GitHub Actions para publicar os assets.
 
 O uso de Fresh Herbs e a leitura automática do buff foram conferidos na sessão de desenvolvimento. O usuário confirmou o funcionamento do banco rápido após o ajuste da inicialização bancária. A interface PT/EN foi revisada em uma prévia de 420 px com dados fictícios.
 

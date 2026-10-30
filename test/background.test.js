@@ -4,13 +4,14 @@ let stored = {};
 const listeners = {};
 const alarms = new Map();
 const notices = [];
+const xpRefreshes=[];
 const event = name => ({ addListener: fn => { listeners[name] = fn; } });
 globalThis.chrome = {
   runtime: { id: 'test-extension', onMessage: event('message'), onStartup: event('startup'), onInstalled: event('installed'), getURL: path => `chrome-extension://test-extension/${path}` },
   storage: { local: { get: async () => structuredClone(stored), set: async value => { stored = { ...stored, ...structuredClone(value) }; } } },
   alarms: { onAlarm: event('alarm'), clear: async key => alarms.delete(key), create: async (key, value) => alarms.set(key, value) },
   notifications: { create: async value => notices.push(value) },
-  action: { onClicked: event('action') }, tabs: { create: async () => {} }
+  action: { onClicked: event('action') }, tabs: { create: async () => {},sendMessage:async(tabId,message)=>{xpRefreshes.push({tabId,message});return {ok:true};} }
 };
 // Firefox: somente browser.* com Promises, sem depender do alias chrome.*.
 globalThis.browser = globalThis.chrome;
@@ -49,4 +50,16 @@ test('notificação respeita idioma salvo e mantém preferência ao atualizar re
   assert.equal(notices.at(-1).title,'DeadFrontier Overview');
   assert.equal(notices.at(-1).message,'The recorded timer for Speed +35% has expired.');
   assert.equal(stored.language,'en');
+});
+test('sessão de XP persiste no worker e solicita atualização pela aba responsável',async()=>{
+  const gameRequest=message=>new Promise(resolve=>listeners.message(message,{id:browser.runtime.id,tab:{id:12},url:'https://fairview.deadfrontier.com/onlinezombiemmo/index.php?page=25'},resolve));
+  await gameRequest({type:'xpContext'});
+  await gameRequest({type:'xpSnapshot',sample:{account:'123',xp:100,level:1,serverTime:1},start:true});
+  await request({type:'xpMultiplier',multiplier:2});
+  await gameRequest({type:'xpSnapshot',sample:{account:'123',xp:300,level:1,serverTime:2}});
+  assert.equal(stored.state.experience.session.gained,200);
+  assert.equal(stored.state.experience.session.baseGained,100);
+  assert.equal((await request({type:'xpRefresh'})).data.ok,true);
+  assert.equal(xpRefreshes.at(-1).tabId,12);
+  await request({type:'xpStop'});assert.equal(stored.state.experience.session.running,false);
 });

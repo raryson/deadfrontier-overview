@@ -1,0 +1,25 @@
+name: Package and release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Run tests
+        run: npm test
+      - name: Check JavaScript
+        run: npm run check
+      - name: Build reviewed installation ZIP
+        shell: pwsh
+        run: ./scripts/package.ps1
+      - name: Publish release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: gh release create "$env:GITHUB_REF_NAME" dist/deadfrontier-overview.zip dist/SHA256SUMS.txt --verify-tag --title "DeadFrontier Overview $env:GITHUB_REF_NAME" --notes-file .github/RELEASE_NOTES.md

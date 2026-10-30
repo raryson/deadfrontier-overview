@@ -1,6 +1,33 @@
 (() => {
   const chrome = globalThis.browser ?? globalThis.chrome;
   const extensionOrigin = chrome.runtime.getURL('').replace(/\/$/, '');
+  let xpContext=null, xpPending=null, xpTimeout;
+  chrome.runtime.sendMessage({type:'xpContext'}).then(result=>{xpContext=result.data;}).catch(()=>{});
+  chrome.storage.onChanged.addListener((changes,area)=>{if(area==='local' && changes.state && xpContext) xpContext.experience=changes.state.newValue?.experience;});
+  function refreshXp(start=false) {
+    if(xpPending) return Promise.resolve({error:'Aguarde a operação atual do jogo terminar.'});
+    return new Promise(resolve=>{
+      const requestId=crypto.randomUUID(); xpPending={requestId,start,resolve};
+      xpTimeout=setTimeout(()=>{xpPending=null;resolve({error:'Não foi possível atualizar a XP salva no servidor.'});},17000);
+      window.postMessage({type:'overview-xp-request',requestId},location.origin);
+    });
+  }
+  window.addEventListener('message',event=>{
+    if(event.source!==window || event.origin!==location.origin) return;
+    if(event.data?.type==='overview-server-xp') chrome.runtime.sendMessage({type:'xpSnapshot',sample:event.data.sample}).catch(()=>{});
+    if(event.data?.type==='overview-xp-result' && xpPending?.requestId===event.data.requestId) {
+      const pending=xpPending;xpPending=null;clearTimeout(xpTimeout);
+      if(event.data.sample) chrome.runtime.sendMessage({type:'xpSnapshot',sample:event.data.sample,start:pending.start}).then(result=>pending.resolve(result.error?{error:result.error}:{ok:true})).catch(()=>pending.resolve({error:'Não foi possível atualizar a XP salva no servidor.'}));
+      else pending.resolve({error:event.data.error});
+    }
+  });
+  chrome.runtime.onMessage.addListener((message,sender,reply)=>{
+    if(sender.id!==chrome.runtime.id || message?.type!=='overview-xp-refresh')return;
+    refreshXp(message.start===true).then(reply); return true;
+  });
+  setInterval(()=>{
+    if(xpContext?.experience?.session?.running && xpContext.experience.ownerTabId===xpContext.tabId) refreshXp().catch(()=>{});
+  },30000);
   window.addEventListener('message', event => {
     if (event.source !== window || event.origin !== location.origin || event.data?.type !== 'fairview-server-buffs') return;
     chrome.runtime.sendMessage({ type: 'serverSnapshot', snapshot: event.data }).catch(() => {});

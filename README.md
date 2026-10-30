@@ -2,6 +2,8 @@
 
 Addon para **Dead Frontier**, com banco rápido, acompanhamento automático de buffs e janela flutuante. Interface em **português e inglês**, com visual inspirado em ferrugem, cobre e vermelho escuro.
 
+**[Baixar ZIP pronto para instalar](https://github.com/raryson/deadfrontier-overview/releases/latest/download/deadfrontier-overview.zip)** · [Guia rápido](INSTALL.md)
+
 ![Prévia do painel com dados fictícios](docs/screenshots/overview-pt.png)
 
 ## Recursos
@@ -9,6 +11,7 @@ Addon para **Dead Frontier**, com banco rápido, acompanhamento automático de b
 - **Banco rápido:** consultar saldo, depositar tudo e sacar tudo pelo painel do inventário, mercado ou outra página da cidade.
 - **Buffs automáticos:** acompanha os prazos de EXP, dano e velocidade informados pelo jogo, com relógios separados para efeitos normais e EX.
 - **Janela flutuante:** exibe os relógios em Picture-in-Picture enquanto você usa o client.
+- **XP no overlay:** XP recebida com bônus, XP/h, XP atual, perdas e ganho líquido da sessão. XP base e base/h estimadas por um multiplicador informado pelo jogador.
 - **Ferramentas extras:** preparo de depósito mantendo uma reserva e comparação manual de ofertas por preço unitário.
 - **Idiomas:** Automático (navegador), Português ou English. A escolha manual fica salva.
 
@@ -16,11 +19,11 @@ Addon para **Dead Frontier**, com banco rápido, acompanhamento automático de b
 
 Requer **Firefox 140 ou superior**. Esta versão é instalada temporariamente para desenvolvimento e testes.
 
-1. Nesta página do GitHub, clique em **Code → Download ZIP**.
-2. Extraia o ZIP para uma pasta do seu computador. Não tente carregar a extensão de dentro do arquivo compactado.
+1. Baixe o [ZIP pronto da versão mais recente](https://github.com/raryson/deadfrontier-overview/releases/latest/download/deadfrontier-overview.zip).
+2. Guarde o arquivo. Para o pacote de release, não é necessário extrair no Firefox.
 3. Abra o Firefox e digite `about:debugging#/runtime/this-firefox` na barra de endereços.
 4. Clique em **Carregar extensão temporária…** / **Load Temporary Add-on…**.
-5. Na pasta extraída, selecione o arquivo **`manifest.json`**. Ele fica junto de `dashboard.html`, `background.js` e deste README.
+5. Selecione o próprio arquivo **`deadfrontier-overview.zip`**. Se preferir extrair, selecione **`manifest.json`** na pasta extraída.
 6. Abra ou recarregue [Dead Frontier](https://fairview.deadfrontier.com/onlinezombiemmo/index.php) e entre normalmente na sua conta pelo jogo.
 7. Clique em **◈ DeadFrontier Overview**, no canto inferior direito da página.
 
@@ -32,7 +35,7 @@ Não é necessário executar o instalador do jogo, instalar Node.js ou rodar com
 
 Use uma versão atual do Chrome.
 
-1. Baixe e extraia o ZIP como nos passos 1 e 2 acima.
+1. Baixe o [ZIP pronto](https://github.com/raryson/deadfrontier-overview/releases/latest/download/deadfrontier-overview.zip) e extraia para uma pasta.
 2. Abra `chrome://extensions`.
 3. Ative **Modo do desenvolvedor** / **Developer mode**.
 4. Clique em **Carregar sem compactação** / **Load unpacked**.
@@ -83,6 +86,18 @@ O seletor **Idioma / Language** fica no topo. **Automático** segue a ordem de p
 
 Nomes oficiais dos itens permanecem como no jogo para facilitar sua identificação.
 
+### XP da sessão e XP por hora
+
+1. Mantenha uma página do jogo aberta e clique **Atualizar XP**.
+2. Para estimar a XP sem bônus, abra **Configurar estimativa sem bônus** e informe o **multiplicador efetivo de XP**. Por exemplo, um bônus efetivo total de +100% equivale a 2×. Inclua alimentação, profissão, eventos e equipamentos no fator.
+3. Clique **Iniciar sessão** para registrar uma leitura inicial. A XP que o personagem já possuía não entra nos ganhos da sessão.
+4. Abra a janela flutuante. Ela mostra XP recebida com bônus e XP/h, além de XP base e base/h estimadas quando houver fator configurado.
+5. Ao mudar de bônus, ajuste o multiplicador. O novo fator vale para os próximos intervalos; não reescreve as estimativas anteriores. Intervalos sem fator são marcados como estimativa parcial.
+
+**A XP base é uma estimativa, não um valor separado lido do servidor.** A XP recebida vem de diferenças nas leituras de XP do personagem e pode incluir várias fontes, não apenas combate. Perdas e ganho líquido ficam separados. Mudanças de nível são tratadas pela tabela de XP quando disponível; lacunas são indicadas em vez de gerar ganhos inventados.
+
+Durante uma sessão ativa, o addon faz uma consulta somente de leitura a cada aproximadamente 30 segundos pela aba do jogo. A XP exibida é a que já foi salva no servidor: o client pode demorar para salvar. A hora da última leitura e dados antigos aparecem no painel. Fechar a aba que acompanha a sessão ou reiniciar o navegador encerra essa medição. **Parar** congela os resultados; **Zerar sessão** descarta os totais da sessão.
+
 ## Privacidade
 
 - Sem serviço externo, analytics ou envio de dados ao GitHub durante o uso.
@@ -110,13 +125,15 @@ npm test
 npm run check
 ```
 
+Para gerar o ZIP com uma lista explícita de arquivos, execute `./scripts/package.ps1` no PowerShell. O resultado fica em `dist/`, que é ignorado pelo Git. Tags `vX.Y.Z` com a mesma versão do manifesto acionam testes e publicam o ZIP e seu SHA-256 em GitHub Releases. O pacote não contém capturas, testes, perfis ou arquivos temporários.
+
 Os testes cobrem timers, sincronização, EX, idioma, notificações, serialização bancária, sessão, erros e prevenção de repetição automática. Testes simulados não substituem a validação no servidor real. Detalhes em [docs/integration.md](docs/integration.md).
 
 Fontes do catálogo: [Drugs](https://deadfrontier.fandom.com/wiki/Drugs), [Food](https://deadfrontier.fandom.com/wiki/Food) e [Medication & Repair Kits](https://deadfrontier.fandom.com/wiki/Medication_%26_Repair_Kits). Confira o tooltip do jogo caso haja divergência com a wiki.
 
 ## English: installation
 
-**Firefox 140+:** download **Code → Download ZIP**, extract it, open `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on…**, and select `manifest.json` from the extracted folder. Reload Dead Frontier and click **◈ DeadFrontier Overview** at the bottom right. Temporary installations end when Firefox restarts; load the manifest again. A permanent installation requires Mozilla signing.
+**Firefox 140+:** download the [ready-to-install ZIP](https://github.com/raryson/deadfrontier-overview/releases/latest/download/deadfrontier-overview.zip), open `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on…**, and select the ZIP directly (or `manifest.json` if extracted). Reload Dead Frontier and click **◈ DeadFrontier Overview** at the bottom right. Temporary installations end when Firefox restarts; load the ZIP again. A permanent installation requires Mozilla signing.
 
 **Chrome:** extract the ZIP, open `chrome://extensions`, enable **Developer mode**, click **Load unpacked**, and choose the folder containing `manifest.json`. Reload the game page. Firefox is the browser used for live validation; full Chrome validation is still pending.
 

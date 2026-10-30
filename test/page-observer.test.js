@@ -48,3 +48,11 @@ test('fetch preserva a Promise e lê somente a cópia da resposta', async () => 
   assert.equal(cloned,1); assert.equal(messages.length,1); assert.equal(messages[0].item,'freshherbs');
   assert.ok(!JSON.stringify(messages).includes('SECRET'));
 });
+test('leitura de XP publica somente XP permitida e não cria um pacote de buffs incompleto',()=>{
+  const h=harness();
+  vm.runInNewContext(fs.readFileSync(new URL('../xp-protocol.js',import.meta.url),'utf8'),h.context);
+  const xhr=new h.XHR();xhr.open('POST','get_values.php');xhr.send('password=SECRET');
+  xhr.respond('df_exp=100&df_level=1&df_servertime=590000000&password=SECRET');
+  assert.equal(h.messages.length,1);assert.equal(h.messages[0].type,'overview-server-xp');
+  assert.equal(h.messages[0].sample.xp,100);assert.ok(!JSON.stringify(h.messages).includes('SECRET'));
+});

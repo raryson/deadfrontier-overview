@@ -1,6 +1,7 @@
 import { catalog, effects } from './catalog.js';
 import { duration, remaining } from './core.js';
 import { t as translate, resolveLanguage, localeFor, effectLabel, translateMessage } from './i18n.js';
+import {experienceStats} from './experience.js';
 const chrome = globalThis.browser ?? globalThis.chrome;
 let languagePreference = (await chrome.storage.local.get('language')).language ?? 'auto';
 let language = resolveLanguage(languagePreference, navigator.languages ?? [navigator.language]);
@@ -66,6 +67,7 @@ function renderTimers() {
 }
 function render() {
   renderTimers();
+  renderExperience();
   $('quotes').replaceChildren();
   for (const quote of state.quotes) {
     const row = document.createElement('div'); row.className = 'quote';
@@ -74,6 +76,43 @@ function render() {
     row.append(name, detail); $('quotes').append(row);
   }
 }
+function renderExperience() {
+  const xp=state.experience, stats=experienceStats(xp);
+  $('xp-mode').textContent=t(xp?.session?.running?'xpRunning':'xpStopped');
+  $('xp-gained').textContent=xp?.session?money(stats.gained):'—';
+  $('xp-rate').textContent=xp?.session?money(Math.round(stats.perHour)):'—';
+  const baseAvailable=xp?.session && (xp.multiplier || stats.baseGained>0);
+  $('xp-base').textContent=baseAvailable?money(Math.round(stats.baseGained)):'—';
+  $('xp-base-rate').textContent=baseAvailable?money(Math.round(stats.basePerHour)):'—';
+  $('xp-net').textContent=xp?.session?t('xpNet',{net:money(stats.net),lost:money(stats.lost)}):'';
+  $('xp-base-note').textContent=stats.basePartial?t('xpBasePartial'):xp?.multiplier?t('xpBaseFactor',{factor:new Intl.NumberFormat(localeFor(language),{maximumFractionDigits:4}).format(xp.multiplier)}):t('xpBaseMissing');
+  if(document.activeElement!==$('xp-multiplier')) $('xp-multiplier').value=xp?.multiplier??'';
+  $('xp-current').textContent=xp?.latest?t('xpCurrent',{level:xp.latest.level,xp:money(xp.latest.xp),target:xp.latest.nextLevelXp===null?'—':money(xp.latest.nextLevelXp)}):t('xpNoSample');
+  $('xp-updated').textContent=xp?.latest?t(stats.stale?'xpStale':'xpUpdated',{time:new Date(xp.latest.receivedAt).toLocaleTimeString(localeFor(language)),elapsed:duration(stats.elapsed)}):t('xpNoSample');
+  if(xp?.session?.gap) $('xp-updated').textContent+=` ${t('xpGap')}`;
+  $('xp-start').disabled=xp?.session?.running===true;
+  $('xp-stop').disabled=!xp?.session?.running;
+}
+async function refreshExperience(start=false) {
+  const result=await request({type:'xpRefresh',start});
+  if(result?.error) throw Error(result.error);
+  status(t('xpRefreshed'));
+}
+$('xp-start').onclick=handle(()=>refreshExperience(true));
+$('xp-refresh').onclick=handle(()=>refreshExperience());
+$('xp-stop').onclick=handle(async()=>{
+  let refreshError;
+  try {await refreshExperience();} catch(error){refreshError=error;}
+  state=await request({type:'xpStop'});render();
+  if(refreshError)status(refreshError.message);
+});
+$('xp-reset').onclick=handle(async()=>{state=await request({type:'xpReset'});render();});
+$('xp-multiplier-form').onsubmit=handle(async()=>{
+  const raw=$('xp-multiplier').value;
+  // Close the previous observation interval before changing its assumed factor.
+  if(state.experience?.session?.running) await refreshExperience();
+  state=await request({type:'xpMultiplier',multiplier:raw===''?null:Number(raw)});render();
+});
 $('buff-form').onsubmit = handle(async () => { state = await request({ type: 'add', id: $('item').value }); render(); status(t('logged')); });
 $('custom-form').onsubmit = handle(async () => { state = await request({ type: 'custom', channel: $('channel').value, minutes: $('minutes').value }); render(); });
 $('pause').onclick = handle(async () => { state = await request({ type: 'pause' }); render(); });
@@ -135,7 +174,7 @@ $('quote-form').onsubmit = handle(async () => { state = await request({ type: 'q
 $('clear-quotes').onclick = handle(async () => { state = await request({ type: 'clearQuotes' }); render(); });
 
 // Vídeo local: Firefox abre PiP pelos controles nativos do vídeo.
-const canvas = document.createElement('canvas'); canvas.width = 520; canvas.height = 380;
+const canvas = document.createElement('canvas'); canvas.width = 520; canvas.height = 535;
 const context = canvas.getContext('2d');
 const video = document.createElement('video'); video.muted = true; video.playsInline = true;
 video.setAttribute('aria-hidden','true');
@@ -143,13 +182,23 @@ video.style.cssText = 'position:fixed;width:1px;height:1px;bottom:0;pointer-even
 document.body.append(video);
 let stream;
 function paint() {
-  context.fillStyle = '#17110f'; context.fillRect(0, 0, 520, 380);
+  context.fillStyle = '#17110f'; context.fillRect(0, 0, 520, 535);
   context.fillStyle = '#e88d43'; context.fillRect(0,0,520,3); context.font = 'bold 21px Segoe UI'; context.fillText('DeadFrontier Overview', 22, 34);
   context.font = '13px Segoe UI'; context.fillText(t(state.paused ? 'pipPaused' : state.auto ? 'pipSync' : 'pipManual'), 22, 57);
+  const stats=experienceStats(state.experience);
+  context.fillStyle='#bba391';context.font='13px Segoe UI';context.fillText(t('xpGained'),22,86);context.fillText(t('xpRate'),285,86);
+  context.fillStyle='#f2c18d';context.font='bold 23px monospace';context.fillText(state.experience?.session?money(stats.gained):'—',22,112,235);context.fillText(state.experience?.session?money(Math.round(stats.perHour)):'—',285,112,213);
+  context.fillStyle='#bba391';context.font='12px Segoe UI';context.fillText(t('xpBase'),22,138);context.fillText(t('xpBaseRate'),285,138);
+  const baseAvailable=state.experience?.session && (state.experience.multiplier || stats.baseGained>0);
+  context.fillStyle='#d6a279';context.font='bold 21px monospace';context.fillText(baseAvailable?money(Math.round(stats.baseGained)):'—',22,163,235);context.fillText(baseAvailable?money(Math.round(stats.basePerHour)):'—',285,163,213);
+  context.fillStyle='#bba391';context.font='12px Segoe UI';
+  context.fillText(state.experience?.latest?t(stats.stale?'xpStaleShort':'xpCurrentShort',{xp:money(state.experience.latest.xp)}):t('xpNoSample'),22,190);
+  if(stats.basePartial) context.fillText(t('xpBasePartialShort'),22,207);
+  context.fillStyle='#503629';context.fillRect(22,220,476,1);
   Object.entries(effects).forEach(([key, label], index) => {
     const timer = state.timers[key];
-    context.fillStyle = '#e9dfd5'; context.font = '18px Segoe UI'; context.fillText(effectLabel(key,language), 22, 100 + index * 48);
-    context.font = 'bold 27px monospace'; context.fillText(timer ? duration(remaining(timer, Date.now(), state.paused)) : '—', 330, 100 + index * 48);
+    context.fillStyle = '#e9dfd5'; context.font = '18px Segoe UI'; context.fillText(effectLabel(key,language), 22, 245 + index * 48);
+    context.font = 'bold 27px monospace'; context.fillText(timer ? duration(remaining(timer, Date.now(), state.paused)) : '—', 330, 245 + index * 48);
   });
 }
 $('floating').onclick = handle(async () => {
@@ -199,6 +248,6 @@ setInterval(() => {
     const timer = state.timers[key]; const row = $('timers').querySelector(`[data-channel="${key}"]`);
     if (row && timer) { const left = remaining(timer, Date.now(), state.paused); row.querySelector('strong').textContent = duration(left); row.classList.toggle('expired', !left); }
   }
-  paint();
+  renderExperience();paint();
 }, 1000);
 try { state = await request({ type: 'read' }); render(); } catch (error) { status(t('dataError',{error:translateMessage(error.message,language)})); }

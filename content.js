@@ -26,7 +26,7 @@
     refreshXp(message.start===true).then(reply); return true;
   });
   setInterval(()=>{
-    if(xpContext?.experience?.session?.running && xpContext.experience.ownerTabId===xpContext.tabId) refreshXp().catch(()=>{});
+    if(xpContext?.experience?.session?.running && !xpContext.experience.capture?.active && xpContext.experience.ownerTabId===xpContext.tabId) refreshXp().catch(()=>{});
   },30000);
   window.addEventListener('message', event => {
     if (event.source !== window || event.origin !== location.origin || event.data?.type !== 'fairview-server-buffs') return;

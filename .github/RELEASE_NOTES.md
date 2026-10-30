@@ -10,6 +10,10 @@ Download **deadfrontier-overview.zip**, extract it, and follow **INSTALL.md**. T
 
 ## XP no overlay / Overlay XP
 
-XP recebida com bônus, XP/h, XP atual, perdas e ganho líquido. XP base e base/h são estimativas por multiplicador efetivo informado pelo jogador. A leitura usa os dados salvos pelo jogo no servidor, com possível atraso do client.
+Correção da fonte de XP: agora lê a linha LV/XP da janela do client por OCR local. Abra a extensão em uma aba independente, clique **Conectar janela do client**, selecione a janela do jogo e confira a prévia antes de iniciar a sessão. Se necessário, ajuste o recorte. Mantenha a aba aberta. Valores em K têm precisão aproximada de 1.000 XP. XP base e base/h continuam sendo estimativas pelo multiplicador efetivo informado.
 
-Received XP with bonuses, XP/hour, current XP, losses and net gain. Base XP and base/hour are estimates based on an effective multiplier provided by the player. Readings use server-saved game data and may lag behind the client.
+Live XP now uses local OCR of the client's LV/XP line. Open the extension in its own tab, click **Connect client window**, choose the game window and verify the preview before starting. Adjust the crop if needed. Keep the tab open. K values have roughly 1,000 XP precision. Base XP and base/hour remain estimates based on your effective multiplier.
+
+Frames são processados em memória, sem gravação, upload ou áudio. O motor e o modelo de OCR estão incluídos no ZIP. O navegador pede autorização para escolher a janela; **Parar captura** encerra o compartilhamento. O teste de leitura no navegador passou com um recorte privado do HUD; a captura contínua no Firefox precisa ser conferida no client pelo usuário.
+
+Frames stay in memory: no recording, uploads or audio. The OCR engine and model are bundled. The browser asks you to choose a window; **Stop capture** releases it. Browser OCR was checked against a private HUD crop; continuous Firefox capture still needs live client validation.

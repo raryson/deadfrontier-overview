@@ -2,6 +2,7 @@ import { catalog, effects } from './catalog.js';
 import { duration, remaining } from './core.js';
 import { t as translate, resolveLanguage, localeFor, effectLabel, translateMessage } from './i18n.js';
 import {experienceStats} from './experience.js';
+import {createCaptureController} from './capture-controller.js';
 const chrome = globalThis.browser ?? globalThis.chrome;
 let languagePreference = (await chrome.storage.local.get('language')).language ?? 'auto';
 let language = resolveLanguage(languagePreference, navigator.languages ?? [navigator.language]);
@@ -78,7 +79,7 @@ function render() {
 }
 function renderExperience() {
   const xp=state.experience, stats=experienceStats(xp);
-  $('xp-mode').textContent=t(xp?.session?.running?'xpRunning':'xpStopped');
+  $('xp-mode').textContent=xp?.capture?.active?t(xp?.session?.running?'ocrRunning':'ocrReady'):t('xpStopped');
   $('xp-gained').textContent=xp?.session?money(stats.gained):'—';
   $('xp-rate').textContent=xp?.session?money(Math.round(stats.perHour)):'—';
   const baseAvailable=xp?.session && (xp.multiplier || stats.baseGained>0);
@@ -90,10 +91,50 @@ function renderExperience() {
   $('xp-current').textContent=xp?.latest?t('xpCurrent',{level:xp.latest.level,xp:money(xp.latest.xp),target:xp.latest.nextLevelXp===null?'—':money(xp.latest.nextLevelXp)}):t('xpNoSample');
   $('xp-updated').textContent=xp?.latest?t(stats.stale?'xpStale':'xpUpdated',{time:new Date(xp.latest.receivedAt).toLocaleTimeString(localeFor(language)),elapsed:duration(stats.elapsed)}):t('xpNoSample');
   if(xp?.session?.gap) $('xp-updated').textContent+=` ${t('xpGap')}`;
-  $('xp-start').disabled=xp?.session?.running===true;
+  $('xp-start').disabled=xp?.session?.running===true||!xp?.capture?.active||xp.latest?.source!=='ocr'||stats.stale;
   $('xp-stop').disabled=!xp?.session?.running;
+  $('ocr-connect').disabled=xp?.capture?.active===true||capture.active;
+  $('ocr-disconnect').disabled=!capture.active;
+  $('xp-refresh').textContent=t(xp?.capture?.active?'ocrRefresh':'xpRefresh');
+  $('xp-source-hint').textContent=t('ocrSourceHint');
+  $('ocr-precision').textContent=xp?.latest?.source==='ocr'?t('ocrPrecision',{step:money(xp.latest.precision??1)}):'';
 }
+let ocrStatusKey='ocrNeedCapture';
+const capture=createCaptureController({
+  preview:$('ocr-preview'),crop:$('ocr-crop-preview'),
+  onBegin:async()=>{state=await request({type:'ocrBegin'});render();return state.experience.capture.id;},
+  onEnd:async()=>{state=await request({type:'ocrEnd'});render();},
+  onSample:async(sample,captureId)=>{state=await request({type:'ocrSnapshot',sample,captureId});render();},
+  onRegionChange:async()=>{state=await request({type:'ocrRecalibrate'});render();},
+  onStatus:key=>{
+    if(ocrStatusKey!==key){ocrStatusKey=key;$('ocr-status').textContent=t(key);}
+    $('ocr-calibration').hidden=!capture.active;
+    renderExperience();
+  },
+  onCandidate:(sample,confidence)=>{
+    $('ocr-readout').textContent=sample?t('ocrReadout',{level:sample.level,xp:money(sample.xp),target:money(sample.nextLevelXp),confidence}):t('ocrUnreadable');
+  },
+  loadRegion:async()=>(await chrome.storage.local.get('ocrRegion')).ocrRegion,
+  saveRegion:region=>chrome.storage.local.set({ocrRegion:region}),
+});
+async function connectOcr() {
+  if(window.parent!==window) {
+    await chrome.tabs.create({url:chrome.runtime.getURL('dashboard.html?capture=1')});status(t('ocrOpenTab'));return;
+  }
+  if(!state.experience?.latest?.account&&!state.auto?.account)throw Error(t('ocrIdentify'));
+  $('ocr-calibration').open=true;
+  await capture.start();
+}
+$('ocr-connect').onclick=handle(connectOcr);
+$('ocr-disconnect').onclick=handle(()=>capture.stop());
+$('ocr-default').onclick=handle(()=>capture.resetRegion());
 async function refreshExperience(start=false) {
+  if(state.experience?.capture?.active) {
+    if(capture.active)await capture.readNow();
+    if(start){state=await request({type:'ocrStart'});render();}
+    return;
+  }
+  if(start)throw Error(t('ocrConnectFirst'));
   const result=await request({type:'xpRefresh',start});
   if(result?.error) throw Error(result.error);
   status(t('xpRefreshed'));
@@ -192,7 +233,7 @@ function paint() {
   const baseAvailable=state.experience?.session && (state.experience.multiplier || stats.baseGained>0);
   context.fillStyle='#d6a279';context.font='bold 21px monospace';context.fillText(baseAvailable?money(Math.round(stats.baseGained)):'—',22,163,235);context.fillText(baseAvailable?money(Math.round(stats.basePerHour)):'—',285,163,213);
   context.fillStyle='#bba391';context.font='12px Segoe UI';
-  context.fillText(state.experience?.latest?t(stats.stale?'xpStaleShort':'xpCurrentShort',{xp:money(state.experience.latest.xp)}):t('xpNoSample'),22,190);
+  context.fillText(state.experience?.latest?t(stats.stale?'xpStaleShort':state.experience.latest.source==='ocr'?'ocrCurrentShort':'xpCurrentShort',{xp:money(state.experience.latest.xp)}):t('xpNoSample'),22,190);
   if(stats.basePartial) context.fillText(t('xpBasePartialShort'),22,207);
   context.fillStyle='#503629';context.fillRect(22,220,476,1);
   Object.entries(effects).forEach(([key, label], index) => {
@@ -223,7 +264,7 @@ $('floating').onclick = handle(async () => {
     status(t('firefoxPip'));
   }
 });
-window.addEventListener('pagehide', () => stream?.getTracks().forEach(track => track.stop()));
+window.addEventListener('pagehide', () => {stream?.getTracks().forEach(track => track.stop());capture.stop().catch(()=>{});});
 function refreshLanguage() {
   language = resolveLanguage(languagePreference,navigator.languages ?? [navigator.language]);
   localizePage(); render(); readCash.textContent=t('readCash');
@@ -231,6 +272,7 @@ function refreshLanguage() {
   if(deposit !== null) $('deposit-result').textContent=`$${money(deposit)}`;
   if(lastBankFeedback) $('bank-feedback').textContent=feedbackText(lastBankFeedback);
   $('status').style.display='none'; paint();
+  $('ocr-status').textContent=t(ocrStatusKey);
 }
 $('language').onchange = handle(async()=>{
   languagePreference=$('language').value;

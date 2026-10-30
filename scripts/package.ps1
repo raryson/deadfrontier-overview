@@ -9,10 +9,13 @@ $archivePath = Join-Path $outputDirectory 'deadfrontier-overview.zip'
 # Explicit allowlist: no profiles, screenshots, test fixtures or local secrets.
 $packageFiles = @(
   'manifest.json', 'background.js', 'bank-request.js', 'catalog.js', 'content.js',
-  'core.js', 'dashboard.html', 'dashboard.js', 'experience.js', 'i18n.js', 'icon.png',
+  'core.js', 'dashboard.html', 'dashboard.js', 'experience.js', 'i18n.js', 'icon.png', 'capture-controller.js', 'ocr-parser.js',
   'page-observer.js', 'server-sync.js', 'styles.css', 'xp-protocol.js', 'xp-request.js',
   '_locales/en/messages.json', '_locales/pt/messages.json', 'INSTALL.md'
 )
+$ocrAssets = @('tesseract.esm.min.js','worker.min.js','eng.traineddata.gz','TESSERACT-LICENSE','CORE-LICENSE','bundle.LICENSE.txt','worker.LICENSE.txt','README.md')
+foreach ($ocrAsset in $ocrAssets) { $packageFiles += "vendor/ocr/$ocrAsset" }
+foreach ($ocrCore in @(Get-ChildItem -LiteralPath (Join-Path $repositoryRoot 'vendor/ocr') -Filter 'tesseract-core*.wasm.js' -File)) { $packageFiles += "vendor/ocr/$($ocrCore.Name)" }
 Add-Type -AssemblyName System.IO.Compression
 $archiveStream = [System.IO.File]::Open($archivePath, [System.IO.FileMode]::Create)
 $archive = [System.IO.Compression.ZipArchive]::new($archiveStream, [System.IO.Compression.ZipArchiveMode]::Create)

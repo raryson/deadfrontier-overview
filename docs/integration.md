@@ -12,6 +12,8 @@
 | `dashboard.js` | Interface, idioma e vídeo local dos relógios para PiP. |
 | `i18n.js` | Textos PT/EN, preferência de idioma e formatação. |
 | `experience.js` | Sessão de XP, perdas, taxas e estimativas sem bônus por intervalo. |
+| `capture-controller.js` | Captura autorizada por getDisplayMedia, recorte em memória e worker OCR local. |
+| `ocr-parser.js` | Interpreta LV/XP, precisão e confirmação de leituras do HUD. |
 | `xp-protocol.js` / `xp-request.js` | Extração limitada de XP e consulta somente de leitura a `get_values.php`. |
 
 ## Rotas observadas
@@ -43,7 +45,13 @@ Uma confirmação exige HTTP 200, endpoint final correspondente, ausência de st
 
 ## Validação e dados publicados
 
-A XP é amostrada do estado inicial e das respostas de `get_values.php`, com consultas a cada ~30 s somente enquanto uma sessão está ativa e sua aba responsável permanece aberta. Não há leitura do client. Os limites de nível vêm das chaves `EXPTABLE_exp_lvlN` disponíveis no jogo; se faltarem, saltos de nível são marcados como lacuna. Perdas de XP são separadas dos ganhos. A XP base é estimada apenas para intervalos com multiplicador configurado pelo jogador; não é inferida apenas pelo buff de EXP de +50%.
+A cidade fornece XP salva, que não serve como fonte ao vivo do client separado. Desde 0.7, iniciar uma sessão exige captura visual autorizada pelo seletor getDisplayMedia em uma aba independente da extensão. O worker Tesseract e o modelo de idioma são locais e empacotados; a CSP permite WebAssembly local e bloqueia conexões externas. Não há áudio, upload, gravação, leitura de memória ou interceptação do executável.
+
+O recorte da linha LV/XP recebe contraste e ampliação em canvas, com amostragem serial a cada ~2 s. O parser valida nível, XP e escala K/M/B. Duas leituras confirmam a referência inicial; perdas, saltos grandes e mudanças de nível exigem confirmação. Leituras antigas e de baixa confiança não geram ganhos. K tem precisão de 1.000 XP. A tabela de nível da cidade complementa a transição de nível; lacunas são sinalizadas. XP base usa o fator efetivo manual por intervalo.
+
+Cada captura pertence à aba que a criou, com identificador aleatório de sessão; mensagens de outras abas não podem fornecer amostras. Captura ativa ignora amostras do servidor para não misturar precisões e fontes. Fechar a aba, atualizar a extensão ou reiniciar o navegador encerra a sessão. Trocar o recorte descarta a referência e os totais. Só números de XP e coordenadas são persistidos, nunca frames ou texto bruto do OCR.
+
+O OCR foi testado no navegador com um recorte privado do HUD; esse arquivo fica fora do Git. A escolha da janela e o acompanhamento contínuo no Firefox ainda precisam ser conferidos com o client aberto pelo usuário.
 
 O pacote de instalação usa uma lista explícita de arquivos em `scripts/package.ps1`. A automação de release não usa credenciais da conta do jogo e recebe apenas o token efêmero do GitHub Actions para publicar os assets.
 

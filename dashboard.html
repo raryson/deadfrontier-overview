@@ -3,7 +3,7 @@
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>DeadFrontier Overview</title><link rel="stylesheet" href="styles.css"></head>
 <body>
 <main>
-  <header><div><span class="eyebrow">DEAD FRONTIER</span><h1>DeadFrontier <span>Overview</span></h1></div><div class="header-controls"><span class="version">0.6.0</span><label for="language" data-i18n="language">Idioma</label><select id="language"><option value="auto" data-i18n="auto">Automático (navegador)</option><option value="pt">Português</option><option value="en">English</option></select></div></header>
+  <header><div><span class="eyebrow">DEAD FRONTIER</span><h1>DeadFrontier <span>Overview</span></h1></div><div class="header-controls"><span class="version">0.7.0</span><label for="language" data-i18n="language">Idioma</label><select id="language"><option value="auto" data-i18n="auto">Automático (navegador)</option><option value="pt">Português</option><option value="en">English</option></select></div></header>
 
   <section class="bank-section" aria-labelledby="bank-title">
     <div class="heading"><h2 id="bank-title" data-i18n="bankTitle">Banco rápido</h2><span class="section-tag" data-i18n="city">CIDADE</span></div>
@@ -27,11 +27,16 @@
 
   <section class="xp-section" aria-labelledby="xp-title">
     <div class="heading"><h2 id="xp-title" data-i18n="xpTitle">XP da sessão</h2><span id="xp-mode" class="badge">—</span></div>
+    <div class="actions"><button id="ocr-connect" class="primary" data-i18n="ocrConnect">Conectar janela do client</button><button id="ocr-disconnect" data-i18n="ocrDisconnect" disabled>Parar captura</button></div>
+    <p id="ocr-status" class="muted" role="status" data-i18n="ocrNeedCapture">Conecte a janela do jogo para ler a XP ao vivo.</p>
+    <p class="muted" data-i18n="ocrPrivacy">OCR local: sem áudio, gravação ou envio de imagens. Você escolhe a janela pelo navegador.</p>
+    <details id="ocr-calibration" hidden><summary data-i18n="ocrCalibration">Ajustar área de leitura</summary><p class="muted" data-i18n="ocrCropHint">Arraste um retângulo apenas sobre a linha LV e XP do HUD. Confira os números lidos antes de iniciar a sessão. Ajustar a área zera a sessão.</p><canvas id="ocr-preview" role="img" aria-label="Capture preview"></canvas><p class="muted" data-i18n="ocrCropLabel">Recorte processado</p><canvas id="ocr-crop-preview" role="img" aria-label="XP crop"></canvas><p id="ocr-readout" class="muted">—</p><button id="ocr-default" class="text-button" data-i18n="ocrDefault">Restaurar área padrão</button></details>
+    <p id="ocr-precision" class="muted">—</p>
     <div class="xp-metrics"><div><span data-i18n="xpGained">XP recebida</span><strong id="xp-gained">—</strong></div><div><span data-i18n="xpRate">XP / hora</span><strong id="xp-rate">—</strong></div><div><span data-i18n="xpBase">XP base estimada</span><strong id="xp-base">—</strong></div><div><span data-i18n="xpBaseRate">Base / hora estimada</span><strong id="xp-base-rate">—</strong></div></div>
     <p id="xp-base-note" class="muted">—</p><p id="xp-current" class="muted">—</p><p id="xp-net" class="muted">—</p><p id="xp-updated" class="muted">—</p>
     <div class="actions"><button id="xp-start" class="primary" data-i18n="xpStart">Iniciar sessão</button><button id="xp-stop" data-i18n="xpStop">Parar</button></div>
     <div class="actions xp-secondary"><button id="xp-refresh" class="text-button" data-i18n="xpRefresh">Atualizar XP</button><button id="xp-reset" class="text-button" data-i18n="xpReset">Zerar sessão</button></div>
-    <p class="muted" data-i18n="xpHint">Usa a XP salva no servidor. Durante a sessão, consulta a cada ~30 s enquanto a página do jogo fica aberta. O client pode demorar a salvar.</p>
+    <p id="xp-source-hint" class="muted" data-i18n="ocrSourceHint">A medição durante a partida usa a captura do client. A consulta da cidade não é uma leitura ao vivo do executável.</p>
     <details><summary data-i18n="xpBaseSetup">Configurar estimativa sem bônus</summary><p class="muted" data-i18n="xpBaseHint">Informe o multiplicador efetivo incluindo alimentação, profissão, eventos e equipamentos. Base estimada = XP recebida ÷ multiplicador. Alterações valem para as próximas leituras.</p><form id="xp-multiplier-form"><label for="xp-multiplier" data-i18n="xpMultiplier">Multiplicador efetivo de XP (×)</label><input id="xp-multiplier" type="number" min="0.001" max="1000" step="any" placeholder="4.2"><button data-i18n="xpApplyMultiplier">Aplicar multiplicador</button></form></details>
   </section>
   <div class="secondary-label" data-i18n="tools">OUTRAS FERRAMENTAS</div>

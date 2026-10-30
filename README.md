@@ -78,7 +78,7 @@ Os relógios continuam contando durante o fechamento da aba ou do jogo. As notif
 3. No Firefox, um vídeo local dos relógios aparece no painel. Clique com o botão direito nele e escolha **Picture-in-Picture**. No Chrome, o botão usa a API de PiP quando disponível.
 4. Mantenha essa aba aberta. Use o client em modo janela ou sem bordas: tela cheia exclusiva pode cobrir a janela.
 
-O vídeo é gerado localmente com os relógios. Não captura sua tela nem sua câmera.
+O vídeo do overlay é gerado localmente com os relógios e as métricas. A captura da janela do jogo para ler XP é uma função separada, iniciada pelo botão **Conectar janela do client**.
 
 ### Idioma
 
@@ -88,19 +88,23 @@ Nomes oficiais dos itens permanecem como no jogo para facilitar sua identificaç
 
 ### XP da sessão e XP por hora
 
-1. Mantenha uma página do jogo aberta e clique **Atualizar XP**.
-2. Para estimar a XP sem bônus, abra **Configurar estimativa sem bônus** e informe o **multiplicador efetivo de XP**. Por exemplo, um bônus efetivo total de +100% equivale a 2×. Inclua alimentação, profissão, eventos e equipamentos no fator.
-3. Clique **Iniciar sessão** para registrar uma leitura inicial. A XP que o personagem já possuía não entra nos ganhos da sessão.
-4. Abra a janela flutuante. Ela mostra XP recebida com bônus e XP/h, além de XP base e base/h estimadas quando houver fator configurado.
-5. Ao mudar de bônus, ajuste o multiplicador. O novo fator vale para os próximos intervalos; não reescreve as estimativas anteriores. Intervalos sem fator são marcados como estimativa parcial.
+1. Abra uma página da cidade para identificar o personagem. Abra o painel em uma **aba independente**, pelo ícone da extensão.
+2. Com o client aberto, clique **Conectar janela do client** e selecione a janela do jogo no seletor de compartilhamento do navegador.
+3. Confira a leitura na prévia. Se necessário, arraste um retângulo em volta da linha **LV + XP atual / XP necessária**, no canto superior esquerdo. Alterar o recorte zera a sessão para evitar comparar áreas diferentes.
+4. Espere a leitura estabilizar e confira se os números correspondem ao HUD. Clique **Iniciar sessão**: a XP anterior não entra nos ganhos.
+5. Para estimar XP sem bônus, abra **Configurar estimativa sem bônus** e informe o **multiplicador efetivo de XP**. Um bônus efetivo total de +100% equivale a 2×. Inclua alimentação, profissão, eventos e equipamentos no fator.
+6. Abra a janela flutuante para ver XP recebida, XP/h e estimativas sem bônus. Ao mudar de bônus, ajuste o multiplicador; o novo fator vale para os próximos intervalos. Intervalos sem fator ficam marcados como estimativa parcial.
 
 **A XP base é uma estimativa, não um valor separado lido do servidor.** A XP recebida vem de diferenças nas leituras de XP do personagem e pode incluir várias fontes, não apenas combate. Perdas e ganho líquido ficam separados. Mudanças de nível são tratadas pela tabela de XP quando disponível; lacunas são indicadas em vez de gerar ganhos inventados.
 
-Durante uma sessão ativa, o addon faz uma consulta somente de leitura a cada aproximadamente 30 segundos pela aba do jogo. A XP exibida é a que já foi salva no servidor: o client pode demorar para salvar. A hora da última leitura e dados antigos aparecem no painel. Fechar a aba que acompanha a sessão ou reiniciar o navegador encerra essa medição. **Parar** congela os resultados; **Zerar sessão** descarta os totais da sessão.
+A XP ao vivo vem de **OCR local da janela do client**, com leituras a cada aproximadamente 2 segundos. Consultar a cidade fornece somente XP salva e não acompanha o combate em tempo real. Quando o HUD mostra `K`, a precisão é de aproximadamente 1.000 XP; valores e taxas são aproximados. Leituras instáveis ou antigas são sinalizadas. A janela precisa continuar renderizando o HUD; minimizá-la pode interromper a atualização. Em outras resoluções, escala do Windows ou modo janela, ajuste o recorte.
+
+Mantenha a aba de captura aberta. **Parar** congela a sessão, mas mantém a leitura disponível. **Parar captura**, fechar a aba ou interromper o compartilhamento encerra a captura e a medição. **Zerar sessão** descarta os totais. O navegador solicita uma nova seleção da janela a cada conexão.
 
 ## Privacidade
 
 - Sem serviço externo, analytics ou envio de dados ao GitHub durante o uso.
+- OCR, modelo de idioma e WebAssembly vêm no pacote. Frames são processados em memória neste computador, sem gravação, upload ou captura de áudio. Apenas valores numéricos de XP e coordenadas do recorte ficam salvos localmente.
 - Relógios, idioma, identificador do personagem mais recente e cotações ficam no armazenamento local da extensão.
 - O observador encaminha uma lista explícita de campos de buffs, sem salvar cookies, senhas, tokens ou corpos completos de requisição/resposta.
 - O banco rápido reutiliza a autenticação já disponível no jogo **somente no contexto da página**, para o endpoint do próprio jogo. Esses dados não são encaminhados ao painel nem gravados no armazenamento da extensão.
@@ -110,17 +114,19 @@ Ao reportar um problema, envie a versão do addon, navegador e texto da mensagem
 
 ## Limites
 
-O addon acompanha a cidade no navegador. Alterações feitas dentro do client só aparecem quando a cidade envia novos dados; ele não lê memória do client nem injeta DLL. Bônus fora dos canais normais/EX de EXP, dano e velocidade não são inferidos pelos percentuais. A versão atual mantém os relógios do personagem mais recente.
+Buffs e banco acompanham a cidade no navegador; os buffs dependem dos dados enviados pela cidade. A XP pode acompanhar o client por captura visual autorizada pelo usuário. O addon não lê memória do executável nem injeta DLL. Bônus fora dos canais normais/EX de EXP, dano e velocidade não são inferidos pelos percentuais. A versão atual mantém os relógios do personagem mais recente.
 
 O addon não possui aprovação oficial dos administradores. Consulte as regras atuais do jogo antes de usar modificações de interface.
 
 ## Desenvolvimento
 
-Requer Node.js com suporte a `node --test`. Não há dependências para instalar.
+Requer Node.js com suporte a `node --test`. As dependências de desenvolvimento servem para reproduzir os arquivos de OCR já incluídos no pacote.
 
 ```sh
 git clone https://github.com/raryson/deadfrontier-overview.git
 cd deadfrontier-overview
+npm ci --ignore-scripts
+npm run vendor:ocr
 npm test
 npm run check
 ```
@@ -138,3 +144,5 @@ Fontes do catálogo: [Drugs](https://deadfrontier.fandom.com/wiki/Drugs), [Food]
 **Chrome:** extract the ZIP, open `chrome://extensions`, enable **Developer mode**, click **Load unpacked**, and choose the folder containing `manifest.json`. Reload the game page. Firefox is the browser used for live validation; full Chrome validation is still pending.
 
 Use the **Language** selector at the top for English, Portuguese, or automatic browser language detection. Keep the extension tab open when using the floating timer window. Never share credentials, cookies, HAR files, or full request payloads in an issue.
+
+**Live XP:** open the city once to identify your character, then open the extension in its own tab. Click **Connect client window**, select the game window, and verify the OCR preview. Drag a rectangle around the LV/XP line if needed. Wait for a stable reading, then start the session. Keep this tab open. OCR runs locally with bundled assets; frames are never uploaded or recorded and audio is disabled. HUD values shown in K have roughly 1,000 XP precision. Base XP is estimated from your effective multiplier. Stop capture to release the shared window.

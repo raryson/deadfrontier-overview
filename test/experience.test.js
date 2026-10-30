@@ -61,3 +61,16 @@ test('dados antigos, inválidos e divisor inválido são tratados explicitamente
   assert.throws(()=>setExperienceMultiplier(xp,0));
   assert.equal(experienceStats(startExperience(xp,0),0).perHour,0);
 });
+test('captura local não é sobrescrita pela consulta atrasada da cidade',()=>{
+  let xp=recordExperience({capture:{active:true}},sample(1000,{source:'ocr',precision:1000}),0,5);
+  xp=startExperience(xp,0);
+  xp=recordExperience(xp,sample(3000,{source:'ocr',precision:1000}),2000,5);
+  assert.equal(xp.session.gained,2000);assert.equal(xp.latest.source,'ocr');
+  assert.equal(recordExperience(xp,sample(100,{source:'server',serverTime:200}),3000,7),xp);
+  assert.equal(experienceStats(xp,13000).stale,true);
+});
+test('trocar de fonte encerra a sessão em vez de contar diferença entre XP arredondada e exata',()=>{
+  let xp=startExperience(recordExperience(null,sample(1234),0,5),0);
+  xp=recordExperience(xp,sample(2000,{source:'ocr',precision:1000}),1000,5);
+  assert.equal(xp.session.running,false);assert.equal(xp.session.gained,0);
+});

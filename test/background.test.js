@@ -63,3 +63,18 @@ test('sessão de XP persiste no worker e solicita atualização pela aba respons
   assert.equal(xpRefreshes.at(-1).tabId,12);
   await request({type:'xpStop'});assert.equal(stored.state.experience.session.running,false);
 });
+test('OCR pertence à aba de captura e não mistura dados da cidade nem inicia polling do servidor',async()=>{
+  const captureRequest=(message,tabId=99)=>new Promise(resolve=>listeners.message(message,{id:browser.runtime.id,tab:{id:tabId},url:browser.runtime.getURL('dashboard.html')},resolve));
+  const begin=await captureRequest({type:'ocrBegin'});assert.ok(!begin.error);
+  assert.equal(stored.state.experience.latest,null);
+  assert.ok((await captureRequest({type:'ocrStart'})).error);
+  const captureId=stored.state.experience.capture.id;
+  await captureRequest({type:'ocrSnapshot',captureId,sample:{xp:1000,level:1,precision:1000}});
+  await captureRequest({type:'ocrStart'});
+  await captureRequest({type:'ocrSnapshot',captureId,sample:{xp:3000,level:1,precision:1000}});
+  assert.equal(stored.state.experience.session.gained,2000);
+  assert.ok((await captureRequest({type:'ocrSnapshot',captureId,sample:{xp:9000,level:1}},100)).error);
+  const before=xpRefreshes.length;
+  assert.equal((await request({type:'xpRefresh'})).data.ocr,true);assert.equal(xpRefreshes.length,before);
+  await captureRequest({type:'ocrEnd'});assert.equal(stored.state.experience.capture.active,false);
+});

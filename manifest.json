@@ -1,9 +1,10 @@
 {
   "manifest_version": 3,
   "name": "DeadFrontier Overview",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "__MSG_description__",
   "default_locale": "en",
+  "content_security_policy": {"extension_pages":"script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; worker-src 'self'; connect-src 'self' data: blob:"},
   "permissions": [
     "storage",
     "alarms",
@@ -63,7 +64,9 @@
         "core.js",
         "catalog.js",
         "i18n.js",
-        "experience.js"
+      "experience.js",
+      "capture-controller.js",
+      "ocr-parser.js"
       ],
       "matches": [
         "https://fairview.deadfrontier.com/*"

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>DeadFrontier Overview</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<main>
+  <header><div><span class="eyebrow">DEAD FRONTIER</span><h1>DeadFrontier <span>Overview</span></h1></div><div class="header-controls"><span class="version">0.5.0</span><label for="language" data-i18n="language">Idioma</label><select id="language"><option value="auto" data-i18n="auto">Automático (navegador)</option><option value="pt">Português</option><option value="en">English</option></select></div></header>
+
+  <section class="bank-section" aria-labelledby="bank-title">
+    <div class="heading"><h2 id="bank-title" data-i18n="bankTitle">Banco rápido</h2><span class="section-tag" data-i18n="city">CIDADE</span></div>
+    <p id="bank-balances" class="balances" data-i18n="balanceHint">Consulte seu saldo para começar.</p>
+    <div class="actions bank-actions"><button id="deposit-all" class="primary" data-i18n="depositAll">↓ Depositar tudo</button><button id="withdraw-all" data-i18n="withdrawAll">↑ Sacar tudo</button></div>
+    <button id="bank-check" class="text-button" data-i18n="checkBalance">↻ Atualizar saldo</button>
+    <p id="bank-feedback" class="bank-feedback" role="status" data-i18n="bankHint">Disponível em qualquer página da cidade.</p>
+  </section>
+
+  <section class="buff-section" aria-labelledby="buff-title">
+    <div class="heading"><h2 id="buff-title" data-i18n="buffs">Seus buffs</h2><span id="mode" class="badge" data-i18n="waiting">Aguardando</span></div>
+    <div id="timers"></div>
+    <div class="actions buff-actions"><button id="floating" type="button" class="primary" data-i18n="floating">↗ Janela flutuante</button><button id="pause" type="button" data-i18n="pause">Pausar contagem</button></div>
+    <details class="quiet-details"><summary data-i18n="syncDetails">Sincronização e exibição</summary><p class="muted" id="sync-status" data-i18n="syncWaiting">Aguardando sincronização automática com o jogo.</p><p class="muted" data-i18n="windowHint">No client, use modo janela/sem bordas para manter a janela flutuante visível.</p></details>
+    <details class="manual-details"><summary data-i18n="manualDetails">Registrar ou ajustar manualmente</summary>
+      <p class="muted" data-i18n="manualHint">Use como alternativa à sincronização automática.</p>
+      <form id="buff-form"><label for="item" data-i18n="usedItem">Item que você acabou de usar</label><select id="item"></select><button data-i18n="logUse">Registrar uso</button></form>
+      <details><summary data-i18n="customTime">Adicionar tempo personalizado</summary><p class="muted" data-i18n="customHint">Para corrigir o tempo restante, remova o efeito atual antes de adicionar. A próxima sincronização usa o prazo do jogo.</p><form id="custom-form"><label for="channel" data-i18n="effect">Efeito</label><select id="channel"><option value="exp">EXP</option><option value="damage" data-i18n="damage">Dano</option><option value="speed" data-i18n="speed">Velocidade</option></select><label for="minutes" data-i18n="minutes">Minutos a adicionar</label><input id="minutes" type="number" min="0.01" max="525600" step="any" required><button data-i18n="addTime">Adicionar tempo</button></form></details>
+    </details>
+  </section>
+
+  <div class="secondary-label" data-i18n="tools">OUTRAS FERRAMENTAS</div>
+  <details class="tool-section"><summary data-i18n="reserveTitle">Preparar depósito com reserva</summary><div class="tool-body"><p class="muted" data-i18n="reserveHint">Calcule quanto guardar mantendo dinheiro para serviços e compras.</p><form id="deposit-form"><label for="cash" data-i18n="cash">Dinheiro no bolso</label><input id="cash" type="number" min="0" step="1" required><label for="reserve" data-i18n="reserve">Reserva</label><input id="reserve" type="number" min="0" step="1" value="0" required><button data-i18n="calculate">Calcular</button></form><output id="deposit-result">—</output><div class="actions"><button id="copy-deposit" disabled data-i18n="copy">Copiar valor</button><button id="fill-deposit" disabled data-i18n="fill">Preencher depósito</button></div><p class="muted" data-i18n="fillHint">O preenchimento usa o campo da tela do banco. Confira e confirme pelo jogo.</p></div></details>
+  <details class="tool-section"><summary data-i18n="market">Comparar ofertas do mercado</summary><div class="tool-body"><p class="muted" data-i18n="marketHint">Anote ofertas para comparar o preço por unidade.</p><form id="quote-form"><label for="name" data-i18n="item">Item</label><input id="name" maxlength="100" required placeholder="Ex.: Energy Bar"><div class="columns"><div><label for="total" data-i18n="total">Preço total</label><input id="total" type="number" min="0" step="any" required></div><div><label for="quantity" data-i18n="quantity">Unidades</label><input id="quantity" type="number" min="1" step="1" value="1" required></div></div><button data-i18n="saveQuote">Salvar cotação</button></form><div id="quotes"></div><button id="clear-quotes" class="text-button" data-i18n="clearQuotes">Limpar cotações</button></div></details>
+  <footer><span data-i18n="saved">Salvo neste navegador ·</span> <a href="https://deadfrontier.fandom.com/wiki/Drugs" target="_blank" rel="noreferrer" data-i18n="catalog">Catálogo de buffs ↗</a></footer>
+</main><div id="status" role="status" aria-live="polite"></div><script type="module" src="dashboard.js"></script>
+</body></html>

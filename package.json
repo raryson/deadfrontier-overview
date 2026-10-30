@@ -1,0 +1,7 @@
+{
+  "name": "deadfrontier-overview",
+  "version": "0.5.0",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test", "check": "node --check background.js && node --check content.js && node --check dashboard.js && node --check page-observer.js && node --check server-sync.js && node --check bank-request.js && node --check i18n.js" }
+}

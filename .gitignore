@@ -1,0 +1,30 @@
+.tmp/
+
+# Local secrets, browser sessions and diagnostic captures
+.env
+.env.*
+!.env.example
+.auth/
+.secrets/
+private/
+playwright/.auth/
+*.har
+*.log
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Publish only reviewed previews with fictional data
+docs/screenshots/*
+!docs/screenshots/overview-pt.png
+!docs/screenshots/overview-en.png
+
+# Game installers, local packages and browser profiles do not belong in source
+*.exe
+*.dll
+*.zip
+*.xpi
+node_modules/
+.DS_Store
+Thumbs.db

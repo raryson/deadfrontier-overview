@@ -2,7 +2,7 @@ import { emptyState, addBuff, togglePause, remaining, depositAmount, unitPrice }
 import { catalog, effects } from './catalog.js';
 import { applyServerSnapshot } from './server-sync.js';
 import { resolveLanguage, t, effectLabel } from './i18n.js';
-import {recordExperience,startExperience,stopExperience,setExperienceMultiplier} from './experience.js';
+import {recordExperience,startExperience,stopExperience,setExperienceMultiplier,rememberExperience} from './experience.js';
 const chrome = globalThis.browser ?? globalThis.chrome;
 
 // Serializa alterações vindas do painel, da aba e dos alarmes.
@@ -13,7 +13,13 @@ function serialized(task) {
   return result;
 }
 async function read() { return (await chrome.storage.local.get('state')).state || emptyState(); }
+function finishSession(state,reason,now=Date.now()) {
+  const wasRunning=state.experience?.session?.running;
+  state.experience=stopExperience(state.experience,now);
+  state.experienceHistory=rememberExperience(state.experienceHistory,state.experience,now,wasRunning?reason:undefined);
+}
 async function save(state) {
+  state.experienceHistory=rememberExperience(state.experienceHistory,state.experience);
   await chrome.storage.local.set({ state });
   for (const key of Object.keys(effects)) {
     await chrome.alarms.clear(`buff-${key}`);
@@ -50,19 +56,25 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
         if(state.experience?.capture?.active)throw Error('Já existe uma captura ativa. Pare a captura anterior.');
         const account=state.auto?.account??state.experience?.latest?.account;
         if(!account)throw Error('Abra uma página do jogo para identificar o personagem antes da captura.');
-        state.experience=stopExperience(state.experience);
-        state.experience={...state.experience,latest:null,session:null,capture:{active:true,id:crypto.randomUUID(),tabId:sender.tab.id,account}};
+        finishSession(state,'captureEnded');
+        state.experience={...state.experience,latest:null,session:null,capture:{active:true,autoStartPending:true,id:crypto.randomUUID(),tabId:sender.tab.id,account}};
         break;
       }
       case 'ocrRecalibrate': {
         const capture=state.experience?.capture;
         if(!capture?.active || sender.tab?.id!==capture.tabId || sender.url?.split('?')[0]!==chrome.runtime.getURL('dashboard.html'))throw Error('Origem de sincronização inválida.');
-        state.experience={...state.experience,latest:null,session:null};break;
+        const autoStartPending=capture.autoStartPending||state.experience.session?.running===true;
+        finishSession(state,'cropChanged');
+        state.experience={...state.experience,latest:null,session:null,capture:{...capture,autoStartPending}};break;
       }
       case 'ocrSnapshot': {
         const capture=state.experience?.capture;
         if(!capture?.active || sender.tab?.id!==capture.tabId || sender.url?.split('?')[0]!==chrome.runtime.getURL('dashboard.html') || message.captureId!==capture.id)throw Error('Origem de sincronização inválida.');
         state.experience=recordExperience(state.experience,{...message.sample,account:capture.account,source:'ocr',serverTime:null},Date.now(),capture.tabId);
+        if(capture.autoStartPending){
+          state.experience=startExperience(state.experience);
+          state.experience.capture={...capture,autoStartPending:false};
+        }
         break;
       }
       case 'ocrStart': {
@@ -74,7 +86,7 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
       case 'ocrEnd': {
         const capture=state.experience?.capture;
         if(capture?.active && sender.tab?.id===capture.tabId && sender.url?.split('?')[0]===chrome.runtime.getURL('dashboard.html')) {
-          state.experience=stopExperience(state.experience);
+          finishSession(state,'captureEnded');
           state.experience={...state.experience,capture:{active:false}};
         }
         break;
@@ -87,12 +99,22 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
       case 'xpSnapshot': {
         if(!sender.tab || !sender.url?.startsWith('https://fairview.deadfrontier.com/onlinezombiemmo/')) throw Error('Origem de sincronização inválida.');
         if(state.experience?.capture?.active)return state;
+        if(state.experience?.latest?.account!==message.sample?.account)finishSession(state,'accountChanged');
         state.experience=recordExperience(state.experience,message.sample,Date.now(),sender.tab.id);
         if(message.start===true) state.experience={...startExperience(state.experience),ownerTabId:sender.tab.id};
         break;
       }
-      case 'xpStop': state.experience=stopExperience(state.experience); break;
-      case 'xpReset': if(state.experience)state.experience={...state.experience,session:null}; break;
+      case 'xpStop':
+        finishSession(state,'stopped');
+        if(state.experience?.capture)state.experience.capture.autoStartPending=false;
+        break;
+      case 'xpReset':
+        if(state.experience){
+          finishSession(state,'reset');
+          state.experience={...state.experience,session:null};
+          if(state.experience.capture?.active)state.experience.capture.autoStartPending=true;
+        }
+        break;
       case 'xpMultiplier': {
         if(!state.experience?.latest)throw Error('Abra uma página do jogo para atualizar a XP.');
         state.experience=setExperienceMultiplier(state.experience,message.multiplier);
@@ -143,14 +165,14 @@ chrome.alarms.onAlarm.addListener(alarm => serialized(async () => {
 chrome.action.onClicked.addListener(() => chrome.tabs.create({ url: chrome.runtime.getURL('dashboard.html') }));
 chrome.runtime.onStartup.addListener(() => serialized(async () => {
   const state=await read();
-  state.experience=stopExperience(state.experience,state.experience?.latest?.receivedAt);
+  finishSession(state,'browserClosed',state.experience?.latest?.receivedAt??Date.now());
   if(state.experience)state.experience.capture={active:false};
   await save(state);
 }).catch(console.error));
 chrome.tabs.onRemoved?.addListener(tabId=>serialized(async()=>{
   const state=await read();
   if(state.experience?.ownerTabId===tabId || state.experience?.capture?.tabId===tabId) {
-    state.experience=stopExperience(state.experience);
+    finishSession(state,'captureEnded');
     if(state.experience.capture?.tabId===tabId)state.experience.capture={active:false};
     await save(state);
   }
@@ -160,12 +182,12 @@ chrome.tabs.onUpdated?.addListener((tabId,change)=>{
   serialized(async()=>{
     const state=await read();
     if(state.experience?.capture?.active&&state.experience.capture.tabId===tabId){
-      state.experience=stopExperience(state.experience);
+      finishSession(state,'captureEnded');
       state.experience.capture={active:false};await save(state);
     }
   }).catch(console.error);
 });
 chrome.runtime.onInstalled.addListener(() => serialized(async () => {
-  const state=await read();state.experience=stopExperience(state.experience);
+  const state=await read();finishSession(state,'updated');
   if(state.experience)state.experience.capture={active:false};await save(state);
 }).catch(console.error));

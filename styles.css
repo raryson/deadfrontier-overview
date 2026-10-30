@@ -1,5 +1,6 @@
 :root{color-scheme:dark;font-family:Segoe UI,Arial,sans-serif;background:#17110f;color:#ede0d4;font-size:14px}
 *{box-sizing:border-box}body{margin:0}main{max-width:680px;margin:auto;padding:18px 16px 36px}
+.history-scroll{max-height:360px;overflow:auto;border:1px solid #583b2b;border-radius:6px}.history-table{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}.history-table th,.history-table td{padding:10px 12px;text-align:right;border-bottom:1px solid #4c352a;white-space:nowrap}.history-table th{position:sticky;top:0;background:#38251b;color:#f3a25b;text-align:right}.history-table th:first-child,.history-table td:first-child,.history-table th:last-child,.history-table td:last-child{text-align:left}.history-table tr:last-child td{border-bottom:0}.history-table tbody tr:hover{background:#302019}
 header{display:flex;align-items:center;justify-content:space-between;padding:0 2px 18px;gap:10px}
 .eyebrow,.secondary-label{color:#b19a87;font-size:9px;font-weight:700;letter-spacing:1.8px}h1{font-size:21px;letter-spacing:-.7px;margin:4px 0 0}h1 span{color:#ee984e;font-weight:400}.version{font-size:10px;color:#bfa089;border:1px solid #5a3a2c;border-radius:5px;padding:4px 6px}
 section{background:#231a16;border:1px solid #4c352a;border-radius:12px;margin-bottom:12px;padding:16px}
@@ -26,3 +27,4 @@ button,input,select{border-radius:4px}.primary{background:linear-gradient(#f2a35
 @media(max-width:360px){h1{font-size:23px}.header-controls{max-width:127px}.header-controls select{width:127px;font-size:9px}.header-controls label{font-size:9px}}
 .xp-section{border-top:2px solid #c0743d}.xp-metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:4px 0 8px}.xp-metrics span{display:block;font-size:11px;color:#bba391}.xp-metrics strong{display:block;margin-top:5px;font-size:23px;color:#f2c18d;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.xp-secondary{margin-top:8px}.xp-secondary .text-button{min-height:28px}
 #ocr-preview,#ocr-crop-preview{display:block;width:100%;height:auto;background:#100c0a;border:1px solid #784631;border-radius:3px}#ocr-preview{cursor:crosshair;touch-action:none}#ocr-crop-preview{min-height:25px}#ocr-calibration[hidden]{display:none}#ocr-status{color:#f4a260}
+.history-table td:first-child{white-space:pre-line}

@@ -16,6 +16,8 @@ DeadFrontier Overview é uma extensão independente para acompanhar a sessão do
 
 **Controle e retenção.** Dados locais permanecem até serem substituídos pelas funções do addon ou apagados pelo usuário. É possível parar ou zerar a sessão, excluir registros e cotações pelos controles disponíveis e remover os dados da extensão pelo navegador. A extensão não altera a política de armazenamento de dados da conta no servidor do jogo.
 
+O histórico local mantém as últimas 100 sessões, incluindo o progresso da sessão atual, com datas, identificador do personagem, duração, XP, perdas e taxas estimadas. Parar ou zerar a sessão preserva o registro anterior. Ao superar 100 registros, as sessões mais antigas são removidas. O histórico não é enviado ao desenvolvedor nem sincronizado entre navegadores.
+
 **Uso limitado.** Os dados tratados são usados somente para os recursos de acompanhamento e operações do jogo descritos ao usuário. Não são usados para anúncios, avaliação de crédito ou comercialização. O tratamento segue a Política de Dados do Usuário da Chrome Web Store, incluindo os requisitos de Uso Limitado.
 
 **Contato.** Para dúvidas sobre privacidade: https://github.com/raryson/deadfrontier-overview/issues . Não publique senhas, cookies, tokens, capturas privadas ou arquivos HAR.
@@ -33,6 +35,8 @@ DeadFrontier Overview is an independent extension for tracking a player's Dead F
 **Sharing.** We operate no server that receives extension data. There is no analytics, advertising, sale of data or automatic upload to GitHub or other third parties. Outpost functions communicate with the game itself. External wiki/support links open only at the user's request and follow those services' policies. Information voluntarily posted in a GitHub issue is public; never include credentials or private data.
 
 **Control and retention.** Local data remains until replaced by addon functions or deleted by the user. Available controls can stop/reset sessions and delete records/quotes. Users can remove extension data through their browser. This does not change the game's retention of account data on its own servers.
+
+Local history retains the latest 100 sessions, including current progress, with dates, character identifier, duration, XP, losses and estimated rates. Stopping or resetting preserves the previous record. Oldest sessions are removed beyond 100 records. History is not sent to the developer or synchronized across browsers.
 
 **Limited Use.** Data is used only for the disclosed game tracking and user-requested game operations. It is not used for advertising, credit evaluation or sale. Data handling follows the Chrome Web Store User Data Policy, including Limited Use requirements.
 

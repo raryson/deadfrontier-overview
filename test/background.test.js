@@ -12,7 +12,7 @@ globalThis.chrome = {
   storage: { local: { get: async () => structuredClone(stored), set: async value => { stored = { ...stored, ...structuredClone(value) }; } } },
   alarms: { onAlarm: event('alarm'), clear: async key => alarms.delete(key), create: async (key, value) => alarms.set(key, value) },
   notifications: { create: async value => notices.push(value) },
-  action: { onClicked: event('action') }, tabs: { create: async options => {openedTabs.push(options);},sendMessage:async(tabId,message)=>{xpRefreshes.push({tabId,message});return {ok:true};} }
+  action: { onClicked: event('action') }, tabs: { onRemoved:event('removed'),onUpdated:event('tabUpdated'),create: async options => {openedTabs.push(options);},sendMessage:async(tabId,message)=>{xpRefreshes.push({tabId,message});return {ok:true};} }
 };
 // Firefox: somente browser.* com Promises, sem depender do alias chrome.*.
 globalThis.browser = globalThis.chrome;
@@ -80,11 +80,62 @@ test('OCR pertence à aba de captura e não mistura dados da cidade nem inicia p
   assert.ok((await captureRequest({type:'ocrStart'})).error);
   const captureId=stored.state.experience.capture.id;
   await captureRequest({type:'ocrSnapshot',captureId,sample:{xp:1000,level:1,precision:1000}});
-  await captureRequest({type:'ocrStart'});
+  assert.equal(stored.state.experience.session.running,true);
+  assert.equal(stored.state.experience.capture.autoStartPending,false);
   await captureRequest({type:'ocrSnapshot',captureId,sample:{xp:3000,level:1,precision:1000}});
   assert.equal(stored.state.experience.session.gained,2000);
   assert.ok((await captureRequest({type:'ocrSnapshot',captureId,sample:{xp:9000,level:1}},100)).error);
   const before=xpRefreshes.length;
   assert.equal((await request({type:'xpRefresh'})).data.ocr,true);assert.equal(xpRefreshes.length,before);
   await captureRequest({type:'ocrEnd'});assert.equal(stored.state.experience.capture.active,false);
+});
+
+test('parar bloqueia reinício automático, zerar preserva histórico e próxima leitura abre outra sessão',async()=>{
+  const captureRequest=message=>new Promise(resolve=>listeners.message(message,{id:browser.runtime.id,tab:{id:99},url:browser.runtime.getURL('dashboard.html')},resolve));
+  await captureRequest({type:'ocrBegin'});
+  const captureId=stored.state.experience.capture.id;
+  const read=xp=>captureRequest({type:'ocrSnapshot',captureId,sample:{xp,level:1,precision:1000}});
+  await read(1000);const id=stored.state.experience.session.id;
+  await read(4000);
+  await request({type:'xpStop'});
+  const saved=structuredClone(stored.state.experienceHistory.find(entry=>entry.id===id));
+  assert.equal(saved.gained,3000);assert.equal(saved.running,false);
+  await read(6000);assert.equal(stored.state.experience.session.running,false);
+  assert.deepEqual(stored.state.experienceHistory.find(entry=>entry.id===id),saved);
+  await request({type:'xpReset'});assert.equal(stored.state.experience.session,null);
+  await read(7000);assert.equal(stored.state.experience.session.running,true);
+  assert.notEqual(stored.state.experience.session.id,id);assert.equal(stored.state.experience.session.gained,0);
+  await read(9000);const nextId=stored.state.experience.session.id;
+  await listeners.removed(99);await request({type:'read'});
+  const closed=stored.state.experienceHistory.find(entry=>entry.id===nextId);
+  assert.equal(closed.gained,2000);assert.equal(closed.running,false);
+  assert.equal(stored.state.experience.capture.active,false);
+});
+
+test('reinício do navegador encerra e mantém sessão persistida sem somar o tempo offline',async()=>{
+  const captureRequest=message=>new Promise(resolve=>listeners.message(message,{id:browser.runtime.id,tab:{id:99},url:browser.runtime.getURL('dashboard.html')},resolve));
+  await captureRequest({type:'ocrBegin'});const captureId=stored.state.experience.capture.id;
+  await captureRequest({type:'ocrSnapshot',captureId,sample:{xp:1000,level:1}});
+  await captureRequest({type:'ocrSnapshot',captureId,sample:{xp:2000,level:1}});
+  const id=stored.state.experience.session.id;
+  const lastRead=stored.state.experience.latest.receivedAt;
+  await listeners.startup();await request({type:'read'});
+  const closed=stored.state.experienceHistory.find(entry=>entry.id===id);
+  assert.equal(closed.running,false);assert.equal(closed.endedAt,lastRead);
+  assert.equal(closed.gained,1000);
+});
+
+test('recalibrar preserva a sessão ativa e não retoma uma medição parada manualmente',async()=>{
+  const captureRequest=message=>new Promise(resolve=>listeners.message(message,{id:browser.runtime.id,tab:{id:99},url:browser.runtime.getURL('dashboard.html')},resolve));
+  await captureRequest({type:'ocrBegin'});const captureId=stored.state.experience.capture.id;
+  const read=xp=>captureRequest({type:'ocrSnapshot',captureId,sample:{xp,level:1}});
+  await read(1000);const id=stored.state.experience.session.id;
+  await read(3000);await captureRequest({type:'ocrRecalibrate'});
+  assert.equal(stored.state.experienceHistory.find(entry=>entry.id===id).gained,2000);
+  assert.equal(stored.state.experience.latest,null);
+  await read(5000);assert.equal(stored.state.experience.session.running,true);
+  assert.notEqual(stored.state.experience.session.id,id);
+  await request({type:'xpStop'});await captureRequest({type:'ocrRecalibrate'});
+  await read(6000);assert.equal(stored.state.experience.session,null);
+  await captureRequest({type:'ocrEnd'});
 });

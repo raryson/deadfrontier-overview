@@ -1,3 +1,9 @@
+## Sessão automática e histórico 0.8.0 / Automatic sessions and history
+
+Ao conectar a janela do client, a sessão começa na primeira leitura estável, sem outro clique. Parar mantém os resultados congelados; Nova sessão inicia outra medição. Zerar salva a anterior e começa outra na próxima leitura com captura ativa. As últimas 100 sessões e o progresso atual são salvos localmente, com tabela de XP, taxas, duração, personagem, perdas e estimativas de XP base. Fechar a captura ou reiniciar preserva as sessões salvas. Leituras futuras não reescrevem sessões encerradas.
+
+Connecting the client window starts the session on the first stable readout. Stop freezes results; New session starts another measurement. Reset saves the previous session and starts another on the next readout with active capture. The latest 100 sessions and current progress are saved locally, with a table of XP, rates, duration, character, losses and estimated base XP. Ending capture or restarting preserves saved sessions. Later readings do not rewrite closed sessions.
+
 ## Diagnóstico de atualização 0.7.2 / Update diagnostics
 
 O painel agora mostra a versão do manifesto realmente carregado pelo navegador. OCR verifica manifesto e permissão de WebAssembly antes de iniciar; arquivos novos com manifesto antigo recebem instruções de atualização. O selo Pronto só aparece após uma leitura válida. As etapas de carregamento do motor e do modelo são exibidas separadamente.

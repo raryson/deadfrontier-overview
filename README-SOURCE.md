@@ -1,6 +1,6 @@
 # Mozilla reviewer build instructions
 
-This archive contains the readable, unminified first-party source of DeadFrontier Overview, its tests, exact dependency lockfile, packaging scripts and the unmodified third-party OCR distribution assets. It corresponds to extension version 0.7.2. No first-party bundler, transpiler, template engine or minifier is used.
+This archive contains the readable, unminified first-party source of DeadFrontier Overview, its tests, exact dependency lockfile, packaging scripts and the unmodified third-party OCR distribution assets. It corresponds to extension version 0.8.0. No first-party bundler, transpiler, template engine or minifier is used.
 
 ## Environment and reproduction
 
@@ -35,7 +35,7 @@ Original licenses and dependency notices are included in `vendor/ocr/`. See its 
 - The addon works with `https://fairview.deadfrontier.com/onlinezombiemmo/`. The user signs in through the game; no account credentials are provided with this submission.
 - Bank actions are initiated by explicit user clicks. Authentication stays in the game's page context and is used only for the game's own endpoints. The addon does not store or forward authentication to its dashboard.
 - Buff synchronization extracts a limited set of timer fields from the game page and its responses. XP capture is separate: a standalone extension tab uses `getDisplayMedia` after a user click and browser permission.
-- The user selects the client window, verifies the crop around LV/XP, then starts a session. The worker, WASM and English OCR model are bundled locally. Frames stay in memory, with no audio, recording or upload. Stopping capture stops its media tracks.
+- The user selects the client window and verifies the crop around LV/XP. A session starts automatically on the first stable readout. Stop prevents automatic restarting; Reset saves the previous session and starts another on the next readout with active capture. The latest 100 sessions, including current progress, are saved locally. The worker, WASM and English OCR model are bundled locally. Frames stay in memory, with no audio, recording or upload. Stopping capture stops its media tracks.
 - Session XP and XP/hour use visual readings. Base XP is explicitly an estimate based on a user-entered multiplier. HUD numbers abbreviated in K have approximately 1,000 XP precision.
 - Tests use fictional inputs only. The source archive excludes Git history, local captures, browser profiles, diagnostics, secrets and game executables.
 

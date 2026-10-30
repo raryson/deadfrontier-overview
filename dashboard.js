@@ -74,12 +74,31 @@ function renderTimers() {
 function render() {
   renderTimers();
   renderExperience();
+  renderHistory();
   $('quotes').replaceChildren();
   for (const quote of state.quotes) {
     const row = document.createElement('div'); row.className = 'quote';
     const name = document.createElement('b'); name.textContent = quote.name;
     const detail = document.createElement('span'); detail.textContent = t('quoteLine',{price:money(quote.price),quantity:quote.quantity,total:money(quote.total),time:new Date(quote.at).toLocaleString(localeFor(language))});
     row.append(name, detail); $('quotes').append(row);
+  }
+}
+function renderHistory() {
+  const history=state.experienceHistory??[];
+  $('xp-history-count').textContent=String(history.length);
+  $('xp-history-empty').hidden=history.length>0;
+  $('xp-history-table').hidden=history.length===0;
+  $('xp-history-rows').replaceChildren();
+  for(const entry of history){
+    const row=document.createElement('tr');
+    const baseKnown=entry.baseAvailable;
+    const started=new Date(entry.startedAt);
+    const date=started.toLocaleDateString(localeFor(language))+'\n'+started.toLocaleTimeString(localeFor(language),{hour:'2-digit',minute:'2-digit'});
+    const stateLabel=t(entry.running?'xpHistoryRunning':'xpHistoryEnded');
+    const flags=[stateLabel,entry.basePartial?t('xpHistoryPartial'):'',entry.gap?t('xpHistoryGap'):''].filter(Boolean).join(' · ');
+    const values=[date,money(entry.gained),money(Math.round(entry.perHour)),duration(entry.elapsed),baseKnown?money(Math.round(entry.baseGained)):'—',baseKnown?money(Math.round(entry.basePerHour)):'—',money(entry.lost),money(entry.net),entry.account,flags];
+    for(const value of values){const cell=document.createElement('td');cell.textContent=value;row.append(cell);}
+    $('xp-history-rows').append(row);
   }
 }
 function renderExperience() {

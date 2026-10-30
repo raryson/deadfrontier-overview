@@ -2,7 +2,7 @@
 
 Addon para **Dead Frontier**, com banco rápido, acompanhamento automático de buffs e janela flutuante. Interface em **português e inglês**, com visual inspirado em ferrugem, cobre e vermelho escuro.
 
-**[Baixar ZIP pronto para instalar](https://github.com/raryson/deadfrontier-overview/releases/latest/download/deadfrontier-overview.zip)** · [Guia rápido](INSTALL.md)
+**[ZIP para Firefox](https://github.com/raryson/deadfrontier-overview/releases/latest/download/deadfrontier-overview.zip)** · **[ZIP para Chrome](https://github.com/raryson/deadfrontier-overview/releases/latest/download/deadfrontier-overview-chrome.zip)** · [Guia rápido](INSTALL.md)
 
 ![Prévia do painel com dados fictícios](docs/screenshots/overview-pt.png)
 
@@ -37,7 +37,7 @@ Use uma versão atual do Chrome.
 
 Para gerar um pacote específico do Chrome, execute `./scripts/package-chrome.ps1`. O resultado é `dist/deadfrontier-overview-chrome.zip`: ele usa o mesmo código e recursos, com manifesto apenas de service worker e sem configurações exclusivas do Firefox. O ZIP da Mozilla é mantido separadamente. Para a Chrome Web Store, envie o ZIP do Chrome, nunca o XPI assinado pela Mozilla. Antes do envio para análise, teste o pacote no Chrome como extensão sem compactação; a validação ao vivo do jogo foi feita no Firefox.
 
-1. Baixe o [ZIP pronto](https://github.com/raryson/deadfrontier-overview/releases/latest/download/deadfrontier-overview.zip) e extraia para uma pasta.
+1. Baixe o [ZIP para Chrome](https://github.com/raryson/deadfrontier-overview/releases/latest/download/deadfrontier-overview-chrome.zip) e extraia para uma pasta.
 2. Abra `chrome://extensions`.
 3. Ative **Modo do desenvolvedor** / **Developer mode**.
 4. Clique em **Carregar sem compactação** / **Load unpacked**.
@@ -93,7 +93,7 @@ Nomes oficiais dos itens permanecem como no jogo para facilitar sua identificaç
 1. Abra uma página da cidade para identificar o personagem. Abra o painel em uma **aba independente**, pelo ícone da extensão.
 2. Com o client aberto, clique **Conectar janela do client**. Se o painel abrir uma nova aba, clique novamente no botão dessa aba. No seletor de compartilhamento do navegador, escolha a **janela do client Dead Frontier** e confirme em **Compartilhar / Permitir**. Prefira apenas essa janela, em vez da tela inteira ou da aba da cidade.
 3. Confira a leitura na prévia. Se necessário, arraste um retângulo em volta da linha **LV + XP atual / XP necessária**, no canto superior esquerdo. Alterar o recorte zera a sessão para evitar comparar áreas diferentes.
-4. Espere a leitura estabilizar e confira se os números correspondem ao HUD. Clique **Iniciar sessão**: a XP anterior não entra nos ganhos.
+4. A sessão começa automaticamente na primeira leitura estável, normalmente alguns segundos após carregar o OCR. Confira se os números correspondem ao HUD; a XP anterior à referência inicial não entra nos ganhos.
 5. Para estimar XP sem bônus, abra **Configurar estimativa sem bônus** e informe o **multiplicador efetivo de XP**. Um bônus efetivo total de +100% equivale a 2×. Inclua alimentação, profissão, eventos e equipamentos no fator.
 6. Abra a janela flutuante para ver XP recebida, XP/h e estimativas sem bônus. Ao mudar de bônus, ajuste o multiplicador; o novo fator vale para os próximos intervalos. Intervalos sem fator ficam marcados como estimativa parcial.
 
@@ -103,7 +103,13 @@ O addon só consegue ler a janela que você autorizar. Confira se a prévia most
 
 A XP ao vivo vem de **OCR local da janela do client**, com leituras a cada aproximadamente 2 segundos. Consultar a cidade fornece somente XP salva e não acompanha o combate em tempo real. Quando o HUD mostra `K`, a precisão é de aproximadamente 1.000 XP; valores e taxas são aproximados. Leituras instáveis ou antigas são sinalizadas. A janela precisa continuar renderizando o HUD; minimizá-la pode interromper a atualização. Em outras resoluções, escala do Windows ou modo janela, ajuste o recorte.
 
-Mantenha a aba de captura aberta. **Parar** congela a sessão, mas mantém a leitura disponível. **Parar captura**, fechar a aba ou interromper o compartilhamento encerra a captura e a medição. **Zerar sessão** descarta os totais. O navegador solicita uma nova seleção da janela a cada conexão.
+Mantenha a aba de captura aberta. **Parar** congela a sessão e impede o reinício automático, mas mantém a leitura disponível. **Nova sessão** permite iniciar outra medição após parar. **Parar captura**, fechar a aba ou interromper o compartilhamento encerra a captura e salva a sessão. **Zerar sessão** salva a anterior e começa outra automaticamente na próxima leitura se a captura estiver ativa. Ajustar o recorte durante uma medição também salva a anterior e cria uma nova referência. O navegador solicita uma nova seleção da janela a cada conexão.
+
+### Histórico de sessões
+
+A tabela **Histórico de sessões** mantém as últimas **100 sessões neste navegador**, por ordem de início, incluindo a sessão atual. Cada leitura aceita atualiza o progresso salvo. Ao parar, os resultados ficam congelados e não são alterados por leituras futuras. O histórico mostra início, identificador do personagem, duração, XP recebida, XP/h, estimativas de base/base por hora, perdas, ganho líquido e estado. Estimativas parciais e lacunas são sinalizadas.
+
+Fechar a aba, reiniciar o navegador ou atualizar a extensão preserva os dados já salvos; ao detectar um reinício, a sessão é encerrada na última leitura salva, sem contar o tempo offline. Reconectar a janela inicia outra sessão. Os dados ficam no perfil do navegador e não são sincronizados entre Firefox, Chrome ou outros computadores. O histórico começa com as sessões desta versão; sessões antigas já descartadas não podem ser recuperadas. Quando atingir 100, as mais antigas são removidas para manter as mais recentes.
 
 ## Privacidade
 
@@ -149,6 +155,8 @@ Fontes do catálogo: [Drugs](https://deadfrontier.fandom.com/wiki/Drugs), [Food]
 
 Use the **Language** selector at the top for English, Portuguese, or automatic browser language detection. Keep the extension tab open when using the floating timer window. Never share credentials, cookies, HAR files, or full request payloads in an issue.
 
-**Live XP:** open the city once to identify your character, then open the extension in its own tab. Click **Connect client window**, select the game window, and verify the OCR preview. Drag a rectangle around the LV/XP line if needed. Wait for a stable reading, then start the session. Keep this tab open. OCR runs locally with bundled assets; frames are never uploaded or recorded and audio is disabled. HUD values shown in K have roughly 1,000 XP precision. Base XP is estimated from your effective multiplier. Stop capture to release the shared window.
+**Live XP:** open the city once to identify your character, then open the extension in its own tab. Click **Connect client window**, select the game window, and verify the OCR preview. Drag a rectangle around the LV/XP line if needed. The session starts automatically on the first stable readout. Keep this tab open. Stop freezes the results without automatically restarting; New session starts another measurement. Reset saves the previous session and starts another on the next readout when capture is active. OCR runs locally with bundled assets; frames are never uploaded or recorded and audio is disabled. HUD values shown in K have roughly 1,000 XP precision. Base XP is estimated from your effective multiplier. Stop capture to release the shared window.
+
+**History:** the latest 100 sessions and current progress are saved locally in this browser. The table shows character ID, start time, duration, received XP, hourly rates, estimated base XP, losses, net XP and status. Closed sessions remain unchanged. Closing the capture tab, restarting the browser or upgrading preserves saved sessions. A browser restart ends the previous measurement at its last saved readout without including offline time. History is not synchronized across browsers/devices, and previously discarded sessions cannot be recovered.
 
 **Capture permission:** keep the client open. If clicking Connect opens a new add-on tab, click the button again there. In the browser picker, select the **Dead Frontier client window**, then confirm **Share / Allow**. Prefer only the game window instead of your entire screen or the outpost browser tab. Verify that the preview includes the game's LV/XP line. If you selected the wrong window, stop capture and reconnect. Canceling or denying the prompt prevents readouts; click Connect to try again. Stopping browser sharing ends capture, and each new connection asks you to choose and authorize a window again.

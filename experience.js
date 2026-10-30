@@ -28,7 +28,8 @@ export function recordExperience(previous, sample, now = Date.now(), tabId = nul
 }
 export function startExperience(experience, now = Date.now()) {
   if(!experience?.latest || now-experience.latest.receivedAt>120000) throw Error('Atualize a XP antes de iniciar a sessão.');
-  return {...experience,session:{startedAt:now,endedAt:null,running:true,gained:0,lost:0,baseGained:0,unknownBaseXp:0,gap:false}};
+  if(experience.session?.running)return experience;
+  return {...experience,session:{id:crypto.randomUUID(),account:experience.latest.account,source:experience.latest.source??'server',initialXp:experience.latest.xp,initialLevel:experience.latest.level,startedAt:now,endedAt:null,running:true,gained:0,lost:0,baseGained:0,unknownBaseXp:0,gap:false}};
 }
 export function setExperienceMultiplier(experience,multiplier) {
   if(multiplier!==null && (!Number.isFinite(multiplier) || multiplier<=0 || multiplier>1000)) throw Error('Multiplicador de XP inválido.');
@@ -36,7 +37,27 @@ export function setExperienceMultiplier(experience,multiplier) {
 }
 export function stopExperience(experience, now = Date.now()) {
   if(!experience?.session?.running) return experience;
-  return {...experience,session:{...experience.session,running:false,endedAt:now}};
+  return {...experience,session:{...experience.session,running:false,endedAt:Math.max(experience.session.startedAt,now)}};
+}
+export const EXPERIENCE_HISTORY_LIMIT=100;
+export function rememberExperience(history,experience,now=Date.now(),reason) {
+  const records=Array.isArray(history)?history:[];
+  const session=experience?.session;
+  if(!session)return records;
+  const account=session.account??experience.latest?.account;
+  if(!account)return records;
+  const id=session.id??`${account}:${session.startedAt}`;
+  const previous=records.find(entry=>entry.id===id);
+  // Once closed, later HUD reads must not rewrite that session's endpoints.
+  if(previous&&!previous.running&&!session.running)return records;
+  const stats=experienceStats(experience,now);
+  const entry={...session,id,account,source:session.source??experience.latest?.source??'server',
+    finalXp:experience.latest?.xp??null,finalLevel:experience.latest?.level??null,
+    precision:Math.max(previous?.precision??1,experience.latest?.precision??1),
+    lastReadAt:experience.latest?.receivedAt??null,baseAvailable:!!experience.multiplier||session.baseGained>0,...stats,
+    reason:reason??previous?.reason??(session.running?'running':'stopped')};
+  return [entry,...records.filter(record=>record.id!==id)]
+    .sort((a,b)=>b.startedAt-a.startedAt).slice(0,EXPERIENCE_HISTORY_LIMIT);
 }
 export function experienceStats(experience, now = Date.now()) {
   const session=experience?.session;

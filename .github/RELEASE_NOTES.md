@@ -1,3 +1,9 @@
+## Correção Firefox 0.7.1 / Firefox fix
+
+Corrige `chrome.tabs is undefined` ao conectar o OCR ou abrir a janela flutuante pelo painel incorporado na cidade. A abertura da aba independente agora passa pelo processo de fundo da extensão. Recarregue a extensão **e a página do jogo** após atualizar.
+
+Fixes `chrome.tabs is undefined` when connecting OCR or opening the floating window from the embedded outpost panel. The background process now opens the standalone tab. Reload both the extension and the game page after updating.
+
 ## Instalação / Installation
 
 Baixe **deadfrontier-overview.zip**. No Firefox, selecione o ZIP diretamente em **Carregar extensão temporária**; no Chrome, extraia e use **Carregar sem compactação**. Veja **INSTALL.md**. O pacote contém somente o addon e o guia de instalação.

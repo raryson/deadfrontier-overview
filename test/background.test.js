@@ -5,13 +5,14 @@ const listeners = {};
 const alarms = new Map();
 const notices = [];
 const xpRefreshes=[];
+const openedTabs=[];
 const event = name => ({ addListener: fn => { listeners[name] = fn; } });
 globalThis.chrome = {
   runtime: { id: 'test-extension', onMessage: event('message'), onStartup: event('startup'), onInstalled: event('installed'), getURL: path => `chrome-extension://test-extension/${path}` },
   storage: { local: { get: async () => structuredClone(stored), set: async value => { stored = { ...stored, ...structuredClone(value) }; } } },
   alarms: { onAlarm: event('alarm'), clear: async key => alarms.delete(key), create: async (key, value) => alarms.set(key, value) },
   notifications: { create: async value => notices.push(value) },
-  action: { onClicked: event('action') }, tabs: { create: async () => {},sendMessage:async(tabId,message)=>{xpRefreshes.push({tabId,message});return {ok:true};} }
+  action: { onClicked: event('action') }, tabs: { create: async options => {openedTabs.push(options);},sendMessage:async(tabId,message)=>{xpRefreshes.push({tabId,message});return {ok:true};} }
 };
 // Firefox: somente browser.* com Promises, sem depender do alias chrome.*.
 globalThis.browser = globalThis.chrome;
@@ -63,6 +64,15 @@ test('sessão de XP persiste no worker e solicita atualização pela aba respons
   assert.equal(xpRefreshes.at(-1).tabId,12);
   await request({type:'xpStop'});assert.equal(stored.state.experience.session.running,false);
 });
+test('painel incorporado abre a aba OCR pelo worker sem depender de tabs no iframe',async()=>{
+  const result=await new Promise(resolve=>listeners.message({type:'openCapturePanel'},{id:browser.runtime.id,url:browser.runtime.getURL('dashboard.html')},resolve));
+  assert.equal(result.data.opened,true);
+  assert.equal(openedTabs.at(-1).url,browser.runtime.getURL('dashboard.html?capture=1'));
+  const before=openedTabs.length;
+  assert.ok((await request({type:'openCapturePanel'})).error);
+  assert.equal(openedTabs.length,before);
+});
+
 test('OCR pertence à aba de captura e não mistura dados da cidade nem inicia polling do servidor',async()=>{
   const captureRequest=(message,tabId=99)=>new Promise(resolve=>listeners.message(message,{id:browser.runtime.id,tab:{id:tabId},url:browser.runtime.getURL('dashboard.html')},resolve));
   const begin=await captureRequest({type:'ocrBegin'});assert.ok(!begin.error);

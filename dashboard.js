@@ -119,7 +119,7 @@ const capture=createCaptureController({
 });
 async function connectOcr() {
   if(window.parent!==window) {
-    await chrome.tabs.create({url:chrome.runtime.getURL('dashboard.html?capture=1')});status(t('ocrOpenTab'));return;
+    await request({type:'openCapturePanel'});status(t('ocrOpenTab'));return;
   }
   if(!state.experience?.latest?.account&&!state.auto?.account)throw Error(t('ocrIdentify'));
   $('ocr-calibration').open=true;
@@ -244,7 +244,7 @@ function paint() {
 }
 $('floating').onclick = handle(async () => {
   if (window.parent !== window && !document.pictureInPictureEnabled) {
-    await chrome.tabs.create({ url: chrome.runtime.getURL('dashboard.html') });
+    await request({type:'openCapturePanel'});
     status(t('videoTab'));
     return;
   }

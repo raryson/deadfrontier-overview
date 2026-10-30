@@ -40,6 +40,11 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
     let state = await read();
     switch (message.type) {
       case 'read': return state;
+      case 'openCapturePanel': {
+        if(sender.url?.split('?')[0]!==chrome.runtime.getURL('dashboard.html'))throw Error('Origem de sincronização inválida.');
+        await chrome.tabs.create({url:chrome.runtime.getURL('dashboard.html?capture=1')});
+        return {opened:true};
+      }
       case 'ocrBegin': {
         if(!sender.tab || sender.url?.split('?')[0]!==chrome.runtime.getURL('dashboard.html'))throw Error('Origem de sincronização inválida.');
         if(state.experience?.capture?.active)throw Error('Já existe uma captura ativa. Pare a captura anterior.');

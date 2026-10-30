@@ -18,6 +18,8 @@ npm run check
 
 The resulting extension is `dist/deadfrontier-overview.zip`. Compare extracted entry contents with the submitted extension, rather than the ZIP's overall checksum: ZIP entry timestamps may differ. The package allowlist is in `scripts/package.ps1`. `scripts/vendor-ocr.mjs` copies the exact library files from npm without modification; it does not compile, minify or transform third-party code. npm downloads are needed only to reproduce the build, never during extension use.
 
+For a Chrome-only package, run `./scripts/package-chrome.ps1`. It reuses the same file allowlist and changes only `manifest.json`, removing `browser_specific_settings` and `background.scripts` while preserving the module service worker. Its output is `dist/deadfrontier-overview-chrome.zip`; this is separate from the Firefox submission.
+
 ## Third-party packages
 
 Exact package versions, registry locations and integrity hashes for all dependencies are in `package-lock.json`. All packages are public on npm. There are no private dependencies, credentials or environment variables needed to build.

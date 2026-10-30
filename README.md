@@ -35,6 +35,8 @@ Não é necessário executar o instalador do jogo, instalar Node.js ou rodar com
 
 Use uma versão atual do Chrome.
 
+Para gerar um pacote específico do Chrome, execute `./scripts/package-chrome.ps1`. O resultado é `dist/deadfrontier-overview-chrome.zip`: ele usa o mesmo código e recursos, com manifesto apenas de service worker e sem configurações exclusivas do Firefox. O ZIP da Mozilla é mantido separadamente. Para a Chrome Web Store, envie o ZIP do Chrome, nunca o XPI assinado pela Mozilla. Antes do envio para análise, teste o pacote no Chrome como extensão sem compactação; a validação ao vivo do jogo foi feita no Firefox.
+
 1. Baixe o [ZIP pronto](https://github.com/raryson/deadfrontier-overview/releases/latest/download/deadfrontier-overview.zip) e extraia para uma pasta.
 2. Abra `chrome://extensions`.
 3. Ative **Modo do desenvolvedor** / **Developer mode**.

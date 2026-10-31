@@ -58,7 +58,7 @@ window.startCapture=async()=>{
           langPath:new URL('../../vendor/ocr',import.meta.url).href,workerBlobURL:false,cacheMethod:'none'
         });
         await headerWorker.setParameters({tessedit_pageseg_mode:Tesseract.PSM.SINGLE_LINE,user_defined_dpi:'300'});
-        let lastFallback=0,lastSearch=0,lootDelay=150,lastTitle=null;
+        let lastFallback=0,lastSearch=0,lootDelay=150,lastTitle=null,lastNameEvidence=null;
         // Every recognition pass uses this frozen card, including button boxes.
         // The old reader cropped only 38px of prompt and reread live frames
         // between name/buttons; wrapped equipment names could disappear midway.
@@ -80,6 +80,10 @@ window.startCapture=async()=>{
             const title=cropCard(card,110/350,10/310,130/350,20/310);
             const titlePixels=title.getContext('2d').getImageData(0,0,title.width,title.height).data;
             const titleVisible=titleStillVisible(lastTitle,titlePixels);
+            if(lastNameEvidence&&titleVisible!==false){
+              const box=lastNameEvidence.box,patch=cropCard(card,box.x,box.y,box.width,box.height),pixels=patch.getContext('2d').getImageData(0,0,patch.width,patch.height).data;
+              if(titleStillVisible(lastNameEvidence.pixels,pixels,.85)===true)bridge.loot({token:config.token,reading:{kind:'visible',nameVisible:true}});
+            }
             const header=await headerWorker.recognize(await canvasBytes(title));
             const titlePresent=/(?:[I1L\[]TEM|MEM)\s*FOU[MN]D/i.test(header.data.text);
             const verifiedHeader=header.data.confidence>=40&&/(?:[I1L\[]TEM|MEM)\s*FOU[MN]D/i.test(header.data.text);
@@ -105,12 +109,17 @@ window.startCapture=async()=>{
                 const words=wordsOf(result.data.blocks).filter(w=>parsed.cash?/[\d$]/.test(w.text):tokens.includes(w.text.toUpperCase().replace(/[^A-Z0-9]/g,'')));
                 if(!words.length||words.some(w=>w.confidence<45)||result.data.confidence<65)continue;
                 const confidence=result.data.confidence,nameConfidence=Math.min(...words.map(w=>w.confidence));
+                const boxes=words.filter(w=>w.bbox).map(w=>w.bbox);
+                const left=Math.max(0,Math.min(...boxes.map(b=>b.x0))-2),top=Math.max(0,Math.min(...boxes.map(b=>b.y0))-2),right=Math.min(image.width,Math.max(...boxes.map(b=>b.x1))+2),bottom=Math.min(image.height,Math.max(...boxes.map(b=>b.y1))+2);
+                const evidenceBox=boxes.length?{x:35/350+left/image.width*280/350,y:30/310+top/image.height*promptHeight/310,width:(right-left)/image.width*280/350,height:(bottom-top)/image.height*promptHeight/310}:null;
                 const quantityWord=parsed.quantity?wordsOf(result.data.blocks).find(w=>Number(w.text.replace(/[^0-9]/g,''))===parsed.quantity&&/[()]/.test(w.text)):null;
-                if(!best||confidence>best.confidence)best={text,confidence,nameConfidence,...(quantityWord?.confidence>=70||result.data.confidence>=85&&parsed.quantity?{quantityCandidate:parsed.quantity}:{}),buttons:lootButtons(buttonResult.data.blocks,buttonArea,buttonImage.width,buttonImage.height)};
+                if(!best||confidence>best.confidence)best={text,confidence,nameConfidence,evidenceBox,...(quantityWord?.confidence>=70||result.data.confidence>=85&&parsed.quantity?{quantityCandidate:parsed.quantity}:{}),buttons:lootButtons(buttonResult.data.blocks,buttonArea,buttonImage.width,buttonImage.height)};
                 if(confidence>=80&&(!parsed.quantity||quantityVotes.filter(q=>q===parsed.quantity).length>=2))break;
               }
               if(best){
                 lastTitle=titlePixels;
+                if(best.evidenceBox){const box=best.evidenceBox,patch=cropCard(card,box.x,box.y,box.width,box.height);lastNameEvidence={box,pixels:patch.getContext('2d').getImageData(0,0,patch.width,patch.height).data};}
+                delete best.evidenceBox;
                 const parsed=parseLootDialog(best.text);
                 if(parsed?.quantity){
                   best.quantityVerified=quantityVotes.filter(q=>q===parsed.quantity).length>=2;

@@ -218,8 +218,10 @@ else {
         aliases[key]=value.itemId;if(Object.keys(aliases).length>1000)throw Error('priceAliasInvalid');store.set('priceAliases',aliases);
       }
       else if(type==='priceQuantity'&&typeof value?.id==='string'&&Number.isSafeInteger(value?.quantity)&&value.quantity>=1&&value.quantity<=1000000000){
-        const entry=store.lootById(value.id);if(!entry)throw Error('priceAliasInvalid');store.saveLoot({...entry,quantity:value.quantity});
+        const entry=store.lootById(value.id);if(!entry)throw Error('priceAliasInvalid');store.saveLoot({...entry,quantity:value.quantity,quantityUncertain:false,quantitySource:'user-confirmed'});
       }
+      else if(type==='lootConfirm'&&typeof value?.id==='string'){store.confirmLoot(value.id,value.quantity);}
+      else if(type==='lootUndoConfirm'&&typeof value?.id==='string'){store.undoLootConfirmation(value.id);}
       else if(type==='priceEquipmentVariant'&&typeof value?.id==='string'&&(value.itemId===null||typeof value.itemId==='string')){
         const entry=store.lootById(value.id);if(!entry)throw Error('priceAliasInvalid');
         const equipment=valueLoot({...entry,status:'accepted',priceMode:'yard'},priceCache?.quotes??[],{aliases:store.get('priceAliases',{}),catalog:store.itemCatalog()}).equipment;
@@ -271,8 +273,8 @@ else {
     ipcMain.on('capture:loot',(event,message)=>{
       if(!ownRenderer(event,captureURL)||event.sender!==captureWindow?.webContents||message?.token!==token||!source||target?.minimized)return;
       const reading=message.reading;
-      if(!['hint','found','absent','unknown','searching'].includes(reading?.kind)||String(reading.text??'').length>1200)return;
-      if(diagnosticFile&&reading.kind!=='hint')try{fsSync.writeFileSync(diagnosticFile+'.loot.json',JSON.stringify(reading));}catch{}
+      if(!['visible','hint','found','absent','unknown','searching'].includes(reading?.kind)||String(reading.text??'').length>1200)return;
+      if(diagnosticFile&&!['hint','visible'].includes(reading.kind))try{fsSync.writeFileSync(diagnosticFile+'.loot.json',JSON.stringify(reading));}catch{}
       if(reading.buttons&&Object.values(reading.buttons).some(value=>!validRegion(value)))return;
       lootFlow.observe(reading,tracker.experience?.session?.running?tracker.experience.session.id:null);
       armLoot(lootFlow.armed());broadcast();

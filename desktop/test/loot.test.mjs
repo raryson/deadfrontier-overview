@@ -112,3 +112,23 @@ test('OCR spelling changes in an unchanged dialog do not create extra equipment 
  const variant={...found,text:text.replace('NEROTONIN 8B','NEROTON1N 8B')};for(let i=0;i<5;i++)flow.observe(variant,'s',1000+i*300);
  assert.equal(rows.size,1);assert.equal(flow.pending.item,'NEROTONIN 8B');
 });
+
+test('a visually unchanged item name keeps a long-open dialog fresh for Yes without inventing a choice',()=>{
+ const rows=new Map(),flow=new LootFlow({saveLoot:e=>rows.set(e.id,structuredClone(e))});flow.observe(found,'s',0);flow.observe(found,'s',500);
+ flow.observe({kind:'visible',nameVisible:true},'s',30000);assert.equal(flow.choose({action:'click',x:.42,y:.52},30100),true);
+ flow.finish(32000,true);assert.equal([...rows.values()][0].status,'accepted');
+});
+test('unknown OCR, title-only evidence or an observed boundary cannot renew a stale item name',()=>{
+ for(const reading of [{kind:'unknown'},{kind:'visible',nameVisible:false},{kind:'hint'}]){
+  const flow=new LootFlow({saveLoot:()=>{}});flow.observe(found,'s',0);flow.observe(found,'s',500);flow.observe(reading,'s',30000);assert.equal(flow.choose({action:'accepted'},30100),false);
+ }
+ const flow=new LootFlow({saveLoot:()=>{}});flow.observe(found,'s',0);flow.observe(found,'s',500);flow.observe({kind:'absent'},'s',2000);flow.observe({kind:'visible',nameVisible:true},'s',30000);assert.equal(flow.choose({action:'accepted'},30100),false);
+});
+
+test('manual pickup recovery is explicit, reversible and preserves the original session',()=>{
+ const folder=fs.mkdtempSync(path.join(os.tmpdir(),'dfov-confirm-')),store=new DesktopStore(path.join(folder,'db.sqlite'));
+ store.saveLoot({id:'confirmed-test',item:'12.7MM RIFLE BULLETS',sessionId:'run',foundAt:1,status:'unconfirmed'});
+ assert.throws(()=>store.confirmLoot('confirmed-test',-1));store.confirmLoot('confirmed-test',880);
+ assert.equal(store.lootById('confirmed-test').quantity,880);assert.equal(store.lootById('confirmed-test').sessionId,'run');assert.equal(store.lootById('confirmed-test').pickupEvidence,'user-confirmed');assert.equal(store.lootById('confirmed-test').status,'accepted');
+ store.undoLootConfirmation('confirmed-test');assert.equal(store.lootById('confirmed-test').status,'unconfirmed');assert.equal(store.lootById('confirmed-test').pickupEvidence,undefined);store.close();
+});

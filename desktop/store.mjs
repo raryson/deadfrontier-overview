@@ -49,6 +49,12 @@ export class DesktopStore {
   saveLoot(entry){const {buttons,key,...saved}=entry;this.db.prepare(`INSERT INTO loot(id,session_id,found_at,status,payload) VALUES(?,?,?,?,?)
     ON CONFLICT(id) DO UPDATE SET session_id=excluded.session_id,status=excluded.status,payload=excluded.payload`).run(entry.id,entry.sessionId,entry.foundAt,entry.status,JSON.stringify(saved));this.priceRevision++;}
   lootHistory(){return this.db.prepare('SELECT payload FROM loot ORDER BY found_at DESC LIMIT 200').all().map(row=>JSON.parse(row.payload));}
+  confirmLoot(id,quantity){
+    const entry=this.lootById(id);if(!entry||entry.status!=='unconfirmed')throw Error('Invalid loot confirmation.');
+    if(quantity!==undefined&&(!Number.isSafeInteger(quantity)||quantity<1||quantity>1e9))throw Error('Invalid loot quantity.');
+    this.saveLoot({...entry,status:'accepted',pickupEvidence:'user-confirmed',confirmedAt:Date.now(),...(quantity!==undefined?{quantity,quantityUncertain:false,quantitySource:'user-confirmed'}:{})});
+  }
+  undoLootConfirmation(id){const entry=this.lootById(id);if(!entry||entry.pickupEvidence!=='user-confirmed')throw Error('Invalid loot confirmation.');const {pickupEvidence,confirmedAt,...rest}=entry;this.saveLoot({...rest,status:'unconfirmed'});}
   lootCounts(){return this.db.prepare("SELECT session_id AS sessionId,COUNT(*) AS found,SUM(status='accepted') AS accepted FROM loot GROUP BY session_id").all();}
   savePrices(batch){
     const put=this.db.prepare(`INSERT INTO prices(market,item_id,unit_kind,observed_at,payload) VALUES(?,?,?,?,?)

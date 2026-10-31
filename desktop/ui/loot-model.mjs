@@ -33,16 +33,20 @@ export function lootButtons(blocks,region,imageWidth,imageHeight){
 }
 export function choiceAt(buttons,x,y){return Object.entries(buttons??{}).find(([,b])=>x>=b.x&&x<=b.x+b.width&&y>=b.y&&y<=b.y+b.height)?.[0]??null;}
 export function searchInProgress(text){return /\b(?:SEARCHING|LOOTING)\b|SEARCH\s+IN\s+PROGRESS/i.test(String(text));}
-export function titleStillVisible(before,after){
+export function titleStillVisible(before,after,ratio=.65){
   if(!before||!after||before.length!==after.length)return null;
   let total=0,preserved=0;
   for(let i=0;i<before.length;i+=4){const r=before[i],g=before[i+1],b=before[i+2],light=r*.299+g*.587+b*.114;if(light<105||Math.max(r,g,b)-Math.min(r,g,b)>40)continue;total++;if(after[i]*.299+after[i+1]*.587+after[i+2]*.114>=light*.7)preserved++;}
-  return total<20?null:preserved/total>=.65;
+  return total<20?null:preserved/total>=ratio;
 }
 export class LootFlow {
   constructor(store){this.store=store;this.pending=null;this.candidate=null;this.absent=0;this.hintAt=null;this.earlyInputs=[];this.boundary=false;}
   armed(now=Date.now()){return!!(this.pending||this.candidate||(this.hintAt!==null&&now-this.hintAt<4000));}
   observe(reading,sessionId,now=Date.now()){
+    if(reading.kind==='visible'){
+      if(this.pending&&!this.boundary&&reading.nameVisible===true)this.pending.lastSeenAt=now;
+      return;
+    }
     if(reading.kind==='hint'){this.hintAt=now;return;}
     if(reading.kind==='searching'){this.searchingAt=now;if(this.pending)this.finish(now,true);return;}
     if(reading.kind==='unknown')return;

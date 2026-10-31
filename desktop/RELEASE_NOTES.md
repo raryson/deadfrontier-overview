@@ -1,19 +1,13 @@
-# Windows preview 0.3.3 — leitura de loot e quantidades
+# Windows preview 0.3.4 — Yes em diálogos abertos por mais tempo
 
-- Separa nome e quantidade: Gasoline (812) vira Gasoline e 812 ml; munição usa a quantidade da pilha.
-- Normaliza os registros antigos com sufixo numérico sem alterar a sessão nem transformar resultados incertos em coletas.
-- Lê nome e botões do mesmo quadro, com recorte alternativo para textos longos.
-- Detecta o título para observar Yes/No/Use mais cedo e preserva cliques durante a leitura do nome. O helper verifica os quatro comandos a cada 20 ms, somente no client em primeiro plano quando o leitor está armado.
-- Um diálogo antigo não confirmado deixa de bloquear um item diferente.
-- Falha de OCR não equivale a fechamento enquanto os pixels do título continuam presentes.
-- Quantidades precisam de leituras concordantes; ficam pendentes quando ambíguas e podem ser corrigidas no painel.
+Corrige o descarte do clique quando o nome do loot foi reconhecido há mais de quatro segundos, embora o mesmo diálogo continuasse aberto. Uma comparação local dos pixels do nome mantém a leitura válida; o título sozinho ou uma falha de OCR não renovam o contexto. Nenhuma escolha é inferida sem Yes/No/Use observado.
 
-Use a extensão 0.9.1 para cotações de Gasoline em ml. Equipamentos continuam no Yard/NPC. O OCR permanece experimental: uma imagem do inventário final não comprova quais itens entraram durante uma sessão sem uma referência anterior.
+Inclui as melhorias de quantidades e captura: Gasoline em ml, nomes separados das pilhas, normalização de registros antigos, recortes do mesmo quadro, observação antecipada de escolhas e prevenção de eventos duplicados por variações de grafia.
 
-Validation: 79 shared/extension tests and 21 desktop tests. Real-client dialog inspected: 12.7mm Rifle Bullets (880). Final Yes observation remains to be confirmed by the user. No screenshots, runtime databases or account data are included in this release.
+Validation: 79 shared/extension tests and 24 desktop tests. The actual-client Yes reached the previous build but was rejected by the freshness guard. The corrected long-open path and rejection of stale/changed contexts pass regression tests; a second automatic live pickup has not yet been validated. The user's confirmed 880-round test pickup was restored locally with explicit user-confirmed evidence. No user history, diagnostic images or account data is included in the package.
 
 ## English
 
-Separates item names from stack quantities, including Gasoline in ml, and repairs legacy stack labels without changing pickup outcomes. Uses one frozen dialog frame, earlier choice observation, faster native input polling and consecutive quantity validation. Uncertain prior dialogs no longer block new item names. OCR failures alone do not prove dismissal. Unknown quantities remain editable and excluded from estimates. Use browser addon 0.9.1 for Gasoline ml quotes. Loot OCR remains experimental.
+Keeps a recognized loot item fresh while a local pixel comparison confirms that the same name remains visible. Fixes rejected clicks on long-open dialogs without inferring pickups from title-only or missing OCR. Includes stack quantity parsing, Gasoline ml pricing and duplicate-event protection. Automatic live validation of the new path remains pending; the previous failed test pickup was restored using the user's explicit confirmation.
 
-0.3.3 also prevents spelling variations within one unchanged dialog from creating additional item events. A new search/visual dismissal or an observed choice distinguishes the next drop.
+Recuperação manual: confirme uma coleta incerta e ajuste a quantidade na própria linha. O estado mostra Confirmado pelo usuário e permite desfazer. Essa ação só corrige o histórico local; não envia comandos ao jogo.

@@ -37,8 +37,8 @@ function render(){
     const values=[date.toLocaleDateString(language.locale)+'\n'+date.toLocaleTimeString(language.locale,{hour:'2-digit',minute:'2-digit'}),number(entry.gained),number(entry.perHour),duration(entry.elapsed),entry.baseAvailable?number(entry.baseGained):'—',entry.baseAvailable?number(entry.basePerHour):'—',number(entry.lost),number(state.lootCounts?.find(row=>row.sessionId===entry.id)?.accepted??0),priceSummary(state.pricing?.sessions?.[entry.id]),[language.t(entry.running?'running':'stopped'),entry.basePartial?language.t('partial'):'',entry.gap?language.t('gap'):''].filter(Boolean).join(' · ')];
     for(const text of values){const cell=document.createElement('td');cell.textContent=text;row.append(cell);}$('sessions').append(row);
   }
-  const accepted=state.lootCounts?.find(row=>row.sessionId===xp?.session?.id)?.accepted??0;
-  $('loot-count').textContent=language.t('lootAccepted',{count:number(accepted)});
+  const accepted=state.lootCounts?.find(row=>row.sessionId===(xp?.session?.id??null))?.accepted??0;
+  $('loot-count').textContent=language.t(xp?.session?.id?'lootAccepted':'lootUnassignedAccepted',{count:number(accepted)});
   $('loot-pending').textContent=state.pendingLoot?language.t('lootPending',{item:state.pendingLoot.item}):state.lootSearching?language.t('lootSearching'):'';
   const summary=state.pricing?.sessions?.[xp?.session?.id??'unassigned'];
   $('loot-cash').textContent=money(summary?.cash??0);$('loot-estimate').textContent=money(summary?.estimated??0);$('loot-unpriced').textContent=number(summary?.unpriced??0);
@@ -46,10 +46,13 @@ function render(){
   if(!$('loot-rows').contains(document.activeElement)){
     $('loot-rows').replaceChildren();
     for(const entry of state.loot??[]){
-      const row=document.createElement('tr');for(const value of [new Date(entry.foundAt).toLocaleString(language.locale),entry.item+(entry.quantity?' · '+number(entry.quantity)+(entry.unit==='ml'?' ml':' ×'):''),language.t(entry.status)]){const cell=document.createElement('td');cell.textContent=value;row.append(cell);}
+      const row=document.createElement('tr');for(const value of [new Date(entry.foundAt).toLocaleString(language.locale),entry.item+(entry.quantity?' · '+number(entry.quantity)+(entry.unit==='ml'?' ml':' ×'):''),language.t(entry.pickupEvidence==='user-confirmed'?'lootUserConfirmed':entry.status)]){const cell=document.createElement('td');cell.textContent=value;row.append(cell);}
       const valuation=entry.valuation,cell=document.createElement('td');cell.textContent=valuation?.value!=null?money(valuation.value)+(valuation.reason==='yard'?' · Yard':valuation.reason==='estimated'?' · '+language.t('priceMarketSource'):''):language.t('priceReason_'+(valuation?.reason??'noQuote'));
       if(valuation?.quote)cell.title=`${valuation.quote.market.label} · ${new Date(valuation.quote.observedAt).toLocaleString(language.locale)} · ${valuation.quote.samples} · ${valuation.quote.name}`;
-      if(entry.quantity||entry.quantityUncertain||valuation?.reason==='quantityUnknown'){
+      if(entry.status==='unconfirmed'||entry.pickupEvidence==='user-confirmed'){
+        const button=document.createElement('button');button.textContent=language.t(entry.pickupEvidence==='user-confirmed'?'lootUndoConfirm':'lootConfirm');button.onclick=()=>act(entry.pickupEvidence==='user-confirmed'?'lootUndoConfirm':'lootConfirm',{id:entry.id});cell.append(document.createElement('br'),button);
+      }
+      if(entry.quantity||entry.quantityUncertain||valuation?.reason==='quantityUnknown'||!entry.cash&&(entry.status==='unconfirmed'||entry.pickupEvidence==='user-confirmed')){
         const form=document.createElement('form'),input=document.createElement('input'),button=document.createElement('button');form.className='quantity-form';input.type='number';input.min='1';input.max='1000000000';input.required=true;input.setAttribute('aria-label',language.t('priceQuantity'));button.textContent=language.t('priceQuantitySave');
         input.value=entry.quantity??'';form.append(input,button);form.onsubmit=async event=>{event.preventDefault();await act('priceQuantity',{id:entry.id,quantity:Number(input.value)});document.activeElement?.blur();render();};cell.append(form);
       }
@@ -65,7 +68,7 @@ function render(){
   renderPrices();
   if(state.preview&&state.preview.image!==previewImage?.src){const generation=++drawGeneration;const image=new Image();image.onload=()=>{if(drawGeneration!==generation)return;previewImage=image;drawPreview();};image.src=state.preview.image;}
 }
-async function act(type,value){try{state=await api.action(type,value);if(state)render();}catch(error){$('error').hidden=false;$('error').textContent=language?.t(error.message)??error.message;setTimeout(()=>$('error').hidden=true,7000);}}
+async function act(type,value){try{state=await api.action(type,value);if(state){if(['lootConfirm','lootUndoConfirm'].includes(type))document.activeElement?.blur();render();}}catch(error){$('error').hidden=false;$('error').textContent=language?.t(error.message)??error.message;setTimeout(()=>$('error').hidden=true,7000);}}
 function renderPrices(){
   const pricing=state.pricing;if(!pricing)return;const bridge=pricing.bridge;
   $('price-bridge-state').textContent=language.t(bridge?.error??(bridge?.clients&&bridge.listening?'pricePaired':bridge?.listening?'priceReady':'priceOff'));

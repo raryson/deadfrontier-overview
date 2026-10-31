@@ -15,6 +15,14 @@ test('decimais M e XP sem abreviação são aceitos sem inventar casas escondida
 test('leituras sem marcador de nível, com denominador zero ou nível impossível são descartadas',()=>{
   for(const value of ['ENERGY 100%','1234K / 2000K','LV 12: 100 / 0','LV 999: 100 / 500','LV 12: ABC / 500'])assert.equal(parseHudXp(value),null);
 });
+test('XP exata abaixo de um milhão aceita alvo com K somente quando o percentual resolve o sufixo',()=>{
+  for(const token of ['669,855','669.855','669855']){
+    const result=parseHudXp(`LV 100: ${token} / 6,100K (11%)`);
+    assert.equal(result.xp,669855);assert.equal(result.nextLevelXp,6100000);assert.equal(result.precision,1);
+  }
+  assert.equal(parseHudXp('LV 100: 1,000 / 6,100K (0%)').xp,1000);
+  for(const text of ['LV 100: 669,855 / 6,100K','LV 100: 669,855 / 6,100K (407%)','LV 100: 12 / 6,100K (0%)','LV 100: 2,113 / 6,100K (35%)'])assert.equal(parseHudXp(text),null);
+});
 const reading=xp=>({xp,level:12,nextLevelXp:2000000,precision:1000});
 test('primeira leitura exige confirmação e duas leituras coerentes podem acompanhar ganho contínuo',()=>{
   const gate=createOcrGate();assert.equal(gate.accept(reading(1000000),90,0),null);

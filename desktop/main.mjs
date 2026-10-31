@@ -109,7 +109,12 @@ function positionOverlay(){
   const display=screen.getDisplayMatching(bounds).workArea;
   const x=Math.max(display.x,Math.min(bounds.x+bounds.width-365,display.x+display.width-365));
   const y=Math.max(display.y,Math.min(bounds.y+bounds.height-290,display.y+display.height-290));
-  overlayWindow.setBounds({x:Math.round(x),y:Math.round(y),width:350,height:275});overlayWindow.showInactive();
+  overlayWindow.setBounds({x:Math.round(x),y:Math.round(y),width:350,height:275});
+  // A game can re-enter the topmost band when it regains focus or switches
+  // display modes. Restore our z-order without activating the overlay.
+  overlayWindow.setAlwaysOnTop(true,'screen-saver');
+  if(!overlayWindow.isVisible())overlayWindow.showInactive();
+  overlayWindow.moveTop();
 }
 async function updateWindows(next){
   if(quitting||!tracker)return;
@@ -191,6 +196,7 @@ else {
     mainWindow.on('close',event=>{if(!quitting){event.preventDefault();mainWindow.hide();}});
     overlayWindow=new BrowserWindow({title:'DF Overview Overlay',width:350,height:275,show:false,frame:false,transparent:true,resizable:false,skipTaskbar:true,focusable:false,alwaysOnTop:true,webPreferences:{preload:path.join(directory,'preload.cjs'),sandbox:true,contextIsolation:true,nodeIntegration:false,backgroundThrottling:false}});
     secureWindow(overlayWindow,overlayURL);overlayWindow.setIgnoreMouseEvents(true,{forward:true});
+    overlayWindow.setAlwaysOnTop(true,'screen-saver');
     tray=new Tray(nativeImage.createFromPath(path.join(root,'icon.png')));tray.setToolTip('DeadFrontier Overview — acompanhamento local');tray.on('double-click',showMain);updateTray();
     ipcMain.handle('overview:read',event=>{if(![uiURL,overlayURL].includes(event.senderFrame?.url))throw Error('Origem inválida');return publicState();});
     ipcMain.handle('overview:action',async(event,message)=>{
@@ -285,6 +291,7 @@ else {
     setInterval(()=>{
       if(quitting||!tracker)return;
       positionOverlay();
+      if(diagnosticFile&&overlayWindow&&!overlayWindow.isDestroyed())try{fsSync.writeFileSync(diagnosticFile+'.overlay.json',JSON.stringify({phase,enabled:tracker.settings.overlay,game:!!target,foreground:target?.foreground,minimized:target?.minimized,source:!!source,visible:overlayWindow.isVisible(),alwaysOnTop:overlayWindow.isAlwaysOnTop(),bounds:overlayWindow.getBounds()}));}catch{}
       if(captureWindow&&Date.now()-Math.max(captureStartedAt,lastCaptureMessage)>45000){finishCapture('captureFailed');phase='error';detail='O leitor não respondeu. Nova tentativa em alguns segundos.';retryAt=Date.now()+10000;broadcast();}
       if(selfTest){fsSync.writeFileSync(path.join(dataDirectory,'test-status.json'),JSON.stringify({phase,game:!!target,stats:tracker.snapshot().stats,sessionCount:store.count(),session:tracker.experience?.session,history:store.history(5),loot:store.lootHistory(),pendingLoot:lootFlow.pending}));}
     },1000);

@@ -1,8 +1,8 @@
 # DeadFrontier Overview — Windows
 
-Prévia **0.3.0** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
+Prévia **0.3.1** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
 
-[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.3.0/deadfrontier-overview-windows-0.3.0.zip)
+[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.3.1/deadfrontier-overview-windows-0.3.1.zip)
 
 ## Usar a versão portátil
 

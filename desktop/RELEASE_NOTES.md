@@ -1,4 +1,16 @@
-# Windows preview 0.3.0 — preços e Yard
+# Windows preview 0.3.1 — overlay e leitura de XP
+
+- Restaura a prioridade da janela do overlay quando o client volta ao primeiro plano, sem tirar o foco do jogo.
+- Corrige a leitura de XP exata com alvo abreviado, como `669,855 / 6,100K (11%)`. O percentual visível diferencia esse formato de um sufixo perdido pelo OCR.
+- Mantém a integração de preços com a extensão 0.9.0.
+
+Validation: 78 shared/extension tests and 13 desktop tests passed. The user confirmed the overlay is visible again over the actual client. Exact XP parsing is covered by a regression test, including ambiguous and missing-suffix rejection.
+
+## English
+
+Restores overlay z-order when the game regains focus, without activating the overlay. Supports exact XP against an abbreviated target when the visible percentage disambiguates it from OCR suffix loss. Browser extension 0.9.0 remains compatible.
+
+## Integração de preços da versão 0.3.0
 
 Integração opcional com a extensão 0.9.0 por pareamento local.
 

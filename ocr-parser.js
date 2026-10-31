@@ -26,8 +26,16 @@ export function parseHudXp(text) {
   if(!current||!target||level<1||level>415||target.value<=0)return null;
   // A dropped K/M suffix turns millions into thousands and creates false deaths.
   const currentUnit=/[KMB]\s*$/.exec(match[2]),targetUnit=/[KMB]\s*$/.exec(match[3]);
-  if(targetUnit&&!currentUnit&&current.value!==0)return null;
   const percent=/^\s*\(\s*(\d{1,3})\s*%\s*\)/.exec(normalized.slice(match.index+match[0].length));
+  if(targetUnit&&!currentUnit&&current.value!==0){
+    // Below one million the game can show exact XP against an abbreviated
+    // target. Require the visible percentage to distinguish this from a lost
+    // suffix; reject readings where both interpretations would fit.
+    const shown=percent?Number(percent[1]):NaN;
+    const multiplier=({K:1000,M:1000000,B:1000000000})[targetUnit[0].trim()];
+    const ratio=current.value/target.value*100;
+    if(current.value>=1000000||!Number.isFinite(shown)||shown>100||Math.abs(ratio-shown)>1.1||Math.abs(ratio*multiplier-shown)<=1.1)return null;
+  }
   // OCR often reads the closing parenthesis as a 7 (40% -> 407%). Such an
   // impossible percentage is not evidence against otherwise valid XP tokens.
   if(percent&&Number(percent[1])<=100&&Math.abs(current.value/target.value*100-Number(percent[1]))>2)return null;

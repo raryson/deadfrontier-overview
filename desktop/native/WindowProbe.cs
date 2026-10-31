@@ -25,6 +25,7 @@ public static class WindowProbe {
   [DllImport("user32.dll")] private static extern short GetAsyncKeyState(int key);
   [DllImport("user32.dll")] private static extern bool GetCursorPos(out Point point);
   private static volatile string lootHandle="";
+  private static volatile int armGeneration=0,armInitialMask=0;
   public static void Main(string[] args) {
     int parent=0,fixture=0;string custom="";bool once=false;
     for(int i=0;i<args.Length;i++) {
@@ -35,8 +36,13 @@ public static class WindowProbe {
     }
     try {SetProcessDpiAwarenessContext(new IntPtr(-4));}catch(EntryPointNotFoundException){}
     var serializer=new JavaScriptSerializer();
-    if(!once){var commands=new Thread(delegate(){try{string line;while((line=Console.ReadLine())!=null)lootHandle=line.StartsWith("ARM ")?line.Substring(4):"";}catch{}});commands.IsBackground=true;commands.Start();}
-    bool[] previous=null;string priorHandle="";
+    if(!once){var commands=new Thread(delegate(){try{string line;while((line=Console.ReadLine())!=null){
+      string handle=line.StartsWith("ARM ")?line.Substring(4):"";if(handle==lootHandle)continue;
+      int mask=0;int[] keys={0x45,0x54,0x43,1};
+      if(handle.Length>0&&GetForegroundWindow().ToInt64().ToString()==handle)for(int k=0;k<4;k++)if((GetAsyncKeyState(keys[k])&0x8000)!=0)mask|=1<<k;
+      armInitialMask=mask;lootHandle=handle;armGeneration++;
+    }}catch{}});commands.IsBackground=true;commands.Start();}
+    bool[] previous=null;string priorHandle="";int priorGeneration=-1;
     do {
       if(parent>0)try{if(Process.GetProcessById(parent).HasExited)return;}catch{return;}
       var windows=new List<object>();
@@ -66,13 +72,14 @@ public static class WindowProbe {
       },IntPtr.Zero);
       Console.WriteLine(serializer.Serialize(new {windows=windows}));
       if(once)return;
-      // Read only E/T/C and left-click edges while a confirmed loot dialog is
+      // Read only E/T/C and left-click edges while a recognized loot title is
       // armed by the parent AND that exact game's window is in the foreground.
-      for(int tick=0;tick<25;tick++){
-        Thread.Sleep(80);
+      for(int tick=0;tick<100;tick++){
+        Thread.Sleep(20);
         string armed=lootHandle;IntPtr foreground=GetForegroundWindow();
         if(armed.Length==0||foreground.ToInt64().ToString()!=armed){previous=null;priorHandle="";continue;}
         int[] keys={0x45,0x54,0x43,1};bool[] pressed=new bool[4],edge=new bool[4];
+        if(priorGeneration!=armGeneration){previous=new bool[4];for(int k=0;k<4;k++)previous[k]=(armInitialMask&(1<<k))!=0;priorHandle=armed;priorGeneration=armGeneration;}
         for(int k=0;k<4;k++){short value=GetAsyncKeyState(keys[k]);pressed[k]=(value&0x8000)!=0;edge[k]=(value&1)!=0;}
         if(previous!=null&&priorHandle==armed)for(int k=0;k<4;k++)if(edge[k]||(pressed[k]&&!previous[k])){
           Point point;Rect bounds;if(!GetCursorPos(out point)||!GetWindowRect(foreground,out bounds))continue;

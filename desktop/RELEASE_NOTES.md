@@ -1,29 +1,17 @@
-# Windows preview 0.3.1 — overlay e leitura de XP
+# Windows preview 0.3.2 — leitura de loot e quantidades
 
-- Restaura a prioridade da janela do overlay quando o client volta ao primeiro plano, sem tirar o foco do jogo.
-- Corrige a leitura de XP exata com alvo abreviado, como `669,855 / 6,100K (11%)`. O percentual visível diferencia esse formato de um sufixo perdido pelo OCR.
-- Mantém a integração de preços com a extensão 0.9.0.
+- Separa nome e quantidade: Gasoline (812) vira Gasoline e 812 ml; munição usa a quantidade da pilha.
+- Normaliza os registros antigos com sufixo numérico sem alterar a sessão nem transformar resultados incertos em coletas.
+- Lê nome e botões do mesmo quadro, com recorte alternativo para textos longos.
+- Detecta o título para observar Yes/No/Use mais cedo e preserva cliques durante a leitura do nome. O helper verifica os quatro comandos a cada 20 ms, somente no client em primeiro plano quando o leitor está armado.
+- Um diálogo antigo não confirmado deixa de bloquear um item diferente.
+- Falha de OCR não equivale a fechamento enquanto os pixels do título continuam presentes.
+- Quantidades precisam de leituras concordantes; ficam pendentes quando ambíguas e podem ser corrigidas no painel.
 
-Validation: 78 shared/extension tests and 13 desktop tests passed. The user confirmed the overlay is visible again over the actual client. Exact XP parsing is covered by a regression test, including ambiguous and missing-suffix rejection.
+Use a extensão 0.9.1 para cotações de Gasoline em ml. Equipamentos continuam no Yard/NPC. O OCR permanece experimental: uma imagem do inventário final não comprova quais itens entraram durante uma sessão sem uma referência anterior.
 
-## English
-
-Restores overlay z-order when the game regains focus, without activating the overlay. Supports exact XP against an abbreviated target when the visible percentage disambiguates it from OCR suffix loss. Browser extension 0.9.0 remains compatible.
-
-## Integração de preços da versão 0.3.0
-
-Integração opcional com a extensão 0.9.0 por pareamento local.
-
-- Equipamentos comuns usam Yard/NPC e não geram buscas de mercado.
-- Customizados/GC/NGC exigem a seleção explícita da variante.
-- Demais itens recebem o menor preço unitário observado, separado por zona.
-- Dinheiro, estimativas e itens sem preço/quantidade aparecem no histórico, overlay e CSV.
-- Os nomes originais dos itens são preservados.
-
-Atualize a extensão e siga o guia docs/prices.md no repositório. Recarregue o inventário da cidade para sincronizar o catálogo. O OCR de loot permanece experimental; as estimativas só incluem escolhas aceitas e quantidades conhecidas. Nenhuma venda, compra ou operação bancária é executada pela sincronização.
-
-Validation: 77 extension tests and 13 desktop tests, authenticated loopback integration with offline retry, public listing queries and UI validation using an isolated fictional profile. Live extraction of the game Yard catalog still requires reloading the updated extension in the user browser.
+Validation: 79 shared/extension tests and 20 desktop tests. Real-client dialog inspected: 12.7mm Rifle Bullets (880). Final Yes observation remains to be confirmed by the user. No screenshots, runtime databases or account data are included in this release.
 
 ## English
 
-Optional extension pairing syncs the game item catalog/Yard reference and public listing quotes to the Windows app. Ordinary equipment uses Yard; explicit custom/GC/NGC variants may use market quotes. Original item names are preserved. Estimates appear per loot/session, in the overlay and CSV. Update to extension 0.9.0 and follow docs/prices.md. Loot OCR remains experimental; no trades are executed.
+Separates item names from stack quantities, including Gasoline in ml, and repairs legacy stack labels without changing pickup outcomes. Uses one frozen dialog frame, earlier choice observation, faster native input polling and consecutive quantity validation. Uncertain prior dialogs no longer block new item names. OCR failures alone do not prove dismissal. Unknown quantities remain editable and excluded from estimates. Use browser addon 0.9.1 for Gasoline ml quotes. Loot OCR remains experimental.

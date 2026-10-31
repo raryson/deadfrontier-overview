@@ -15,7 +15,7 @@ export function parseMarketResponse(text,zone,observedAt=Date.now()){
     const base=itemId.split('_')[0],stackable=/ammo$/i.test(base)||base==='credits';
     const quantity=stackable?Number(get('quantity')):1;
     if(!Number.isSafeInteger(quantity)||quantity<1||!/^[a-zA-Z0-9_.:-]{1,100}$/.test(itemId))continue;
-    offers.push({itemId,name,quantity,total,unitKind:/ammo$/i.test(base)?'round':base==='credits'?'unknown':'item'});
+    offers.push({itemId,name,quantity,total,unitKind:base==='fuelammo'?'ml':/ammo$/i.test(base)?'round':base==='credits'?'unknown':'item'});
   }
   return sanitizeMarketBatch({version:1,market:{zone:String(zone),label:`Zona ${zone}`},observedAt,offers},observedAt);
 }

@@ -1,10 +1,10 @@
 import Tesseract from '../../vendor/ocr/tesseract.esm.min.js';
 import {parseHudXp,createOcrGate,defaultHudRegion} from '../../ocr-parser.js';
-import {lootRegion,parseLootDialog,lootButtons,searchInProgress,wordsOf} from './loot-model.mjs';
+import {lootRegion,parseLootDialog,lootButtons,searchInProgress,wordsOf,titleStillVisible} from './loot-model.mjs';
 const bridge=window.captureBridge;
 const video=document.getElementById('game');
 const gate=createOcrGate();
-let config,region,worker,lootWorker,stream,epoch=0,previewRequested=false,frameWidth=0,frameHeight=0;
+let config,region,worker,lootWorker,headerWorker,stream,epoch=0,previewRequested=false,frameWidth=0,frameHeight=0;
 const sendStatus=(phase,detail='')=>bridge.status({token:config?.token,phase,detail:String(detail).slice(0,200)});
 function prepare(region,threshold=160,neutralOnly=false){
   const width=Math.max(1,Math.round(region.width*video.videoWidth)),height=Math.max(1,Math.round(region.height*video.videoHeight));
@@ -26,7 +26,7 @@ bridge.subscribe(update=>{
 window.startCapture=async()=>{
   try{
     config=await bridge.config();
-    stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:{max:5}},audio:false});
+    stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:{max:12}},audio:false});
     stream.getVideoTracks()[0].addEventListener('ended',()=>sendStatus('ended'));
     video.srcObject=stream;await video.play();
     const saved=config.region;
@@ -52,40 +52,82 @@ window.startCapture=async()=>{
           langPath:new URL('../../vendor/ocr',import.meta.url).href,workerBlobURL:false,cacheMethod:'none'
         });
         await lootWorker.setParameters({tessedit_pageseg_mode:Tesseract.PSM.SINGLE_BLOCK,user_defined_dpi:'300'});
-        let burstUntil=0,lootDelay=900;
+        headerWorker=await Tesseract.createWorker('eng',1,{
+          workerPath:new URL('../../vendor/ocr/worker.min.js',import.meta.url).href,
+          corePath:new URL('../../vendor/ocr/tesseract-core-lstm.wasm.js',import.meta.url).href,
+          langPath:new URL('../../vendor/ocr',import.meta.url).href,workerBlobURL:false,cacheMethod:'none'
+        });
+        await headerWorker.setParameters({tessedit_pageseg_mode:Tesseract.PSM.SINGLE_LINE,user_defined_dpi:'300'});
+        let lastFallback=0,lastSearch=0,lootDelay=150,lastTitle=null;
+        // Every recognition pass uses this frozen card, including button boxes.
+        // The old reader cropped only 38px of prompt and reread live frames
+        // between name/buttons; wrapped equipment names could disappear midway.
+        function cropCard(original,x,y,width,height){
+          const canvas=document.createElement("canvas");canvas.width=Math.round(original.width*width);canvas.height=Math.round(original.height*height);canvas.getContext("2d").drawImage(original,original.width*x,original.height*y,original.width*width,original.height*height,0,0,canvas.width,canvas.height);return canvas;
+        }
+        function filterCard(original,threshold){
+          const canvas=document.createElement('canvas');canvas.width=original.width;canvas.height=original.height;
+          const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(original,0,0);
+          if(threshold===null)return canvas;
+          const pixels=ctx.getImageData(0,0,canvas.width,canvas.height);
+          for(let i=0;i<pixels.data.length;i+=4){const r=pixels.data[i],g=pixels.data[i+1],b=pixels.data[i+2];const c=r*.299+g*.587+b*.114>threshold&&Math.max(r,g,b)-Math.min(r,g,b)<65?0:255;pixels.data[i]=pixels.data[i+1]=pixels.data[i+2]=c;pixels.data[i+3]=255;}
+          ctx.putImageData(pixels,0,0);return canvas;
+        }
         async function readLoot(){
           try{
             if(!video.videoWidth)return;
-            const revision=epoch,area=lootRegion(video.videoWidth,video.videoHeight);
-            const promptArea={x:area.x+area.width*35/350,y:area.y+area.height*30/310,width:area.width*280/350,height:area.height*38/310};
-            const buttonArea={...area,y:area.y+area.height*145/310,height:area.height*155/310};
-            let result,text,parsed,buttonResult,buttonImage;
-            for(const threshold of [null,160,100]){
-              const promptImage=prepare(promptArea,threshold,threshold!==null);
-              result=await lootWorker.recognize(await canvasBytes(promptImage),{},{text:true,blocks:true});
-              buttonImage=prepare(buttonArea,110,true);
-              buttonResult=await lootWorker.recognize(await canvasBytes(buttonImage),{},{text:true,blocks:true});
-              text=result.data.text+'\n'+buttonResult.data.text;parsed=parseLootDialog(text);
-              if(parsed){
+            const revision=epoch,area=lootRegion(video.videoWidth,video.videoHeight),card=prepare(area,null);
+            const title=cropCard(card,110/350,10/310,130/350,20/310);
+            const titlePixels=title.getContext('2d').getImageData(0,0,title.width,title.height).data;
+            const titleVisible=titleStillVisible(lastTitle,titlePixels);
+            const header=await headerWorker.recognize(await canvasBytes(title));
+            const titlePresent=/(?:[I1L\[]TEM|MEM)\s*FOU[MN]D/i.test(header.data.text);
+            const verifiedHeader=header.data.confidence>=40&&/(?:[I1L\[]TEM|MEM)\s*FOU[MN]D/i.test(header.data.text);
+            if(revision!==epoch)return;
+            if(verifiedHeader){lastTitle=titlePixels;bridge.loot({token:config.token,reading:{kind:'hint'}});}
+            // Header recognition arms only the game's choice keys immediately.
+            // Full-card OCR may finish after the user has already clicked Yes.
+            if(verifiedHeader||Date.now()-lastFallback>=1200){
+              lastFallback=Date.now();let best=null,lastText='';const quantityVotes=[];
+
+              const buttonCard=cropCard(card,0,145/310,1,130/310);
+              const buttonArea={...area,y:area.y+area.height*145/310,height:area.height*130/310};
+              const buttonImage=filterCard(buttonCard,110);
+              const buttonResult=await lootWorker.recognize(await canvasBytes(buttonImage),{},{text:true,blocks:true});
+              for(const [promptHeight,threshold] of [[38,null],[38,80],[60,null],[60,110]]){
+                const prompt=cropCard(card,35/350,30/310,280/350,promptHeight/310);
+                const image=filterCard(prompt,threshold),result=await lootWorker.recognize(await canvasBytes(image),{},{text:true,blocks:true});
+                const text=result.data.text+'\n'+buttonResult.data.text;lastText=text;
+                const parsed=parseLootDialog(text);
+                if(!parsed)continue;
+                if(parsed.quantity&&/\(\s*[\d, ]+\s*(?:ML|ROUNDS?)?\s*\)/i.test(result.data.text))quantityVotes.push(parsed.quantity);
                 const tokens=parsed.item.toUpperCase().split(/\s+/).map(t=>t.replace(/[^A-Z0-9]/g,''));
                 const words=wordsOf(result.data.blocks).filter(w=>parsed.cash?/[\d$]/.test(w.text):tokens.includes(w.text.toUpperCase().replace(/[^A-Z0-9]/g,'')));
-                if(!words.length||words.some(w=>w.confidence<65))parsed=null;
-                else break;
+                if(!words.length||words.some(w=>w.confidence<45)||result.data.confidence<65)continue;
+                const confidence=result.data.confidence,nameConfidence=Math.min(...words.map(w=>w.confidence));
+                const quantityWord=parsed.quantity?wordsOf(result.data.blocks).find(w=>Number(w.text.replace(/[^0-9]/g,''))===parsed.quantity&&/[()]/.test(w.text)):null;
+                if(!best||confidence>best.confidence)best={text,confidence,nameConfidence,...(quantityWord?.confidence>=70||result.data.confidence>=85&&parsed.quantity?{quantityCandidate:parsed.quantity}:{}),buttons:lootButtons(buttonResult.data.blocks,buttonArea,buttonImage.width,buttonImage.height)};
+                if(confidence>=80&&(!parsed.quantity||quantityVotes.filter(q=>q===parsed.quantity).length>=2))break;
               }
+              if(best){
+                lastTitle=titlePixels;
+                const parsed=parseLootDialog(best.text);
+                if(parsed?.quantity){
+                  best.quantityVerified=quantityVotes.filter(q=>q===parsed.quantity).length>=2;
+                  if(best.quantityVerified)best.quantity=parsed.quantity;
+                }
+              }
+              if(revision!==epoch)return;
+              const partial=titlePresent||titleVisible!==false&&!!lastTitle||/ITEM\s*FOUND|YOU\s+HAVE\s+FOUND|WILL\s+YOU\s+TAKE|INVENTORY\s+SLOTS\s+FREE/i.test(lastText);
+              bridge.loot({token:config.token,reading:best?{kind:'found',...best,verifiedHeader,headerText:header.data.text.slice(0,100)}:{kind:partial?'unknown':'absent',text:lastText.slice(0,1200),headerText:header.data.text.slice(0,100)}});
             }
-            if(revision!==epoch)return;
-            // A partially read dialog must not be mistaken for a dismissal.
-            const partial=/ITEM\s*FOUND|YOU\s+HAVE\s+FOUND|WILL\s+YOU\s+TAKE|INVENTORY\s+SLOTS\s+FREE/i.test(text);
-            lootDelay=parsed||partial?350:900;
-            bridge.loot({token:config.token,reading:{kind:parsed?'found':partial?'unknown':'absent',text:text.slice(0,1200),confidence:result.data.confidence,
-              buttons:parsed?lootButtons(buttonResult.data.blocks,buttonArea,buttonImage.width,buttonImage.height):{}}});
-            if(!parsed&&!partial){
-              const progress=prepare({x:.25,y:.75,width:.5,height:.25},160,true);
-              const check=await lootWorker.recognize(await canvasBytes(progress));
-              if(revision===epoch&&check.data.confidence>=55&&searchInProgress(check.data.text)){burstUntil=Date.now()+15000;bridge.loot({token:config.token,reading:{kind:'searching'}});}
+            if(!verifiedHeader&&Date.now()-lastSearch>=3000){
+              lastSearch=Date.now();const progress=prepare({x:.25,y:.75,width:.5,height:.25},160,true);
+              const check=await headerWorker.recognize(await canvasBytes(progress));
+              if(revision===epoch&&check.data.confidence>=55&&searchInProgress(check.data.text))bridge.loot({token:config.token,reading:{kind:'searching'}});
             }
           }catch{/* A loot OCR failure never stops XP or confirms a pickup. */}
-          finally{if(stream?.active)setTimeout(readLoot,Date.now()<burstUntil?150:lootDelay);}
+          finally{if(stream?.active)setTimeout(readLoot,lootDelay);}
         }
         await readLoot();
       }catch{/* XP remains usable if the optional loot reader cannot start. */}
@@ -128,4 +170,4 @@ window.startCapture=async()=>{
     await loop();
   }catch(error){sendStatus('error',error.message);throw error;}
 };
-window.addEventListener('pagehide',()=>{stream?.getTracks().forEach(track=>track.stop());worker?.terminate();lootWorker?.terminate();});
+window.addEventListener('pagehide',()=>{stream?.getTracks().forEach(track=>track.stop());worker?.terminate();lootWorker?.terminate();headerWorker?.terminate();});

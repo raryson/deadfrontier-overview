@@ -1,11 +1,9 @@
-# DeadFrontier Overview 0.9.0
+# DeadFrontier Overview 0.9.1
 
-Conexão opcional com o app Windows 0.3.0 para sincronizar cotações e catálogo. Equipamentos comuns usam Yard/NPC; customizados/GC/NGC requerem escolha explícita de variante. Os nomes originais são preservados.
+Corrige a unidade de Gasoline nas cotações: ml, com preço proporcional à quantidade da pilha. Atualize também o app Windows para 0.3.2 para receber essa unidade.
 
-Chrome: extraia deadfrontier-overview-chrome.zip, recarregue a extensão em chrome://extensions e abra o painel pelo ícone. Firefox: use deadfrontier-overview.zip para a instalação temporária ou envie para assinatura Mozilla. Os pacotes do GitHub não atualizam automaticamente as versões das lojas.
+Chrome: extraia o ZIP do Chrome na pasta instalada e recarregue em chrome://extensions. Firefox: recarregue o pacote temporário ou envie para assinatura. O pareamento existente é mantido.
 
-No app, gere um código em Preços do mercado. Digite os oito dígitos na extensão, autorize os acessos opcionais e recarregue o inventário da cidade. Guia completo: docs/prices.md no repositório.
+A versão também inclui a correção compartilhada de leitura de XP exata contra alvo abreviado. Guia de conexão: docs/prices.md.
 
-Dados sincronizados: itens, nomes, tipos, referência Yard e preços públicos. Sem cookies, senha, ID da conta, nomes de vendedores ou imagens. Apenas buscas de anúncios, sem compra/venda.
-
-English: pair with Windows app 0.3.0 to sync public quotes and the game catalog/Yard reference over authenticated loopback. Ordinary equipment is excluded from automatic market searches. Original names are kept. Update/reload the extension, enter the app pairing code, allow optional access, then reload the outpost inventory. GitHub packages do not automatically update store installations.
+English: Gasoline quotes now use ml. Update the Windows app to 0.3.2, reload the extension, and keep the existing pairing. Also includes the shared exact-XP parsing correction. No new permissions.

@@ -6,7 +6,7 @@ export function sanitizeMarketBatch(input,now=Date.now()){
   const market={server:'fairview',zone:input.market.zone,label:String(input.market.label??input.market.zone).replace(/[\u0000-\u001f]/g,'').slice(0,80)};
   if(!Number.isSafeInteger(input.observedAt)||input.observedAt<now-7*86400000||input.observedAt>now+300000)throw Error('Invalid quote timestamp.');
   const offers=input.offers.map(offer=>{
-    if(!identifier(offer.itemId)||typeof offer.name!=='string'||!offer.name.trim()||offer.name.length>120||!['item','round','unknown'].includes(offer.unitKind)||
+    if(!identifier(offer.itemId)||typeof offer.name!=='string'||!offer.name.trim()||offer.name.length>120||!['item','round','ml','unknown'].includes(offer.unitKind)||
       !Number.isSafeInteger(offer.total)||offer.total<1||offer.total>1e12||!Number.isSafeInteger(offer.quantity)||offer.quantity<1||offer.quantity>1e9)throw Error('Invalid market offer.');
     return{itemId:offer.itemId,name:offer.name.trim(),unitKind:offer.unitKind,total:offer.total,quantity:offer.quantity};
   });

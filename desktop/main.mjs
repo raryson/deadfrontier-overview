@@ -32,7 +32,7 @@ const overlayURL='dfov://app/desktop/ui/overlay.html';
 const captureURL='dfov://app/desktop/ui/capture.html';
 const csp="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self' data: blob:; img-src 'self' data: blob:; style-src 'self'; object-src 'none'; frame-src 'none'";
 let store,tracker,lootFlow,priceBridge,priceCache,mainWindow,overlayWindow,captureWindow,tray,probe,fixtureWindow;
-let quitting=false,windows=[],target=null,source=null,token=null,preview=null,retryAt=0,phase='waiting',detail='',captureStartedAt=0,lastCaptureMessage=0,probeBusy=false,selecting=false,selectionEpoch=0;
+let quitting=false,windows=[],target=null,source=null,token=null,preview=null,retryAt=0,phase='waiting',detail='',captureStartedAt=0,lastCaptureMessage=0,probeBusy=false,selecting=false,selectionEpoch=0,armedHandle='';
 const ownRenderer=(event,url)=>event.senderFrame?.url===url;
 function priceState(){
   const selected=tracker.settings.priceMarket??'',now=Date.now();
@@ -62,7 +62,7 @@ function finishCapture(reason='gameClosed'){
   if(old&&!old.isDestroyed())old.destroy();
   overlayWindow?.hide();phase=tracker?.settings.autoTrack?'waiting':'disabled';detail='';broadcast();
 }
-function armLoot(armed){if(probe?.stdin.writable)probe.stdin.write(armed&&target?'ARM '+target.handle+'\n':'DISARM\n');}
+function armLoot(armed){const handle=armed&&target?target.handle:'';if(probe?.stdin.writable&&handle!==armedHandle){probe.stdin.write(handle?'ARM '+handle+'\n':'DISARM\n');armedHandle=handle;}}
 function secureWindow(window,url){
   window.webContents.setWindowOpenHandler(()=>({action:'deny'}));
   window.webContents.on('will-navigate',(event,destination)=>{if(destination!==url)event.preventDefault();});
@@ -138,6 +138,7 @@ async function updateWindows(next){
 }
 function startProbe(){
   probe?.kill();
+  armedHandle='';
   const helper=path.join(directory,'bin','DFWindowProbe.exe');
   if(!fsSync.existsSync(helper)){phase='error';detail='Helper de detecção ausente. Gere o app com npm run package.';broadcast();return;}
   const args=['--parent',String(process.pid)];
@@ -270,11 +271,11 @@ else {
     ipcMain.on('capture:loot',(event,message)=>{
       if(!ownRenderer(event,captureURL)||event.sender!==captureWindow?.webContents||message?.token!==token||!source||target?.minimized)return;
       const reading=message.reading;
-      if(!['found','absent','unknown','searching'].includes(reading?.kind)||String(reading.text??'').length>1200)return;
-      if(diagnosticFile)try{fsSync.writeFileSync(diagnosticFile+'.loot.json',JSON.stringify(reading));}catch{}
+      if(!['hint','found','absent','unknown','searching'].includes(reading?.kind)||String(reading.text??'').length>1200)return;
+      if(diagnosticFile&&reading.kind!=='hint')try{fsSync.writeFileSync(diagnosticFile+'.loot.json',JSON.stringify(reading));}catch{}
       if(reading.buttons&&Object.values(reading.buttons).some(value=>!validRegion(value)))return;
       lootFlow.observe(reading,tracker.experience?.session?.running?tracker.experience.session.id:null);
-      armLoot(!!lootFlow.pending);broadcast();
+      armLoot(lootFlow.armed());broadcast();
     });
     await Promise.all([mainWindow.loadURL(uiURL),overlayWindow.loadURL(overlayURL)]);
     globalShortcut.register('Alt+Shift+D',()=>mainWindow.isVisible()?mainWindow.hide():showMain());

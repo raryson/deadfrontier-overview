@@ -46,3 +46,9 @@ The app receives filtered price/catalog data over authenticated loopback only. N
 - [Requisições entre origens em extensões Chrome](https://developer.chrome.com/docs/extensions/develop/concepts/network-requests)
 - [Permissões opcionais do Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/optional_host_permissions)
 - [Protocolo de anúncios: implementação pública de referência](https://greasyfork.org/en/scripts/441829-dead-frontier-api/code). O endpoint e o formato também foram conferidos com consultas públicas reais. A extensão não incorpora esse script.
+
+## Quantidades de loot (app 0.3.2 / extensão 0.9.1)
+
+Gasoline usa ml no histórico e nas cotações. Nome e quantidade são separados antes da busca. A leitura precisa de concordância numérica; uma quantidade ambígua fica fora da estimativa até ser confirmada ou ajustada na linha do loot. O ajuste permanece disponível para corrigir números reconhecidos incorretamente. A atualização normaliza sufixos numéricos antigos sem converter resultados não confirmados em aceitos.
+
+Gasoline is measured in ml. Stack names and quantities are stored separately; uncertain quantities stay excluded and editable. Legacy normalization preserves the original text and pickup outcome.

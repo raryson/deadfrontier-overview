@@ -35,3 +35,9 @@ test('ordinary equipment uses Yard regardless of market listings; custom prices 
   assert.equal(valueLoot({...entry,priceMode:'market',priceItemId:'reactiveslx_stats2424'},quotes,{now,catalog}).value,5000000);
   assert.equal(valueLoot({status:'accepted',item:'Unknown'},quotes,{now,requireCatalog:true}).reason,'noCatalog');
 });
+
+test('Gasoline quotes and loot estimates use millilitres rather than item or bullet counts',()=>{
+  const raw=new URLSearchParams({tradelist_maxresults:'1',tradelist_0_item:'fuelammo',tradelist_0_itemname:'Gasoline',tradelist_0_quantity:'1000',tradelist_0_price:'3000'}).toString();
+  const parsed=parseMarketResponse(raw,'21',now);assert.equal(parsed.offers[0].unitKind,'ml');
+  const quotes=aggregateQuotes(parsed);assert.equal(valueLoot({status:'accepted',item:'GASOLINE',quantity:812,unit:'ml'},quotes,{now}).value,2436);
+});

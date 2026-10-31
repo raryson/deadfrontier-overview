@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import os from 'node:os';import path from 'node:path';
-import {LootFlow,parseLootDialog,choiceAt,searchInProgress} from '../ui/loot-model.mjs';import {DesktopStore} from '../store.mjs';
+import {LootFlow,parseLootDialog,parseLootItem,titleStillVisible,choiceAt,searchInProgress} from '../ui/loot-model.mjs';import {DesktopStore} from '../store.mjs';
 const text='ITEM FOUND\nYOU HAVE FOUND A NEROTONIN 8B. WILL YOU TAKE IT?\nYES (E) NO (T) USE (C)\n(8 INVENTORY SLOTS FREE)';
 const found={kind:'found',text,confidence:85,buttons:{accepted:{x:.4,y:.5,width:.05,height:.04},rejected:{x:.5,y:.5,width:.05,height:.04}}};
 test('loot parser needs item-found prompt, item name and both choices',()=>{
@@ -46,4 +46,62 @@ test('a new confirmed dialog after a choice does not get attributed to the previ
   const next={...found,text:text.replace('NEROTONIN 8B','TEST RIFLE')};
   flow.observe(next,'s1',1000);flow.observe(next,'s1',1500);flow.observe(next,'s1',2000);
   assert.equal(rows.size,2);assert.equal([...rows.values()][0].status,'accepted');assert.equal(flow.pending.item,'TEST RIFLE');
+});
+
+test('loot quantities are separate from original item names, including clipped closing parentheses and ml',()=>{
+  for(const suffix of ['(812)','(812','(812 ml)'])assert.deepEqual(parseLootItem('GASOLINE '+suffix),{item:'GASOLINE',key:'GASOLINE#812',quantity:812,unit:'ml'});
+  assert.equal(parseLootItem('HEAVY GRENADES (158').quantity,158);
+  assert.equal(parseLootItem('12.7MM RIFLE BULLETS (880)').item,'12.7MM RIFLE BULLETS');
+  assert.equal(parseLootItem('NEROTONIN 8B').quantity,undefined);
+  assert.equal(parseLootItem('Grey Mesh SLX').item,'Grey Mesh SLX');
+  assert.equal(parseLootItem('Sweeper').item,'Sweeper');
+  assert.equal(parseLootItem('WHISKEY (').item,'WHISKEY');
+  assert.equal(parseLootItem('GASOLINE (0)'),null);
+});
+test('header arms choices before slow full-card OCR and a verified name can consume an early Yes',()=>{
+  const rows=new Map(),flow=new LootFlow({saveLoot:e=>rows.set(e.id,structuredClone(e))});
+  flow.observe({kind:'hint'},'s1',0);assert.equal(flow.armed(0),true);
+  flow.choose({action:'click',x:.42,y:.52},100);
+  flow.observe({...found,verifiedHeader:true},'s1',300);
+  assert.equal(rows.size,1);assert.equal(flow.pending.choice,'accepted');
+  flow.finish(1500,true);assert.equal([...rows.values()][0].status,'accepted');
+  assert.equal(flow.armed(1500),false);
+});
+test('a stale or unrelated early click cannot accept a later item',()=>{
+  for(const input of [{action:'click',x:.9,y:.9},{action:'accepted'}]){
+    const rows=new Map(),flow=new LootFlow({saveLoot:e=>rows.set(e.id,structuredClone(e))});
+    flow.choose(input,0);flow.observe({kind:'hint'},'s1',200);
+    flow.choose(input,250);flow.observe({...found,verifiedHeader:true},'s1',input.action==='accepted'?5000:300);
+    flow.finish(6000,true);assert.equal([...rows.values()][0].status,'unconfirmed');
+  }
+});
+test('an unconfirmed old dialog cannot block the next equipment drop',()=>{
+  const rows=new Map(),flow=new LootFlow({saveLoot:e=>rows.set(e.id,structuredClone(e))});
+  flow.observe(found,'s1',0);flow.observe(found,'s1',500);
+  const next={...found,text:text.replace('NEROTONIN 8B','GREY MESH SLX')};
+  flow.observe(next,'s1',1000);flow.observe(next,'s1',1400);
+  assert.equal(rows.size,2);assert.equal([...rows.values()][0].status,'unconfirmed');assert.equal(flow.pending.item,'GREY MESH SLX');
+});
+test('legacy stack names migrate without inventing pickups or changing session identity',()=>{
+  const folder=fs.mkdtempSync(path.join(os.tmpdir(),'dfov-quantity-')),file=path.join(folder,'loot.sqlite');
+  let store=new DesktopStore(file);store.db.prepare("DELETE FROM state WHERE key='lootQuantityMigration'").run();
+  store.saveLoot({id:'gas',item:'GASOLINE (812',sessionId:'old-run',foundAt:1,status:'accepted'});
+  store.saveLoot({id:'grenade',item:'HEAVY GRENADES (158',sessionId:'old-run',foundAt:2,status:'unconfirmed'});
+  store.close();store=new DesktopStore(file);
+  assert.equal(store.lootById('gas').item,'GASOLINE');assert.equal(store.lootById('gas').quantity,812);assert.equal(store.lootById('gas').unit,'ml');assert.equal(store.lootById('gas').sessionId,'old-run');assert.equal(store.lootById('gas').rawItem,'GASOLINE (812');
+  assert.equal(store.lootById('grenade').status,'unconfirmed');store.close();
+});
+
+test('uncertain stack quantities need matching consecutive numeric observations and can upgrade a pending item',()=>{
+  const rows=new Map(),flow=new LootFlow({saveLoot:e=>rows.set(e.id,structuredClone(e))});
+  const ammo={...found,text:text.replace('NEROTONIN 8B','12.7MM RIFLE BULLETS (880)'),quantityVerified:false,quantityCandidate:880};
+  flow.observe(ammo,'s',0);flow.observe(ammo,'s',500);assert.equal(flow.pending.quantity,880);
+  flow.observe({...ammo,quantityCandidate:undefined},'s',1000);assert.equal(flow.pending.quantity,880);assert.equal(rows.size,1);
+  flow.choose({action:'accepted'},1100);flow.finish(2000,true);assert.equal([...rows.values()][0].quantity,880);assert.equal([...rows.values()][0].status,'accepted');
+  const other=new LootFlow({saveLoot:()=>{}});other.observe({...ammo,quantityCandidate:undefined},'s',0);other.observe({...ammo,quantityCandidate:undefined},'s',500);assert.equal(other.pending.quantity,undefined);assert.equal(other.pending.quantityUncertain,true);
+});
+
+test('an OCR failure is not a disappearance while the title pixels remain visible',()=>{
+ const before=new Uint8ClampedArray(160),same=new Uint8ClampedArray(160),gone=new Uint8ClampedArray(160);for(let i=0;i<160;i+=4){before[i]=before[i+1]=before[i+2]=180;same[i]=same[i+1]=same[i+2]=160;gone[i]=gone[i+1]=gone[i+2]=30;}
+ assert.equal(titleStillVisible(before,same),true);assert.equal(titleStillVisible(before,gone),false);assert.equal(titleStillVisible(gone,gone),null);
 });

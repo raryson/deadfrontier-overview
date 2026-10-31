@@ -46,12 +46,12 @@ function render(){
   if(!$('loot-rows').contains(document.activeElement)){
     $('loot-rows').replaceChildren();
     for(const entry of state.loot??[]){
-      const row=document.createElement('tr');for(const value of [new Date(entry.foundAt).toLocaleString(language.locale),entry.item,language.t(entry.status)]){const cell=document.createElement('td');cell.textContent=value;row.append(cell);}
+      const row=document.createElement('tr');for(const value of [new Date(entry.foundAt).toLocaleString(language.locale),entry.item+(entry.quantity?' · '+number(entry.quantity)+(entry.unit==='ml'?' ml':' ×'):''),language.t(entry.status)]){const cell=document.createElement('td');cell.textContent=value;row.append(cell);}
       const valuation=entry.valuation,cell=document.createElement('td');cell.textContent=valuation?.value!=null?money(valuation.value)+(valuation.reason==='yard'?' · Yard':valuation.reason==='estimated'?' · '+language.t('priceMarketSource'):''):language.t('priceReason_'+(valuation?.reason??'noQuote'));
       if(valuation?.quote)cell.title=`${valuation.quote.market.label} · ${new Date(valuation.quote.observedAt).toLocaleString(language.locale)} · ${valuation.quote.samples} · ${valuation.quote.name}`;
-      if(valuation?.reason==='quantityUnknown'){
+      if(entry.quantity||entry.quantityUncertain||valuation?.reason==='quantityUnknown'){
         const form=document.createElement('form'),input=document.createElement('input'),button=document.createElement('button');form.className='quantity-form';input.type='number';input.min='1';input.max='1000000000';input.required=true;input.setAttribute('aria-label',language.t('priceQuantity'));button.textContent=language.t('priceQuantitySave');
-        form.append(input,button);form.onsubmit=async event=>{event.preventDefault();await act('priceQuantity',{id:entry.id,quantity:Number(input.value)});document.activeElement?.blur();render();};cell.append(form);
+        input.value=entry.quantity??'';form.append(input,button);form.onsubmit=async event=>{event.preventDefault();await act('priceQuantity',{id:entry.id,quantity:Number(input.value)});document.activeElement?.blur();render();};cell.append(form);
       }
       if(valuation?.equipment){
         const select=document.createElement('select');select.setAttribute('aria-label',language.t('priceEquipmentSource'));select.append(new Option('Yard / NPC',''));

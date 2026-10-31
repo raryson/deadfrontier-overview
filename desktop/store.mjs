@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {aggregateQuotes} from '../market-prices.js';
 import {sanitizeItemCatalog} from '../item-catalog.js';
+import {parseLootItem} from './ui/loot-model.mjs';
 
 export class DesktopStore {
   constructor(filename){
@@ -17,6 +18,17 @@ export class DesktopStore {
       CREATE TABLE IF NOT EXISTS item_catalog(item_id TEXT PRIMARY KEY,observed_at INTEGER NOT NULL,payload TEXT NOT NULL);`);
     // A shutdown cannot confirm a pickup that was still awaiting the screen.
     this.db.prepare("UPDATE loot SET status='unconfirmed',payload=json_set(payload,'$.status','unconfirmed') WHERE status='found'").run();
+    if(!this.get('lootQuantityMigration',false)){
+      this.db.exec('BEGIN IMMEDIATE');
+      try{
+        const put=this.db.prepare('UPDATE loot SET payload=? WHERE id=?');
+        for(const row of this.db.prepare('SELECT id,payload FROM loot').all()){
+          const entry=JSON.parse(row.payload),parsed=parseLootItem(entry.item);
+          if(parsed?.quantity&&parsed.item!==entry.item){const {key,...clean}=parsed;put.run(JSON.stringify({...entry,rawItem:entry.rawItem??entry.item,...clean,quantity:entry.quantity??parsed.quantity}),row.id);}
+        }
+        this.set('lootQuantityMigration',true);this.db.exec('COMMIT');
+      }catch(error){this.db.exec('ROLLBACK');throw error;}
+    }
   }
   get(key,fallback){const row=this.db.prepare('SELECT payload FROM state WHERE key=?').get(key);return row?JSON.parse(row.payload):fallback;}
   set(key,value){this.db.prepare('INSERT INTO state(key,payload) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET payload=excluded.payload').run(key,JSON.stringify(value));if(key==='priceAliases')this.priceRevision++;}

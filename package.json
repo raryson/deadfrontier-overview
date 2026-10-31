@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test",
+    "test": "node --test test/*.test.js",
     "check": "node --check background.js && node --check content.js && node --check dashboard.js && node --check page-observer.js && node --check server-sync.js && node --check bank-request.js && node --check i18n.js && node --check experience.js && node --check xp-protocol.js && node --check xp-request.js && node --check ocr-parser.js && node --check capture-controller.js && node --check ocr-environment.js",
     "vendor:ocr": "node scripts/vendor-ocr.mjs"
   },

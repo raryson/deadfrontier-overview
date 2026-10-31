@@ -1,0 +1,43 @@
+name: Windows desktop preview
+on:
+  push:
+    tags: ['desktop-v*']
+permissions:
+  contents: write
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.14.1'
+      - name: Check tag and desktop version
+        shell: pwsh
+        run: |
+          $version = (Get-Content desktop/package.json -Raw | ConvertFrom-Json).version
+          if ($env:GITHUB_REF_NAME -ne "desktop-v$version") { throw 'Desktop tag/version mismatch.' }
+      - name: Extension regression tests
+        run: npm test
+      - name: Install pinned desktop dependencies
+        working-directory: desktop
+        run: npm ci --ignore-scripts --no-fund
+      - name: Install official Electron runtime
+        working-directory: desktop
+        run: node node_modules/electron/install.js
+      - name: Desktop tests
+        working-directory: desktop
+        run: npm test
+      - name: Build portable Windows app
+        working-directory: desktop
+        run: npm run package
+      - name: Create reviewed portable ZIP
+        shell: pwsh
+        run: ./scripts/package-desktop.ps1
+      - name: Publish desktop preview
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: gh release create "$env:GITHUB_REF_NAME" dist/deadfrontier-overview-windows-0.1.0.zip dist/WINDOWS-SHA256SUMS.txt --verify-tag --prerelease --title "DeadFrontier Overview Windows 0.1.0 preview" --notes-file desktop/RELEASE_NOTES.md

@@ -2,6 +2,8 @@
 
 Addon para **Dead Frontier**, com banco rápido, acompanhamento automático de buffs e janela flutuante. Interface em **português e inglês**, com visual inspirado em ferrugem, cobre e vermelho escuro.
 
+O [app Windows em Electron](desktop/README.md) está em desenvolvimento separado: captura automática da janela do client, overlay próprio e histórico SQLite. A extensão continua funcionando durante a validação dessa migração.
+
 **[ZIP para Firefox](https://github.com/raryson/deadfrontier-overview/releases/latest/download/deadfrontier-overview.zip)** · **[ZIP para Chrome](https://github.com/raryson/deadfrontier-overview/releases/latest/download/deadfrontier-overview-chrome.zip)** · [Guia rápido](INSTALL.md)
 
 ![Prévia do painel com dados fictícios](docs/screenshots/overview-pt.png)

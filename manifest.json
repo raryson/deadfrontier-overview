@@ -1,10 +1,12 @@
 {
   "manifest_version": 3,
   "name": "DeadFrontier Overview",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "__MSG_description__",
   "default_locale": "en",
-  "content_security_policy": {"extension_pages":"script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; worker-src 'self'; connect-src 'self' data: blob:"},
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; worker-src 'self'; connect-src 'self' data: blob: http://127.0.0.1:17373 https://fairview.deadfrontier.com"
+  },
   "permissions": [
     "storage",
     "alarms",
@@ -40,7 +42,8 @@
         "xp-protocol.js",
         "page-observer.js",
         "bank-request.js",
-        "xp-request.js"
+        "xp-request.js",
+        "catalog-observer.js"
       ],
       "run_at": "document_start",
       "world": "MAIN"
@@ -64,10 +67,11 @@
         "core.js",
         "catalog.js",
         "i18n.js",
-      "experience.js",
-      "capture-controller.js",
-      "ocr-parser.js",
-      "ocr-environment.js"
+        "experience.js",
+        "capture-controller.js",
+        "ocr-parser.js",
+        "ocr-environment.js",
+        "desktop-connect-ui.js"
       ],
       "matches": [
         "https://fairview.deadfrontier.com/*"
@@ -76,5 +80,9 @@
   ],
   "icons": {
     "128": "icon.png"
-  }
+  },
+  "optional_host_permissions": [
+    "http://127.0.0.1/*",
+    "https://fairview.deadfrontier.com/*"
+  ]
 }

@@ -15,10 +15,10 @@ await buildProbe();
 if(process.argv.includes('--probe-only')){console.log('Compiled native window detector.');process.exit(0);}
 const stage=path.join(root,'.tmp','desktop-stage-'+Date.now());
 await fs.mkdir(path.join(stage,'desktop'),{recursive:true});
-const modules=['main.mjs','store.mjs','tracker.mjs','selection.mjs','preload.cjs','capture-preload.cjs'];
+const modules=['main.mjs','store.mjs','tracker.mjs','selection.mjs','price-bridge.mjs','preload.cjs','capture-preload.cjs'];
 for(const file of modules)await fs.copyFile(path.join(directory,file),path.join(stage,'desktop',file));
 for(const folder of ['ui','bin'])await fs.cp(path.join(directory,folder),path.join(stage,'desktop',folder),{recursive:true});
-for(const file of ['experience.js','ocr-parser.js','i18n.js','icon.png'])await fs.copyFile(path.join(root,file),path.join(stage,file));
+for(const file of ['experience.js','ocr-parser.js','i18n.js','market-prices.js','item-catalog.js','icon.png'])await fs.copyFile(path.join(root,file),path.join(stage,file));
 await fs.mkdir(path.join(stage,'vendor'),{recursive:true});await fs.cp(path.join(root,'vendor','ocr'),path.join(stage,'vendor','ocr'),{recursive:true});
 const metadata=JSON.parse(await fs.readFile(path.join(directory,'package.json'),'utf8'));
 await fs.writeFile(path.join(stage,'package.json'),JSON.stringify({name:metadata.name,productName:metadata.productName,version:metadata.version,type:'module',main:'desktop/main.mjs',description:'Dead Frontier local Windows XP companion'}));

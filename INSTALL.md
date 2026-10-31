@@ -35,3 +35,7 @@ Open the city once to identify your character, then open the extension in its ow
 **Allow the correct window:** keep the client open. In the browser picker, select the **Dead Frontier game window** and confirm **Share / Allow**. Prefer only that window instead of your entire screen or the outpost browser tab. If a new add-on tab opens, click Connect again there. Verify the preview shows the game and its LV/XP line. For a wrong selection, stop capture and reconnect. No permission means no readouts; each new connection asks you to choose a window again.
 
 Documentação / Documentation: https://github.com/raryson/deadfrontier-overview
+
+## Preços sincronizados com o app Windows
+
+A extensão 0.9.0 e o app 0.3.0 incluem conexão local de preços e catálogo. Equipamentos comuns usam Yard/NPC, sem busca de anúncios; customizados/GC/NGC exigem seleção explícita da variante. Os nomes dos itens não são traduzidos. Veja o [guia de pareamento e estimativas](https://github.com/raryson/deadfrontier-overview/blob/codex/initial-release/docs/prices.md).

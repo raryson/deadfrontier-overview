@@ -1,19 +1,25 @@
 import {DatabaseSync} from 'node:sqlite';
 import fs from 'node:fs';
 import path from 'node:path';
+import {aggregateQuotes} from '../market-prices.js';
+import {sanitizeItemCatalog} from '../item-catalog.js';
 
 export class DesktopStore {
   constructor(filename){
+    this.priceRevision=0;
     fs.mkdirSync(path.dirname(filename),{recursive:true});
     this.db=new DatabaseSync(filename);
     this.db.exec(`PRAGMA journal_mode=WAL;
       CREATE TABLE IF NOT EXISTS state(key TEXT PRIMARY KEY,payload TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS sessions(id TEXT PRIMARY KEY,started_at INTEGER NOT NULL,running INTEGER NOT NULL,payload TEXT NOT NULL);
-      CREATE TABLE IF NOT EXISTS loot(id TEXT PRIMARY KEY,session_id TEXT,found_at INTEGER NOT NULL,status TEXT NOT NULL,payload TEXT NOT NULL);`);
+      CREATE TABLE IF NOT EXISTS loot(id TEXT PRIMARY KEY,session_id TEXT,found_at INTEGER NOT NULL,status TEXT NOT NULL,payload TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS prices(market TEXT NOT NULL,item_id TEXT NOT NULL,unit_kind TEXT NOT NULL,observed_at INTEGER NOT NULL,payload TEXT NOT NULL,PRIMARY KEY(market,item_id,unit_kind));
+      CREATE TABLE IF NOT EXISTS item_catalog(item_id TEXT PRIMARY KEY,observed_at INTEGER NOT NULL,payload TEXT NOT NULL);`);
     // A shutdown cannot confirm a pickup that was still awaiting the screen.
     this.db.prepare("UPDATE loot SET status='unconfirmed',payload=json_set(payload,'$.status','unconfirmed') WHERE status='found'").run();
   }
   get(key,fallback){const row=this.db.prepare('SELECT payload FROM state WHERE key=?').get(key);return row?JSON.parse(row.payload):fallback;}
+  set(key,value){this.db.prepare('INSERT INTO state(key,payload) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET payload=excluded.payload').run(key,JSON.stringify(value));if(key==='priceAliases')this.priceRevision++;}
   save(experience,entry,settings){
     this.db.exec('BEGIN IMMEDIATE');
     try{
@@ -29,8 +35,20 @@ export class DesktopStore {
   history(limit=100){return this.db.prepare('SELECT payload FROM sessions ORDER BY started_at DESC LIMIT ?').all(limit).map(row=>JSON.parse(row.payload));}
   count(){return this.db.prepare('SELECT COUNT(*) AS count FROM sessions').get().count;}
   saveLoot(entry){const {buttons,key,...saved}=entry;this.db.prepare(`INSERT INTO loot(id,session_id,found_at,status,payload) VALUES(?,?,?,?,?)
-    ON CONFLICT(id) DO UPDATE SET session_id=excluded.session_id,status=excluded.status,payload=excluded.payload`).run(entry.id,entry.sessionId,entry.foundAt,entry.status,JSON.stringify(saved));}
+    ON CONFLICT(id) DO UPDATE SET session_id=excluded.session_id,status=excluded.status,payload=excluded.payload`).run(entry.id,entry.sessionId,entry.foundAt,entry.status,JSON.stringify(saved));this.priceRevision++;}
   lootHistory(){return this.db.prepare('SELECT payload FROM loot ORDER BY found_at DESC LIMIT 200').all().map(row=>JSON.parse(row.payload));}
   lootCounts(){return this.db.prepare("SELECT session_id AS sessionId,COUNT(*) AS found,SUM(status='accepted') AS accepted FROM loot GROUP BY session_id").all();}
+  savePrices(batch){
+    const put=this.db.prepare(`INSERT INTO prices(market,item_id,unit_kind,observed_at,payload) VALUES(?,?,?,?,?)
+      ON CONFLICT(market,item_id,unit_kind) DO UPDATE SET observed_at=excluded.observed_at,payload=excluded.payload WHERE excluded.observed_at>=prices.observed_at`);
+    this.db.exec('BEGIN IMMEDIATE');try{for(const quote of aggregateQuotes(batch))put.run(quote.market.zone,quote.itemId,quote.unitKind,quote.observedAt,JSON.stringify(quote));this.db.exec('COMMIT');this.priceRevision++;}catch(error){this.db.exec('ROLLBACK');throw error;}
+  }
+  prices(market){return this.db.prepare('SELECT payload FROM prices WHERE market=?').all(market??'').map(row=>JSON.parse(row.payload));}
+  markets(){return this.db.prepare('SELECT market,MAX(observed_at) AS observedAt,COUNT(*) AS count,MAX(json_extract(payload,\'$.market.label\')) AS label FROM prices GROUP BY market ORDER BY observedAt DESC').all();}
+  valuationLoot(){return this.db.prepare("SELECT payload FROM loot WHERE status='accepted' ORDER BY found_at DESC").all().map(row=>JSON.parse(row.payload));}
+  lootById(id){const row=this.db.prepare('SELECT payload FROM loot WHERE id=?').get(id);return row?JSON.parse(row.payload):null;}
+  quoteName(id){if(typeof id!=='string')return null;const row=this.db.prepare('SELECT json_extract(payload,\'$.name\') AS name FROM prices WHERE item_id=? ORDER BY observed_at DESC LIMIT 1').get(id);return row?.name;}
+  saveCatalog(input){const batch=sanitizeItemCatalog(input),put=this.db.prepare('INSERT INTO item_catalog(item_id,observed_at,payload) VALUES(?,?,?) ON CONFLICT(item_id) DO UPDATE SET observed_at=excluded.observed_at,payload=excluded.payload WHERE excluded.observed_at>=item_catalog.observed_at');this.db.exec('BEGIN IMMEDIATE');try{for(const item of batch.items)put.run(item.itemId,batch.observedAt,JSON.stringify(item));this.db.exec('COMMIT');this.priceRevision++;}catch(error){this.db.exec('ROLLBACK');throw error;}}
+  itemCatalog(){return this.db.prepare('SELECT payload,observed_at FROM item_catalog ORDER BY item_id').all().map(row=>({...JSON.parse(row.payload),observedAt:row.observed_at}));}
   close(){this.db.close();}
 }

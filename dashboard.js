@@ -4,6 +4,7 @@ import { t as translate, resolveLanguage, localeFor, effectLabel, translateMessa
 import {experienceStats} from './experience.js';
 import {createCaptureController} from './capture-controller.js';
 import {assertOcrEnvironment} from './ocr-environment.js';
+import {mountDesktopPrices} from './desktop-connect-ui.js';
 const chrome = globalThis.browser ?? globalThis.chrome;
 const versionElement=document.querySelector('.version');
 const bundledVersion=versionElement.textContent.trim();
@@ -317,4 +318,5 @@ setInterval(() => {
   }
   renderExperience();paint();
 }, 1000);
+mountDesktopPrices(chrome,t,status);
 try { state = await request({ type: 'read' }); render(); } catch (error) { status(t('dataError',{error:translateMessage(error.message,language)})); }

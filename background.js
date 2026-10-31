@@ -3,7 +3,9 @@ import { catalog, effects } from './catalog.js';
 import { applyServerSnapshot } from './server-sync.js';
 import { resolveLanguage, t, effectLabel } from './i18n.js';
 import {recordExperience,startExperience,stopExperience,setExperienceMultiplier,rememberExperience} from './experience.js';
+import {ExtensionDesktop,PRICE_ALARM} from './extension-desktop.js';
 const chrome = globalThis.browser ?? globalThis.chrome;
+const desktopPrices=new ExtensionDesktop(chrome);
 
 // Serializa alterações vindas do painel, da aba e dos alarmes.
 let queue = Promise.resolve();
@@ -31,6 +33,19 @@ async function save(state) {
 }
 chrome.runtime.onMessage.addListener((message, sender, reply) => {
   if (sender.id !== chrome.runtime.id || !message || typeof message.type !== 'string') return;
+  if(message.type==='marketContext'){
+    if(!sender.tab||!sender.url?.startsWith('https://fairview.deadfrontier.com/onlinezombiemmo/'))return;
+    desktopPrices.context(message.zone).then(data=>reply({data}),()=>reply({error:'Invalid trade zone.'}));return true;
+  }
+  if(message.type==='itemCatalog'){
+    if(!sender.tab||!sender.url?.startsWith('https://fairview.deadfrontier.com/onlinezombiemmo/'))return;
+    desktopPrices.catalog(message.snapshot).then(data=>reply({data}),()=>reply({error:'Invalid item catalog.'}));return true;
+  }
+  if(['desktopPair','desktopStatus','desktopDisconnect','desktopQuote','desktopSync','desktopZone'].includes(message.type)){
+    if(sender.url?.split('?')[0]!==chrome.runtime.getURL('dashboard.html'))return;
+    const action=message.type==='desktopPair'?()=>desktopPrices.pair(message.code):message.type==='desktopDisconnect'?()=>desktopPrices.disconnect():message.type==='desktopQuote'?()=>desktopPrices.search(message.name,message.custom===true):message.type==='desktopZone'?()=>desktopPrices.context(message.zone):message.type==='desktopSync'?()=>desktopPrices.tick():()=>desktopPrices.status();
+    action().then(data=>reply({data}),error=>reply({error:error.message}));return true;
+  }
   if(message.type==='xpRefresh') {
     serialized(async()=>{
       const state=await read();
@@ -150,7 +165,7 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
   }).then(data => reply({ data }), error => reply({ error: error.message }));
   return true;
 });
-chrome.alarms.onAlarm.addListener(alarm => serialized(async () => {
+chrome.alarms.onAlarm.addListener(alarm => alarm.name===PRICE_ALARM?desktopPrices.tick().catch(()=>{}):serialized(async () => {
   if (!alarm.name.startsWith('buff-')) return;
   const state = await read();
   const key = alarm.name.slice(5);
@@ -168,6 +183,7 @@ chrome.runtime.onStartup.addListener(() => serialized(async () => {
   finishSession(state,'browserClosed',state.experience?.latest?.receivedAt??Date.now());
   if(state.experience)state.experience.capture={active:false};
   await save(state);
+  await desktopPrices.resume();
 }).catch(console.error));
 chrome.tabs.onRemoved?.addListener(tabId=>serialized(async()=>{
   const state=await read();
@@ -189,5 +205,5 @@ chrome.tabs.onUpdated?.addListener((tabId,change)=>{
 });
 chrome.runtime.onInstalled.addListener(() => serialized(async () => {
   const state=await read();finishSession(state,'updated');
-  if(state.experience)state.experience.capture={active:false};await save(state);
+  if(state.experience)state.experience.capture={active:false};await save(state);await desktopPrices.resume();
 }).catch(console.error));

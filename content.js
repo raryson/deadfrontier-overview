@@ -14,6 +14,8 @@
   }
   window.addEventListener('message',event=>{
     if(event.source!==window || event.origin!==location.origin) return;
+    if(event.data?.type==='overview-market-context'&&/^\d{1,6}$/.test(String(event.data.zone)))chrome.runtime.sendMessage({type:'marketContext',zone:String(event.data.zone)}).catch(()=>{});
+    if(event.data?.type==='overview-item-catalog'&&Array.isArray(event.data.snapshot?.items)&&event.data.snapshot.items.length<=500)chrome.runtime.sendMessage({type:'itemCatalog',snapshot:event.data.snapshot}).catch(()=>{});
     if(event.data?.type==='overview-server-xp') chrome.runtime.sendMessage({type:'xpSnapshot',sample:event.data.sample}).catch(()=>{});
     if(event.data?.type==='overview-xp-result' && xpPending?.requestId===event.data.requestId) {
       const pending=xpPending;xpPending=null;clearTimeout(xpTimeout);

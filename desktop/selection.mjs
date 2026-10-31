@@ -11,9 +11,9 @@ export function validRegion(value) {
   return value&&['x','y','width','height'].every(key=>Number.isFinite(value[key]))&&
     value.x>=0&&value.y>=0&&value.width>0&&value.height>0&&value.x+value.width<=1.001&&value.y+value.height<=1.001;
 }
-export function csvOfSessions(sessions) {
-  const columns=['startedAt','endedAt','elapsed','gained','perHour','baseGained','basePerHour','lost','net','precision','basePartial','gap'];
-  return '\uFEFF'+columns.join(',')+'\r\n'+sessions.map(entry=>columns.map(key=>{
+export function csvOfSessions(sessions,valuations={}) {
+  const columns=['startedAt','endedAt','elapsed','gained','perHour','baseGained','basePerHour','lost','net','precision','basePartial','gap','cashLoot','estimatedItemLoot','unpricedLoot'];
+  return '\uFEFF'+columns.join(',')+'\r\n'+sessions.map(original=>{const totals=valuations[original.id],entry={...original,cashLoot:totals?.cash??0,estimatedItemLoot:totals?.estimated??0,unpricedLoot:totals?.unpriced??0};return columns.map(key=>{
     const value=entry[key];return typeof value==='boolean'?String(value):Number.isFinite(value)?String(value):'';
-  }).join(',')).join('\r\n');
+  }).join(',');}).join('\r\n');
 }

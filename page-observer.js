@@ -4,10 +4,13 @@
     [`df_boost${key}until`, `df_boost${key}until_ex`])];
   const allowedPaths = new Set(['/onlinezombiemmo/inventory_new.php', '/onlinezombiemmo/get_values.php', '/onlinezombiemmo/bank.php']);
   const requests = new WeakMap();
+  let lastTradeZone=null;
   const isRelevant = value => {
     try { const url = new URL(value, location.href); return url.origin === location.origin && allowedPaths.has(url.pathname); } catch { return false; }
   };
   function publish(values, source, item = '') {
+    const zone=typeof userVars!=='undefined'?String(userVars.DFSTATS_df_tradezone??''):'';
+    if(/^\d{1,6}$/.test(zone)&&zone!==lastTradeZone){lastTradeZone=zone;window.postMessage({type:'overview-market-context',zone},location.origin);}
     if(typeof overviewXpSample==='function' && typeof userVars!=='undefined') {
       const sample=overviewXpSample(values,userVars,userVars.userID);
       if(sample) window.postMessage({type:'overview-server-xp',sample},location.origin);

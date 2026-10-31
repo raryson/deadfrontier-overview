@@ -28,3 +28,7 @@ test('invalid multipliers leave settings untouched, region checks and CSV reject
   assert.equal(validRegion({x:0,y:0,width:.2,height:.1}),true);assert.equal(validRegion({x:.9,y:0,width:.5,height:.1}),false);
   const csv=csvOfSessions([{startedAt:1,gained:'=BAD()',perHour:10}]);assert.ok(!csv.includes('BAD'));assert.ok(csv.includes('10'));store.close();
 });
+test('CSV includes priced cash/items and explicitly counts loot excluded from the estimate',()=>{
+  const csv=csvOfSessions([{id:'session',startedAt:1,gained:100}],{session:{cash:500,estimated:25000,unpriced:2}});
+  assert.ok(csv.includes('cashLoot,estimatedItemLoot,unpricedLoot'));assert.ok(csv.endsWith(',500,25000,2'));
+});

@@ -40,3 +40,7 @@ Original licenses and dependency notices are included in `vendor/ocr/`. See its 
 - Tests use fictional inputs only. The source archive excludes Git history, local captures, browser profiles, diagnostics, secrets and game executables.
 
 Mozilla guidance: https://extensionworkshop.com/documentation/publish/source-code-submission/ and https://extensionworkshop.com/documentation/publish/third-party-library-usage/ .
+
+## Optional desktop price integration (0.9.0)
+
+The extension optionally connects to the companion at 127.0.0.1:17373 after user-generated-code pairing. Optional host access is requested directly from the dashboard submit handler. The background module performs only public listing searches, with credentials omitted. catalog-observer.js reads public globalData definitions and calls the existing game scrapValue function for base equipment; only sanitized item/name/type/Yard fields are forwarded. No game authentication or seller identities are sent to the companion. Read docs/prices.md and the separate desktop sources in the repository for the full protocol. The extension source ZIP contains all extension modules and their tests; the Windows companion is a separate package.

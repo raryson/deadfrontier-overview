@@ -7,7 +7,7 @@ $sourcePath = Join-Path $outputDirectory 'deadfrontier-overview-source.zip'
 $sourceFiles = @(git -C $repositoryRoot ls-files | Where-Object {
   $_ -match '^[^/]+\.(js|json|html|css|md|png)$' -or
   $_ -match '^(_locales|scripts|test|vendor/ocr)/' -or
-  $_ -eq 'docs/integration.md'
+  $_ -in @('docs/integration.md','docs/prices.md')
 })
 if ($LASTEXITCODE -ne 0) { throw 'Unable to enumerate tracked sources.' }
 $sourceFiles += @('README-SOURCE.md','scripts/package-source.ps1')

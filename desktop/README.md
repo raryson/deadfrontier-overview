@@ -1,8 +1,8 @@
 # DeadFrontier Overview — Windows
 
-Prévia **0.2.2** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
+Prévia **0.3.0** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
 
-[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.2.2/deadfrontier-overview-windows-0.2.2.zip)
+[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.3.0/deadfrontier-overview-windows-0.3.0.zip)
 
 ## Usar a versão portátil
 
@@ -37,7 +37,7 @@ Se a linha de XP não for reconhecida, abra **Ajustar a área de XP**, atualize 
 
 O jogo precisa continuar renderizando a janela. Minimizar pode interromper os frames; o tempo da sessão inclui esse intervalo. O comportamento sobre tela cheia exclusiva depende do client e precisa ser validado nele. Prefira inicialmente modo janela ou sem bordas.
 
-Esta prévia usa um perfil local de XP; não faz login no jogo nem identifica automaticamente troca de personagem. Ao trocar de personagem na mesma janela, use **Salvar e zerar sessão**. O loot é experimental. Preços, buffs vindos do addon e compra/banco ainda não estão implementados neste app.
+Esta prévia usa um perfil local de XP; não faz login no jogo nem identifica automaticamente troca de personagem. Ao trocar de personagem na mesma janela, use **Salvar e zerar sessão**. O loot é experimental. Preços e Yard são sincronizados opcionalmente pela extensão. Buffs vindos do addon e compra/banco ainda não estão implementados neste app.
 
 ## Privacidade
 
@@ -78,10 +78,14 @@ O app lê separadamente o diálogo central de item encontrado e registra nome, h
 
 Depois de duas leituras coerentes, o helper observa somente E (Yes), T (No), C (Use) e o clique esquerdo enquanto esse diálogo estiver ativo e a janela exata do jogo estiver em primeiro plano. Não envia teclas, não clica pelo jogador, não instala hooks e não observa outras teclas ou aplicativos. A escolha só é finalizada após o diálogo desaparecer. Fechar o app, perder a captura ou não observar a escolha deixa o resultado não confirmado.
 
-“Aceito (Yes)” indica a escolha observada na interface; não é uma confirmação de inventário vinda do servidor. Não há estimativa de preço nem quantidade de itens por pilha. Nomes dependem do OCR e podem conter erros. Use o recurso como histórico auxiliar. Cliques muito rápidos, teclas mantidas pressionadas, escalas de UI diferentes e diálogos breves podem não ser identificados. A tabela mostra os últimos 200 eventos; o banco mantém todos. A validação real inicial reconheceu dinheiro; o primeiro clique real ficou não confirmado. O caminho de clique completo foi validado com um item fictício no próprio app.
+“Aceito (Yes)” indica a escolha observada na interface; não é uma confirmação de inventário vinda do servidor. Preços são referências estimadas; pilhas de quantidade desconhecida precisam de ajuste manual para entrar no total. Nomes dependem do OCR e podem conter erros. Use o recurso como histórico auxiliar. Cliques muito rápidos, teclas mantidas pressionadas, escalas de UI diferentes e diálogos breves podem não ser identificados. A tabela mostra os últimos 200 eventos; o banco mantém todos. A validação real inicial reconheceu dinheiro; o primeiro clique real ficou não confirmado. O caminho de clique completo foi validado com um item fictício no próprio app.
 
 ## English quick start
 
 Extract the entire portable ZIP and run **DeadFrontier Overview.exe**. Leave automatic tracking enabled and open the game client. The app detects its window and starts a session on the first stable readout, without a browser sharing picker. Close minimizes to the tray; Quit exits. Alt+Shift+D toggles the dashboard and Alt+Shift+O toggles the overlay. Portuguese/English follow the selected language or system preferences.
 
-Sessions stay locally in SQLite under the app's user-data folder. Stop freezes the session; Save and reset preserves it and starts another. Closing the game ends and saves the session. Base XP is an estimate; K values have about 1,000 XP precision. Windowed/borderless mode is recommended for initial validation. Loot tracking is experimental; accepted means an observed Yes choice followed by dialog dismissal, without server inventory confirmation. Pricing and browser integration are future work; the existing addon remains available during migration.
+Sessions stay locally in SQLite under the app's user-data folder. Stop freezes the session; Save and reset preserves it and starts another. Closing the game ends and saves the session. Base XP is an estimate; K values have about 1,000 XP precision. Windowed/borderless mode is recommended for initial validation. Loot tracking is experimental; accepted means an observed Yes choice followed by dialog dismissal, without server inventory confirmation. See the [price integration guide](../docs/prices.md) to pair the browser addon, synchronize market estimates and read the game's Yard references for ordinary equipment.
+
+## Preços e Yard
+
+Veja [o guia de conexão com a extensão](../docs/prices.md). Equipamentos comuns usam a referência Yard/NPC do jogo; somente uma escolha explícita de variante customizada/GC/NGC usa anúncios. Nomes originais são preservados. Estimativas aparecem por loot, por sessão, no overlay e no CSV.

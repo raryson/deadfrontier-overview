@@ -9,6 +9,8 @@ import {DesktopStore} from './store.mjs';
 import {DesktopTracker} from './tracker.mjs';
 import {LootFlow} from './ui/loot-model.mjs';
 import {selectGameWindow,sourceForWindow,validRegion,csvOfSessions} from './selection.mjs';
+import {PriceBridge} from './price-bridge.mjs';
+import {valueLoot,valueSessions,itemKey,PRICE_TTL} from '../market-prices.js';
 
 const directory=path.dirname(fileURLToPath(import.meta.url));
 const root=path.dirname(directory);
@@ -29,10 +31,22 @@ const uiURL='dfov://app/desktop/ui/index.html';
 const overlayURL='dfov://app/desktop/ui/overlay.html';
 const captureURL='dfov://app/desktop/ui/capture.html';
 const csp="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self' data: blob:; img-src 'self' data: blob:; style-src 'self'; object-src 'none'; frame-src 'none'";
-let store,tracker,lootFlow,mainWindow,overlayWindow,captureWindow,tray,probe,fixtureWindow;
+let store,tracker,lootFlow,priceBridge,priceCache,mainWindow,overlayWindow,captureWindow,tray,probe,fixtureWindow;
 let quitting=false,windows=[],target=null,source=null,token=null,preview=null,retryAt=0,phase='waiting',detail='',captureStartedAt=0,lastCaptureMessage=0,probeBusy=false,selecting=false,selectionEpoch=0;
 const ownRenderer=(event,url)=>event.senderFrame?.url===url;
-function publicState(){return{...tracker.snapshot(),loot:store.lootHistory(),lootCounts:store.lootCounts(),lootSearching:Date.now()-(lootFlow?.searchingAt??0)<4000,pendingLoot:lootFlow?.pending?{item:lootFlow.pending.item,foundAt:lootFlow.pending.foundAt}:null,phase,detail,game:target?{title:target.title,processName:target.processName,minimized:target.minimized}:null,
+function priceState(){
+  const selected=tracker.settings.priceMarket??'',now=Date.now();
+  if(!priceCache||priceCache.revision!==store.priceRevision||priceCache.selected!==selected||now>=priceCache.until){
+    const markets=store.markets(),market=selected||markets[0]?.market||'21',quotes=store.prices(market),aliases=store.get('priceAliases',{}),catalog=store.itemCatalog();
+    const valued=valueSessions(store.valuationLoot(),quotes,{now,aliases,catalog,requireCatalog:true});
+    const expiry=quotes.map(q=>q.observedAt+PRICE_TTL+1).filter(at=>at>now);
+    priceCache={revision:store.priceRevision,selected,until:Math.min(now+60000,...expiry),market,markets,quotes,aliases,catalog,sessions:valued.sessions};
+  }
+  const catalog=new Map(priceCache.catalog.map(item=>[item.itemId,{...item,unitPrice:item.yardValue,source:item.kind==='equipment'?'yard':null}]));
+  for(const quote of priceCache.quotes)if(catalog.get(quote.itemId)?.kind!=='equipment')catalog.set(quote.itemId,{...quote,source:'market'});
+  return{market:priceCache.market,markets:priceCache.markets,catalog:[...catalog.values()],sessions:priceCache.sessions,bridge:priceBridge?.status(),aliases:priceCache.aliases};
+}
+function publicState(){const pricing=priceState();return{...tracker.snapshot(),pricing,loot:store.lootHistory().map(e=>({...e,valuation:valueLoot(e,priceCache.quotes,{aliases:priceCache.aliases,catalog:priceCache.catalog,requireCatalog:true})})),lootCounts:store.lootCounts(),lootSearching:Date.now()-(lootFlow?.searchingAt??0)<4000,pendingLoot:lootFlow?.pending?{item:lootFlow.pending.item,foundAt:lootFlow.pending.foundAt}:null,phase,detail,game:target?{title:target.title,processName:target.processName,minimized:target.minimized}:null,
   windows:windows.map(window=>({handle:window.handle,title:window.title,processName:window.processName})),demo:localTest,preview};}
 function broadcast(){
   if(!tracker)return;const state=publicState();
@@ -94,8 +108,8 @@ function positionOverlay(){
   if(screen.screenToDipRect)bounds=screen.screenToDipRect(null,bounds);
   const display=screen.getDisplayMatching(bounds).workArea;
   const x=Math.max(display.x,Math.min(bounds.x+bounds.width-365,display.x+display.width-365));
-  const y=Math.max(display.y,Math.min(bounds.y+bounds.height-260,display.y+display.height-260));
-  overlayWindow.setBounds({x:Math.round(x),y:Math.round(y),width:350,height:245});overlayWindow.showInactive();
+  const y=Math.max(display.y,Math.min(bounds.y+bounds.height-290,display.y+display.height-290));
+  overlayWindow.setBounds({x:Math.round(x),y:Math.round(y),width:350,height:275});overlayWindow.showInactive();
 }
 async function updateWindows(next){
   if(quitting||!tracker)return;
@@ -170,10 +184,12 @@ else {
     store=new DesktopStore(path.join(dataDirectory,'overview.sqlite'));
     tracker=new DesktopTracker(store);
     lootFlow=new LootFlow(store);
+    priceBridge=new PriceBridge({store,onPrices:market=>{if(market&&tracker.settings.priceMarketMode!=='manual'){tracker.settings.priceMarket=market.zone;tracker.persist();}broadcast();}});
+    if(!localTest&&priceBridge.clients.length)priceBridge.start().catch(()=>{priceBridge.error='priceBridgeUnavailable';broadcast();});
     mainWindow=new BrowserWindow({title:'DeadFrontier Overview',width:1120,height:830,minWidth:860,minHeight:660,backgroundColor:'#17110f',icon:path.join(root,'icon.png'),webPreferences:{preload:path.join(directory,'preload.cjs'),sandbox:true,contextIsolation:true,nodeIntegration:false}});
     secureWindow(mainWindow,uiURL);
     mainWindow.on('close',event=>{if(!quitting){event.preventDefault();mainWindow.hide();}});
-    overlayWindow=new BrowserWindow({title:'DF Overview Overlay',width:350,height:245,show:false,frame:false,transparent:true,resizable:false,skipTaskbar:true,focusable:false,alwaysOnTop:true,webPreferences:{preload:path.join(directory,'preload.cjs'),sandbox:true,contextIsolation:true,nodeIntegration:false,backgroundThrottling:false}});
+    overlayWindow=new BrowserWindow({title:'DF Overview Overlay',width:350,height:275,show:false,frame:false,transparent:true,resizable:false,skipTaskbar:true,focusable:false,alwaysOnTop:true,webPreferences:{preload:path.join(directory,'preload.cjs'),sandbox:true,contextIsolation:true,nodeIntegration:false,backgroundThrottling:false}});
     secureWindow(overlayWindow,overlayURL);overlayWindow.setIgnoreMouseEvents(true,{forward:true});
     tray=new Tray(nativeImage.createFromPath(path.join(root,'icon.png')));tray.setToolTip('DeadFrontier Overview — acompanhamento local');tray.on('double-click',showMain);updateTray();
     ipcMain.handle('overview:read',event=>{if(![uiURL,overlayURL].includes(event.senderFrame?.url))throw Error('Origem inválida');return publicState();});
@@ -186,6 +202,23 @@ else {
       else if(type==='stop'){tracker.finish('stopped');}
       else if(type==='reset'){tracker.reset();if(captureWindow){token=crypto.randomUUID();captureWindow.webContents.send('capture:update',{type:'reset',token});}}
       else if(type==='multiplier')tracker.setMultiplier(value);
+      else if(type==='pricePair')await priceBridge.pairCode();
+      else if(type==='priceDisconnect'){priceBridge.revoke();await priceBridge.close();}
+      else if(type==='priceMarket'&&typeof value==='string'&&(value==='auto'||/^\d{1,6}$/.test(value))){preferences({priceMarket:value==='auto'?null:value,priceMarketMode:value==='auto'?'auto':'manual'});}
+      else if(type==='priceAlias'&&typeof value?.from==='string'&&typeof value?.itemId==='string'){
+        const aliases=store.get('priceAliases',{}),key=itemKey(value.from);
+        if(!key||key.length>120||!priceState().catalog.some(q=>q.itemId===value.itemId))throw Error('priceAliasInvalid');
+        aliases[key]=value.itemId;if(Object.keys(aliases).length>1000)throw Error('priceAliasInvalid');store.set('priceAliases',aliases);
+      }
+      else if(type==='priceQuantity'&&typeof value?.id==='string'&&Number.isSafeInteger(value?.quantity)&&value.quantity>=1&&value.quantity<=1000000000){
+        const entry=store.lootById(value.id);if(!entry)throw Error('priceAliasInvalid');store.saveLoot({...entry,quantity:value.quantity});
+      }
+      else if(type==='priceEquipmentVariant'&&typeof value?.id==='string'&&(value.itemId===null||typeof value.itemId==='string')){
+        const entry=store.lootById(value.id);if(!entry)throw Error('priceAliasInvalid');
+        const equipment=valueLoot({...entry,status:'accepted',priceMode:'yard'},priceCache?.quotes??[],{aliases:store.get('priceAliases',{}),catalog:store.itemCatalog()}).equipment;
+        if(!equipment||value.itemId!==null&&(!value.itemId.startsWith(equipment.itemId+'_')||!store.prices(priceState().market).some(q=>q.itemId===value.itemId)))throw Error('priceAliasInvalid');
+        store.saveLoot({...entry,priceMode:value.itemId===null?'yard':'market',priceItemId:value.itemId});
+      }
       else if(type==='process'&&typeof value==='string'&&/^[\w ()-]{0,80}$/.test(value)){preferences({processName:value.replace(/\.exe$/i,'')});finishCapture('processChanged');startProbe();}
       else if(type==='select'&&typeof value==='string'){
         const window=windows.find(item=>item.handle===value);if(!window)throw Error('Janela indisponível');
@@ -202,7 +235,7 @@ else {
       }
       else if(type==='export'){
         const result=await dialog.showSaveDialog(mainWindow,{defaultPath:'deadfrontier-sessoes.csv',filters:[{name:'CSV',extensions:['csv']}]});
-        if(!result.canceled&&result.filePath)await fs.writeFile(result.filePath,csvOfSessions(store.history(-1)),{encoding:'utf8'});
+        if(!result.canceled&&result.filePath){priceState();const valued=valueSessions(store.valuationLoot(),priceCache.quotes,{aliases:priceCache.aliases,catalog:priceCache.catalog,requireCatalog:true});await fs.writeFile(result.filePath,csvOfSessions(store.history(-1),valued.sessions),{encoding:'utf8'});}
       }
       else if(type==='quit'){quitting=true;app.quit();return;}
       else throw Error('Ação inválida');
@@ -246,6 +279,8 @@ else {
       tracker.sample({xp:100000,level:10,nextLevelXp:250000,precision:1000},Date.now()-600000);
       tracker.sample({xp:142000,level:10,nextLevelXp:250000,precision:1000},Date.now());
       tracker.finish('demo');phase='demo';broadcast();
+      for(const [id,item,extra]of [['demo-steroids','Steroids',{}],['demo-cash','$2,122',{cash:2122}],['demo-equipment','Demo Rifle',{}],['demo-ammo','9mm Handgun Bullets',{}]])store.saveLoot({id,sessionId:tracker.experience.session.id,item,foundAt:Date.now(),status:'accepted',...extra});
+      broadcast();
     }else startProbe();
     setInterval(()=>{
       if(quitting||!tracker)return;
@@ -256,5 +291,5 @@ else {
     if(process.argv.includes('--inspect-ui'))mainWindow.webContents.openDevTools({mode:'detach'});
   }).catch(error=>{console.error(error);app.exit(1);});
 }
-app.on('before-quit',()=>{quitting=true;globalShortcut.unregisterAll();lootFlow?.finish();armLoot(false);if(tracker)tracker.finish('appClosed');const oldProbe=probe;probe=null;oldProbe?.kill();const old=captureWindow;captureWindow=null;old?.destroy();store?.close();store=null;tracker=null;});
+app.on('before-quit',()=>{quitting=true;globalShortcut.unregisterAll();priceBridge?.close();lootFlow?.finish();armLoot(false);if(tracker)tracker.finish('appClosed');const oldProbe=probe;probe=null;oldProbe?.kill();const old=captureWindow;captureWindow=null;old?.destroy();store?.close();store=null;tracker=null;});
 app.on('window-all-closed',()=>{});

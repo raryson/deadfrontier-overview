@@ -4,5 +4,6 @@ contextBridge.exposeInMainWorld('captureBridge',Object.freeze({
   sample:value=>ipcRenderer.send('capture:sample',value),
   status:value=>ipcRenderer.send('capture:status',value),
   preview:value=>ipcRenderer.send('capture:preview',value),
+  loot:value=>ipcRenderer.send('capture:loot',value),
   subscribe:callback=>ipcRenderer.on('capture:update',(_event,value)=>callback(value))
 }));

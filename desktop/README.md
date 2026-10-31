@@ -1,8 +1,8 @@
 # DeadFrontier Overview — Windows
 
-Prévia **0.1.0** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
+Prévia **0.2.0** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
 
-[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.1.1/deadfrontier-overview-windows-0.1.1.zip)
+[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.2.0/deadfrontier-overview-windows-0.2.0.zip)
 
 ## Usar a versão portátil
 
@@ -37,7 +37,7 @@ Se a linha de XP não for reconhecida, abra **Ajustar a área de XP**, atualize 
 
 O jogo precisa continuar renderizando a janela. Minimizar pode interromper os frames; o tempo da sessão inclui esse intervalo. O comportamento sobre tela cheia exclusiva depende do client e precisa ser validado nele. Prefira inicialmente modo janela ou sem bordas.
 
-Esta prévia usa um perfil local de XP; não faz login no jogo nem identifica automaticamente troca de personagem. Ao trocar de personagem na mesma janela, use **Salvar e zerar sessão**. Loot, preços, buffs vindos do addon e compra/banco não são implementados neste app inicial.
+Esta prévia usa um perfil local de XP; não faz login no jogo nem identifica automaticamente troca de personagem. Ao trocar de personagem na mesma janela, use **Salvar e zerar sessão**. O loot é experimental. Preços, buffs vindos do addon e compra/banco ainda não estão implementados neste app.
 
 ## Privacidade
 
@@ -70,10 +70,18 @@ Resultado: `../dist/windows/DeadFrontier Overview-win32-x64/`. Todos os arquivos
 
 O teste completo comprovou captura sem seletor, OCR, início automático, ganho contínuo, parar, zerar e salvamento ao fechar a janela fictícia. No client real do usuário, o processo `DeadFrontier` foi reconhecido, a leitura do HUD iniciou a sessão automaticamente e o usuário confirmou o overlay sobre o jogo. Outras resoluções, escalas de tela e comportamentos de tela cheia ainda precisam ser conferidos nas respectivas configurações.
 
-Para diagnosticar o OCR localmente, inicie o executável com `--diagnostic-file CAMINHO_ABSOLUTO.json`. Esse modo opcional grava apenas a última tentativa de texto numérico do HUD, confiança e estado; não grava imagens e não envia dados. O arquivo é atualizado no caminho escolhido e não é necessário no uso normal.
+Para diagnosticar o OCR localmente, inicie o executável com `--diagnostic-file CAMINHO_ABSOLUTO.json`. Esse modo opcional grava a última tentativa de texto do HUD, o diálogo de loot, confiança, estado e a categoria de clique/tecla da escolha dentro do jogo; não grava imagens e não envia dados. O arquivo é atualizado no caminho escolhido e não é necessário no uso normal.
+
+## Loot experimental (0.2)
+
+O app lê separadamente o diálogo central de item encontrado e registra nome, horário, sessão de XP e escolha. Dinheiro encontrado também é identificado. O leitor funciona mesmo se o app for aberto com o diálogo já visível; a mensagem SEARCHING/LOOTING na parte inferior acelera o OCR por 15 segundos e serve como indicação antecipada, sem criar um item nem exigir que a barra tenha sido observada.
+
+Depois de duas leituras coerentes, o helper observa somente E (Yes), T (No), C (Use) e o clique esquerdo enquanto esse diálogo estiver ativo e a janela exata do jogo estiver em primeiro plano. Não envia teclas, não clica pelo jogador, não instala hooks e não observa outras teclas ou aplicativos. A escolha só é finalizada após o diálogo desaparecer. Fechar o app, perder a captura ou não observar a escolha deixa o resultado não confirmado.
+
+“Aceito (Yes)” indica a escolha observada na interface; não é uma confirmação de inventário vinda do servidor. Não há estimativa de preço nem quantidade de itens por pilha. Nomes dependem do OCR e podem conter erros. Use o recurso como histórico auxiliar. Cliques muito rápidos, teclas mantidas pressionadas, escalas de UI diferentes e diálogos breves podem não ser identificados. A tabela mostra os últimos 200 eventos; o banco mantém todos. A validação real inicial reconheceu dinheiro; o primeiro clique real ficou não confirmado. O caminho de clique completo foi validado com um item fictício no próprio app.
 
 ## English quick start
 
 Extract the entire portable ZIP and run **DeadFrontier Overview.exe**. Leave automatic tracking enabled and open the game client. The app detects its window and starts a session on the first stable readout, without a browser sharing picker. Close minimizes to the tray; Quit exits. Alt+Shift+D toggles the dashboard and Alt+Shift+O toggles the overlay. Portuguese/English follow the selected language or system preferences.
 
-Sessions stay locally in SQLite under the app's user-data folder. Stop freezes the session; Save and reset preserves it and starts another. Closing the game ends and saves the session. Base XP is an estimate; K values have about 1,000 XP precision. Windowed/borderless mode is recommended for initial validation. Loot and browser integration are future work; the existing addon remains available during migration.
+Sessions stay locally in SQLite under the app's user-data folder. Stop freezes the session; Save and reset preserves it and starts another. Closing the game ends and saves the session. Base XP is an estimate; K values have about 1,000 XP precision. Windowed/borderless mode is recommended for initial validation. Loot tracking is experimental; accepted means an observed Yes choice followed by dialog dismissal, without server inventory confirmation. Pricing and browser integration are future work; the existing addon remains available during migration.

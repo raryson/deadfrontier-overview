@@ -31,9 +31,14 @@ function render(){
   $('sessions').replaceChildren();
   for(const entry of state.history){
     const row=document.createElement('tr'),date=new Date(entry.startedAt);
-    const values=[date.toLocaleDateString(language.locale)+'\n'+date.toLocaleTimeString(language.locale,{hour:'2-digit',minute:'2-digit'}),number(entry.gained),number(entry.perHour),duration(entry.elapsed),entry.baseAvailable?number(entry.baseGained):'—',entry.baseAvailable?number(entry.basePerHour):'—',number(entry.lost),[language.t(entry.running?'running':'stopped'),entry.basePartial?language.t('partial'):'',entry.gap?language.t('gap'):''].filter(Boolean).join(' · ')];
+    const values=[date.toLocaleDateString(language.locale)+'\n'+date.toLocaleTimeString(language.locale,{hour:'2-digit',minute:'2-digit'}),number(entry.gained),number(entry.perHour),duration(entry.elapsed),entry.baseAvailable?number(entry.baseGained):'—',entry.baseAvailable?number(entry.basePerHour):'—',number(entry.lost),number(state.lootCounts?.find(row=>row.sessionId===entry.id)?.accepted??0),[language.t(entry.running?'running':'stopped'),entry.basePartial?language.t('partial'):'',entry.gap?language.t('gap'):''].filter(Boolean).join(' · ')];
     for(const text of values){const cell=document.createElement('td');cell.textContent=text;row.append(cell);}$('sessions').append(row);
   }
+  const accepted=state.lootCounts?.find(row=>row.sessionId===xp?.session?.id)?.accepted??0;
+  $('loot-count').textContent=language.t('lootAccepted',{count:number(accepted)});
+  $('loot-pending').textContent=state.pendingLoot?language.t('lootPending',{item:state.pendingLoot.item}):state.lootSearching?language.t('lootSearching'):'';
+  $('loot-empty').hidden=!!state.loot?.length;$('loot-rows').replaceChildren();
+  for(const entry of state.loot??[]){const row=document.createElement('tr');for(const value of [new Date(entry.foundAt).toLocaleString(language.locale),entry.item,language.t(entry.status)]){const cell=document.createElement('td');cell.textContent=value;row.append(cell);}$('loot-rows').append(row);}
   if(state.preview&&state.preview.image!==previewImage?.src){const generation=++drawGeneration;const image=new Image();image.onload=()=>{if(drawGeneration!==generation)return;previewImage=image;drawPreview();};image.src=state.preview.image;}
 }
 async function act(type,value){try{state=await api.action(type,value);if(state)render();}catch(error){$('error').hidden=false;$('error').textContent=error.message;setTimeout(()=>$('error').hidden=true,7000);}}

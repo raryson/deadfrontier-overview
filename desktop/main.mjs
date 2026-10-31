@@ -7,6 +7,7 @@ import {spawn} from 'node:child_process';
 import readline from 'node:readline';
 import {DesktopStore} from './store.mjs';
 import {DesktopTracker} from './tracker.mjs';
+import {LootFlow} from './ui/loot-model.mjs';
 import {selectGameWindow,sourceForWindow,validRegion,csvOfSessions} from './selection.mjs';
 
 const directory=path.dirname(fileURLToPath(import.meta.url));
@@ -28,10 +29,10 @@ const uiURL='dfov://app/desktop/ui/index.html';
 const overlayURL='dfov://app/desktop/ui/overlay.html';
 const captureURL='dfov://app/desktop/ui/capture.html';
 const csp="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self' data: blob:; img-src 'self' data: blob:; style-src 'self'; object-src 'none'; frame-src 'none'";
-let store,tracker,mainWindow,overlayWindow,captureWindow,tray,probe,fixtureWindow;
+let store,tracker,lootFlow,mainWindow,overlayWindow,captureWindow,tray,probe,fixtureWindow;
 let quitting=false,windows=[],target=null,source=null,token=null,preview=null,retryAt=0,phase='waiting',detail='',captureStartedAt=0,lastCaptureMessage=0,probeBusy=false,selecting=false,selectionEpoch=0;
 const ownRenderer=(event,url)=>event.senderFrame?.url===url;
-function publicState(){return{...tracker.snapshot(),phase,detail,game:target?{title:target.title,processName:target.processName,minimized:target.minimized}:null,
+function publicState(){return{...tracker.snapshot(),loot:store.lootHistory(),lootCounts:store.lootCounts(),lootSearching:Date.now()-(lootFlow?.searchingAt??0)<4000,pendingLoot:lootFlow?.pending?{item:lootFlow.pending.item,foundAt:lootFlow.pending.foundAt}:null,phase,detail,game:target?{title:target.title,processName:target.processName,minimized:target.minimized}:null,
   windows:windows.map(window=>({handle:window.handle,title:window.title,processName:window.processName})),demo:localTest,preview};}
 function broadcast(){
   if(!tracker)return;const state=publicState();
@@ -39,6 +40,7 @@ function broadcast(){
 }
 function preferences(extra){Object.assign(tracker.settings,extra);tracker.persist();updateTray();broadcast();}
 function finishCapture(reason='gameClosed'){
+  lootFlow?.finish();armLoot(false);
   selectionEpoch++;
   tracker?.finish(reason);
   token=null;source=null;target=null;preview=null;
@@ -46,6 +48,7 @@ function finishCapture(reason='gameClosed'){
   if(old&&!old.isDestroyed())old.destroy();
   overlayWindow?.hide();phase=tracker?.settings.autoTrack?'waiting':'disabled';detail='';broadcast();
 }
+function armLoot(armed){if(probe?.stdin.writable)probe.stdin.write(armed&&target?'ARM '+target.handle+'\n':'DISARM\n');}
 function secureWindow(window,url){
   window.webContents.setWindowOpenHandler(()=>({action:'deny'}));
   window.webContents.on('will-navigate',(event,destination)=>{if(destination!==url)event.preventDefault();});
@@ -91,8 +94,8 @@ function positionOverlay(){
   if(screen.screenToDipRect)bounds=screen.screenToDipRect(null,bounds);
   const display=screen.getDisplayMatching(bounds).workArea;
   const x=Math.max(display.x,Math.min(bounds.x+bounds.width-365,display.x+display.width-350));
-  const y=Math.max(display.y,Math.min(bounds.y+65,display.y+display.height-230));
-  overlayWindow.setBounds({x:Math.round(x),y:Math.round(y),width:350,height:225});overlayWindow.showInactive();
+  const y=Math.max(display.y,Math.min(bounds.y+65,display.y+display.height-250));
+  overlayWindow.setBounds({x:Math.round(x),y:Math.round(y),width:350,height:245});overlayWindow.showInactive();
 }
 async function updateWindows(next){
   if(quitting||!tracker)return;
@@ -121,14 +124,23 @@ function startProbe(){
   const args=['--parent',String(process.pid)];
   if(selfTest)args.push('--fixture',String(process.pid));
   if(tracker.settings.processName)args.push('--process',tracker.settings.processName);
-  probe=spawn(helper,args,{windowsHide:true,stdio:['ignore','pipe','pipe']});
+  probe=spawn(helper,args,{windowsHide:true,stdio:['pipe','pipe','pipe']});
   const child=probe;
-  readline.createInterface({input:child.stdout}).on('line',line=>{try{const packet=JSON.parse(line);if(Array.isArray(packet.windows)&&child===probe)updateWindows(packet.windows);}catch{}});
+  child.stdin.on('error',()=>{});
+  readline.createInterface({input:child.stdout}).on('line',line=>{try{
+    const packet=JSON.parse(line);if(child!==probe)return;
+    if(Array.isArray(packet.windows))updateWindows(packet.windows);
+    if(packet.lootInput&&packet.lootInput.handle===target?.handle){
+      const accepted=lootFlow?.choose(packet.lootInput);
+      if(diagnosticFile)try{fsSync.writeFileSync(diagnosticFile+'.input.json',JSON.stringify({input:packet.lootInput,accepted}));}catch{}
+      if(accepted)broadcast();
+    }
+  }catch{}});
   child.on('error',()=>{phase='error';detail='Não foi possível iniciar a detecção da janela.';broadcast();});
   child.on('exit',()=>{if(child===probe&&!quitting){phase='error';detail='A detecção da janela foi encerrada. Reabra o app.';broadcast();}});
 }
 async function createFixture(){
-  fixtureWindow=new BrowserWindow({title:'DF Overview Capture Fixture',width:1100,height:700,frame:false,webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false,backgroundThrottling:false}});
+  fixtureWindow=new BrowserWindow({title:'DF Overview Capture Fixture',width:1920,height:1080,x:0,y:0,frame:false,webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false,backgroundThrottling:false}});
   await fixtureWindow.loadURL('dfov://app/desktop/ui/fixture.html');
 }
 
@@ -157,10 +169,11 @@ else {
     const dataDirectory=app.getPath('userData');
     store=new DesktopStore(path.join(dataDirectory,'overview.sqlite'));
     tracker=new DesktopTracker(store);
+    lootFlow=new LootFlow(store);
     mainWindow=new BrowserWindow({title:'DeadFrontier Overview',width:1120,height:830,minWidth:860,minHeight:660,backgroundColor:'#17110f',icon:path.join(root,'icon.png'),webPreferences:{preload:path.join(directory,'preload.cjs'),sandbox:true,contextIsolation:true,nodeIntegration:false}});
     secureWindow(mainWindow,uiURL);
     mainWindow.on('close',event=>{if(!quitting){event.preventDefault();mainWindow.hide();}});
-    overlayWindow=new BrowserWindow({title:'DF Overview Overlay',width:350,height:225,show:false,frame:false,transparent:true,resizable:false,skipTaskbar:true,focusable:false,alwaysOnTop:true,webPreferences:{preload:path.join(directory,'preload.cjs'),sandbox:true,contextIsolation:true,nodeIntegration:false,backgroundThrottling:false}});
+    overlayWindow=new BrowserWindow({title:'DF Overview Overlay',width:350,height:245,show:false,frame:false,transparent:true,resizable:false,skipTaskbar:true,focusable:false,alwaysOnTop:true,webPreferences:{preload:path.join(directory,'preload.cjs'),sandbox:true,contextIsolation:true,nodeIntegration:false,backgroundThrottling:false}});
     secureWindow(overlayWindow,overlayURL);overlayWindow.setIgnoreMouseEvents(true,{forward:true});
     tray=new Tray(nativeImage.createFromPath(path.join(root,'icon.png')));tray.setToolTip('DeadFrontier Overview — acompanhamento local');tray.on('double-click',showMain);updateTray();
     ipcMain.handle('overview:read',event=>{if(![uiURL,overlayURL].includes(event.senderFrame?.url))throw Error('Origem inválida');return publicState();});
@@ -215,6 +228,15 @@ else {
       if(!ownRenderer(event,captureURL)||event.sender!==captureWindow?.webContents||message?.token!==token||typeof message.image!=='string'||!message.image.startsWith('data:image/jpeg;base64,')||message.image.length>2500000)return;
       preview={image:message.image,width:message.width,height:message.height,region:message.region};broadcast();
     });
+    ipcMain.on('capture:loot',(event,message)=>{
+      if(!ownRenderer(event,captureURL)||event.sender!==captureWindow?.webContents||message?.token!==token||!source||target?.minimized)return;
+      const reading=message.reading;
+      if(!['found','absent','unknown','searching'].includes(reading?.kind)||String(reading.text??'').length>1200)return;
+      if(diagnosticFile)try{fsSync.writeFileSync(diagnosticFile+'.loot.json',JSON.stringify(reading));}catch{}
+      if(reading.buttons&&Object.values(reading.buttons).some(value=>!validRegion(value)))return;
+      lootFlow.observe(reading,tracker.experience?.session?.running?tracker.experience.session.id:null);
+      armLoot(!!lootFlow.pending);broadcast();
+    });
     await Promise.all([mainWindow.loadURL(uiURL),overlayWindow.loadURL(overlayURL)]);
     globalShortcut.register('Alt+Shift+D',()=>mainWindow.isVisible()?mainWindow.hide():showMain());
     globalShortcut.register('Alt+Shift+O',()=>preferences({overlay:!tracker.settings.overlay}));
@@ -229,10 +251,10 @@ else {
       if(quitting||!tracker)return;
       positionOverlay();
       if(captureWindow&&Date.now()-Math.max(captureStartedAt,lastCaptureMessage)>45000){finishCapture('captureFailed');phase='error';detail='O leitor não respondeu. Nova tentativa em alguns segundos.';retryAt=Date.now()+10000;broadcast();}
-      if(selfTest){fsSync.writeFileSync(path.join(dataDirectory,'test-status.json'),JSON.stringify({phase,game:!!target,stats:tracker.snapshot().stats,sessionCount:store.count(),session:tracker.experience?.session,history:store.history(5)}));}
+      if(selfTest){fsSync.writeFileSync(path.join(dataDirectory,'test-status.json'),JSON.stringify({phase,game:!!target,stats:tracker.snapshot().stats,sessionCount:store.count(),session:tracker.experience?.session,history:store.history(5),loot:store.lootHistory(),pendingLoot:lootFlow.pending}));}
     },1000);
     if(process.argv.includes('--inspect-ui'))mainWindow.webContents.openDevTools({mode:'detach'});
   }).catch(error=>{console.error(error);app.exit(1);});
 }
-app.on('before-quit',()=>{quitting=true;globalShortcut.unregisterAll();if(tracker)tracker.finish('appClosed');const oldProbe=probe;probe=null;oldProbe?.kill();const old=captureWindow;captureWindow=null;old?.destroy();store?.close();store=null;tracker=null;});
+app.on('before-quit',()=>{quitting=true;globalShortcut.unregisterAll();lootFlow?.finish();armLoot(false);if(tracker)tracker.finish('appClosed');const oldProbe=probe;probe=null;oldProbe?.kill();const old=captureWindow;captureWindow=null;old?.destroy();store?.close();store=null;tracker=null;});
 app.on('window-all-closed',()=>{});

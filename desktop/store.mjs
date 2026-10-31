@@ -8,7 +8,10 @@ export class DesktopStore {
     this.db=new DatabaseSync(filename);
     this.db.exec(`PRAGMA journal_mode=WAL;
       CREATE TABLE IF NOT EXISTS state(key TEXT PRIMARY KEY,payload TEXT NOT NULL);
-      CREATE TABLE IF NOT EXISTS sessions(id TEXT PRIMARY KEY,started_at INTEGER NOT NULL,running INTEGER NOT NULL,payload TEXT NOT NULL);`);
+      CREATE TABLE IF NOT EXISTS sessions(id TEXT PRIMARY KEY,started_at INTEGER NOT NULL,running INTEGER NOT NULL,payload TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS loot(id TEXT PRIMARY KEY,session_id TEXT,found_at INTEGER NOT NULL,status TEXT NOT NULL,payload TEXT NOT NULL);`);
+    // A shutdown cannot confirm a pickup that was still awaiting the screen.
+    this.db.prepare("UPDATE loot SET status='unconfirmed',payload=json_set(payload,'$.status','unconfirmed') WHERE status='found'").run();
   }
   get(key,fallback){const row=this.db.prepare('SELECT payload FROM state WHERE key=?').get(key);return row?JSON.parse(row.payload):fallback;}
   save(experience,entry,settings){
@@ -25,5 +28,9 @@ export class DesktopStore {
   }
   history(limit=100){return this.db.prepare('SELECT payload FROM sessions ORDER BY started_at DESC LIMIT ?').all(limit).map(row=>JSON.parse(row.payload));}
   count(){return this.db.prepare('SELECT COUNT(*) AS count FROM sessions').get().count;}
+  saveLoot(entry){const {buttons,key,...saved}=entry;this.db.prepare(`INSERT INTO loot(id,session_id,found_at,status,payload) VALUES(?,?,?,?,?)
+    ON CONFLICT(id) DO UPDATE SET session_id=excluded.session_id,status=excluded.status,payload=excluded.payload`).run(entry.id,entry.sessionId,entry.foundAt,entry.status,JSON.stringify(saved));}
+  lootHistory(){return this.db.prepare('SELECT payload FROM loot ORDER BY found_at DESC LIMIT 200').all().map(row=>JSON.parse(row.payload));}
+  lootCounts(){return this.db.prepare("SELECT session_id AS sessionId,COUNT(*) AS found,SUM(status='accepted') AS accepted FROM loot GROUP BY session_id").all();}
   close(){this.db.close();}
 }

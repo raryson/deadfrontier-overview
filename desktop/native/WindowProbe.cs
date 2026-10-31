@@ -22,6 +22,9 @@ public static class WindowProbe {
   [DllImport("user32.dll")] private static extern bool GetClientRect(IntPtr window,out Rect rect);
   [DllImport("user32.dll")] private static extern bool ClientToScreen(IntPtr window,ref Point point);
   [DllImport("user32.dll")] private static extern bool SetProcessDpiAwarenessContext(IntPtr context);
+  [DllImport("user32.dll")] private static extern short GetAsyncKeyState(int key);
+  [DllImport("user32.dll")] private static extern bool GetCursorPos(out Point point);
+  private static volatile string lootHandle="";
   public static void Main(string[] args) {
     int parent=0,fixture=0;string custom="";bool once=false;
     for(int i=0;i<args.Length;i++) {
@@ -32,6 +35,8 @@ public static class WindowProbe {
     }
     try {SetProcessDpiAwarenessContext(new IntPtr(-4));}catch(EntryPointNotFoundException){}
     var serializer=new JavaScriptSerializer();
+    if(!once){var commands=new Thread(delegate(){try{string line;while((line=Console.ReadLine())!=null)lootHandle=line.StartsWith("ARM ")?line.Substring(4):"";}catch{}});commands.IsBackground=true;commands.Start();}
+    bool[] previous=null;string priorHandle="";
     do {
       if(parent>0)try{if(Process.GetProcessById(parent).HasExited)return;}catch{return;}
       var windows=new List<object>();
@@ -61,7 +66,21 @@ public static class WindowProbe {
       },IntPtr.Zero);
       Console.WriteLine(serializer.Serialize(new {windows=windows}));
       if(once)return;
-      Thread.Sleep(2000);
+      // Read only E/T/C and left-click edges while a confirmed loot dialog is
+      // armed by the parent AND that exact game's window is in the foreground.
+      for(int tick=0;tick<25;tick++){
+        Thread.Sleep(80);
+        string armed=lootHandle;IntPtr foreground=GetForegroundWindow();
+        if(armed.Length==0||foreground.ToInt64().ToString()!=armed){previous=null;priorHandle="";continue;}
+        int[] keys={0x45,0x54,0x43,1};bool[] pressed=new bool[4],edge=new bool[4];
+        for(int k=0;k<4;k++){short value=GetAsyncKeyState(keys[k]);pressed[k]=(value&0x8000)!=0;edge[k]=(value&1)!=0;}
+        if(previous!=null&&priorHandle==armed)for(int k=0;k<4;k++)if(edge[k]||(pressed[k]&&!previous[k])){
+          Point point;Rect bounds;if(!GetCursorPos(out point)||!GetWindowRect(foreground,out bounds))continue;
+          Console.WriteLine(serializer.Serialize(new {lootInput=new {handle=armed,action=k==0?"accepted":k==1?"rejected":k==2?"used":"click",
+            x=(double)(point.X-bounds.Left)/Math.Max(1,bounds.Right-bounds.Left),y=(double)(point.Y-bounds.Top)/Math.Max(1,bounds.Bottom-bounds.Top)}}));
+        }
+        previous=pressed;priorHandle=armed;
+      }
     }while(true);
   }
 }

@@ -1,27 +1,17 @@
-# Windows desktop preview 0.1.1
+# Windows preview 0.2.0 — loot experimental
 
-Extraia todo o ZIP e abra `DeadFrontier Overview.exe`. Deixe o acompanhamento automático ligado e abra o client do jogo. A janela é associada ao processo do Dead Frontier, sem repetir um seletor de compartilhamento. A sessão começa na primeira leitura estável.
+Extraia todo o ZIP e abra DeadFrontier Overview.exe. O leitor de XP permanece separado do leitor de loot.
 
-- Overlay próprio, acima da janela do jogo e com cliques passando para o client.
-- XP recebida, XP/h, perdas e estimativas sem bônus por multiplicador informado.
-- Sessões em SQLite local, com exportação CSV.
-- Parar congela; Salvar e zerar preserva a anterior e abre outra sessão.
-- Fechar o jogo salva e encerra a medição. O app pode ficar na bandeja aguardando outra partida.
-- Alt+Shift+D: painel. Alt+Shift+O: overlay.
-- Interface em português e inglês.
+- Histórico local de itens e dinheiro encontrados, associado à sessão de XP quando disponível.
+- Observa Yes (E), No (T), Use (C) ou o clique nos respectivos botões, somente com o diálogo reconhecido e o jogo em primeiro plano.
+- Aceito exige escolha observada e fechamento do diálogo. Ausência de confirmação fica separada e não é contada como coleta.
+- Reconhece também diálogos já abertos ao iniciar o app. A indicação SEARCHING/LOOTING é auxiliar; uma busca não cria loot sozinha.
+- SQLite conserva os registros; o painel mostra os últimos 200.
 
-Não precisa instalar Node.js ou SDK para usar o pacote. Fechar o painel deixa o app na bandeja; use Sair para encerrar. O app não se cadastra na inicialização do Windows.
+Prévia experimental: nomes dependem do OCR. Não confirma inventário pelo servidor, não estima preços nem quantidades de pilhas. O primeiro teste real identificou dinheiro, mas o clique ficou não confirmado. O fluxo completo de clique foi validado em uma janela fictícia. A mensagem de busca ainda depende de validação na interface real do jogo.
 
-Os recursos de XP do addon ainda estão disponíveis durante a migração. Loot, preços e comunicação com o addon não fazem parte deste primeiro app. O histórico anterior da extensão continua nela. O app utiliza um perfil local; não faz login nem detecta automaticamente troca de personagem na mesma janela.
-
-Captura e OCR são locais, sem áudio, gravação ou upload. A precisão continua limitada pelo HUD: valores em K têm passos de aproximadamente 1.000 XP. Leia `desktop/README.md` no repositório para calibração, armazenamento e limitações.
-
-Correções 0.1.1: recuperação de leituras após mudança de nível ou limite de XP incorreto, descarte de sufixos/percentuais incompatíveis, contraste alternativo para o HUD e aviso quando a leitura fica desatualizada. Sessões antigas são preservadas; dados já afetados por OCR incorreto não são recalculados.
-
-Validação: 71 testes da extensão e 3 do desktop, incluindo recuperação do OCR e teste de captura com ganhos contínuos numa janela fictícia.
+Apenas captura local da janela do client: sem áudio, gravação de imagens ou upload. O helper não injeta código nem envia comandos ao jogo. Histórico e configuração anteriores são preservados.
 
 ## English
 
-Extract the entire ZIP and run `DeadFrontier Overview.exe`. Leave automatic tracking enabled and open the game client. The app associates capture with the game's process and starts the XP session on the first stable readout, without a recurring browser sharing picker. Includes a click-through overlay, local SQLite session history, CSV export and estimated XP without bonuses. Alt+Shift+D toggles the dashboard; Alt+Shift+O toggles the overlay.
-
-This is an initial Windows preview. The existing extension remains available during migration. Loot, pricing, browser integration and automatic character identification are not included yet. Capture/OCR are local, without audio, recording or uploads.
+Experimental loot history alongside the separate XP reader. Detects found items/cash, records the observed Yes/No/Use choice and waits for dialog dismissal. Uncertain outcomes are not counted. Accepted is an observed UI choice, not server-side inventory confirmation. Local SQLite storage, no screenshot recording or uploads. Names depend on OCR; pricing and stack quantities are not implemented. Real cash recognition and a complete fictional click flow were validated; real search-progress recognition still needs validation.

@@ -13,7 +13,7 @@ function render(){
   $('game').textContent=state.game?`${state.game.title} · ${state.game.processName}`:'';$('detail').textContent=state.detail;
   $('test').hidden=!state.demo;
   const xp=state.experience,stats=experienceStats(xp);
-  $('session-state').textContent=language.t(xp?.session?.running?'running':xp?.session?'stopped':'none');
+  $('session-state').textContent=language.t(stats.stale&&xp?.session?.running?'stale':xp?.session?.running?'running':xp?.session?'stopped':'none');
   for(const [id,value]of Object.entries({gained:stats.gained,rate:stats.perHour,lost:stats.lost}))$(id).textContent=xp?.session?number(value):'—';
   const base=xp?.session&&(xp.multiplier||stats.baseGained>0);
   $('base').textContent=base?number(stats.baseGained):'—';$('base-rate').textContent=base?number(stats.basePerHour):'—';

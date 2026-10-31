@@ -5,7 +5,7 @@ const video=document.getElementById('game');
 const gate=createOcrGate();
 let config,region,worker,stream,epoch=0,previewRequested=false,frameWidth=0,frameHeight=0;
 const sendStatus=(phase,detail='')=>bridge.status({token:config?.token,phase,detail:String(detail).slice(0,200)});
-function prepare(region,threshold=80){
+function prepare(region,threshold=160){
   const width=Math.max(1,Math.round(region.width*video.videoWidth)),height=Math.max(1,Math.round(region.height*video.videoHeight));
   const canvas=document.createElement('canvas');const scale=Math.min(4,4096/width,512/height);
   canvas.width=Math.round(width*scale);canvas.height=Math.round(height*scale);
@@ -52,16 +52,20 @@ window.startCapture=async()=>{
         // Window borders/title bars vary. Try the HUD one title bar lower until
         // a stable reference is found, without requiring a picker or calibration.
         if(!config.region&&region.y*video.videoHeight<85)candidates.push({...region,y:Math.min((80+32)/video.videoHeight,1-region.height)});
-        let best=null;
+        let best=null,diagnostic=[];
         for(const candidate of candidates){
-          const image=prepare(candidate);const result=await worker.recognize(await canvasBytes(image));
-          const sample=parseHudXp(result.data.text);
-          if(sample&&(!best||result.data.confidence>best.confidence))best={sample,confidence:result.data.confidence,candidate};
+          for(const threshold of [160,80]){
+            const image=prepare(candidate,threshold);const result=await worker.recognize(await canvasBytes(image));
+            const sample=parseHudXp(result.data.text);
+            diagnostic.push({text:String(result.data.text).replace(/[^0-9LVYlvKkMmBb.,:/()%\s]/g,'').slice(0,100),confidence:Math.round(result.data.confidence),threshold});
+            if(sample&&(!best||result.data.confidence>best.confidence))best={sample,confidence:result.data.confidence,candidate};
+            if(sample&&result.data.confidence>=85)break;
+          }
         }
         if(revision!==epoch)return;
         const accepted=gate.accept(best?.sample,best?.confidence);
-        if(accepted){region=best.candidate;bridge.sample({token:config.token,sample:accepted,confidence:best.confidence});sendStatus('reading');}
-        else sendStatus(best?'confirming':'unreadable');
+        if(accepted){region=best.candidate;bridge.sample({token:config.token,sample:accepted,confidence:best.confidence});}
+        bridge.status({token:config.token,phase:accepted?'reading':best?'confirming':'unreadable',...(config.diagnostics?{diagnostic}:{})});
         if(previewRequested){
           previewRequested=false;const canvas=document.createElement('canvas');canvas.width=Math.min(video.videoWidth,960);canvas.height=Math.round(canvas.width*video.videoHeight/video.videoWidth);
           canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);

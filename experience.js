@@ -12,7 +12,8 @@ export function recordExperience(previous, sample, now = Date.now(), tabId = nul
   if (session?.running) {
     const old=previous.latest;
     let delta=null;
-    if(old.totalXp != null && latest.totalXp != null) delta=latest.totalXp-old.totalXp;
+    if(source==='ocr'&&sample.rebase===true) session.gap=true;
+    else if(old.totalXp != null && latest.totalXp != null) delta=latest.totalXp-old.totalXp;
     else if(old.level===latest.level) delta=latest.xp-old.xp;
     else if(latest.level===old.level+1 && old.nextLevelXp != null) delta=old.nextLevelXp-old.xp+latest.xp;
     if(delta===null) session.gap=true;

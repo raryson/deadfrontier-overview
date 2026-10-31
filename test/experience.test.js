@@ -2,6 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {recordExperience,startExperience,stopExperience,setExperienceMultiplier,experienceStats,rememberExperience,EXPERIENCE_HISTORY_LIMIT} from '../experience.js';
 const sample=(xp,extra={})=>({account:'123',xp,level:1,serverTime:100,...extra});
+
+test('recuperação da referência OCR marca lacuna sem inventar ganho ou perda',()=>{
+  let xp=startExperience(recordExperience(null,sample(100000,{source:'ocr'}),0),0);
+  xp=recordExperience(xp,sample(200000,{source:'ocr',rebase:true}),2000);
+  assert.equal(xp.session.gained,0);assert.equal(xp.session.lost,0);assert.equal(xp.session.gap,true);
+  xp=recordExperience(xp,sample(205000,{source:'ocr'}),4000);
+  assert.equal(xp.session.gained,5000);
+});
 test('XP recebida, líquida e por hora partem de uma leitura inicial sem contar XP anterior',()=>{
   let xp=startExperience(recordExperience(null,sample(100),0,5),0);
   xp=recordExperience(xp,sample(1100,{serverTime:101}),600000,5);

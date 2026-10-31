@@ -14,6 +14,8 @@ const root=path.dirname(directory);
 const demo=process.argv.includes('--demo');
 const selfTest=process.argv.includes('--self-test');
 const localTest=demo||selfTest;
+const diagnosticArgument=process.argv.indexOf('--diagnostic-file');
+const diagnosticFile=diagnosticArgument>=0&&path.isAbsolute(process.argv[diagnosticArgument+1]??'')?process.argv[diagnosticArgument+1]:null;
 app.setName('DeadFrontier Overview');
 if(localTest){
   const argument=process.argv.indexOf('--test-data');
@@ -195,7 +197,7 @@ else {
     });
     ipcMain.handle('capture:config',event=>{
       if(!ownRenderer(event,captureURL)||event.sender!==captureWindow?.webContents)throw Error('Origem inválida');
-      return{token,region:tracker.settings.region};
+      return{token,region:tracker.settings.region,diagnostics:!!diagnosticFile};
     });
     ipcMain.on('capture:sample',(event,message)=>{
       if(!ownRenderer(event,captureURL)||event.sender!==captureWindow?.webContents||message?.token!==token||!source||target?.minimized||message.confidence<60)return;
@@ -204,6 +206,7 @@ else {
     ipcMain.on('capture:status',(event,message)=>{
       if(!ownRenderer(event,captureURL)||event.sender!==captureWindow?.webContents||message?.token!==token)return;
       lastCaptureMessage=Date.now();phase=String(message.phase);detail=String(message.detail??'').slice(0,200);
+      if(diagnosticFile&&Array.isArray(message.diagnostic))try{fsSync.writeFileSync(diagnosticFile,JSON.stringify({phase,readAt:Date.now(),attempts:message.diagnostic.slice(0,4)}));}catch{}
       if(phase==='ended')finishCapture('captureEnded');
       else if(phase==='resolution'){tracker.reset();broadcast();}
       else broadcast();

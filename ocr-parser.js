@@ -21,6 +21,13 @@ export function parseHudXp(text) {
   if(!match)return null;
   const level=Number(match[1]),current=hudNumber(match[2]),target=hudNumber(match[3]);
   if(!current||!target||level<1||level>415||target.value<=0)return null;
+  // A dropped K/M suffix turns millions into thousands and creates false deaths.
+  const currentUnit=/[KMB]\s*$/.exec(match[2]),targetUnit=/[KMB]\s*$/.exec(match[3]);
+  if(targetUnit&&!currentUnit&&current.value!==0)return null;
+  const percent=/^\s*\(\s*(\d{1,3})\s*%\s*\)/.exec(normalized.slice(match.index+match[0].length));
+  // OCR often reads the closing parenthesis as a 7 (40% -> 407%). Such an
+  // impossible percentage is not evidence against otherwise valid XP tokens.
+  if(percent&&Number(percent[1])<=100&&Math.abs(current.value/target.value*100-Number(percent[1]))>2)return null;
   return {xp:current.value,level,nextLevelXp:target.value,precision:current.precision,source:'ocr',totalXp:null,serverTime:null};
 }
 export function createOcrGate() {
@@ -29,25 +36,30 @@ export function createOcrGate() {
   return {
     reset(){accepted=null;pending=null;},
     accept(sample,confidence,now=Date.now()) {
-      if(!sample||!Number.isFinite(confidence)||confidence<60)return null;
+      if(!sample||!Number.isFinite(confidence)||confidence<60){pending=null;return null;}
       const priorPending=pending;
       const repeat=same(pending?.sample,sample)?pending.count+1:1;
-      pending={sample,count:repeat,confidence};
+      const consistent=priorPending&&confidence>=75&&priorPending.confidence>=75&&now-priorPending.at<=10000&&sample.level===priorPending.sample.level&&sample.nextLevelXp===priorPending.sample.nextLevelXp&&sample.xp>=priorPending.sample.xp&&sample.xp-priorPending.sample.xp<=Math.max(sample.nextLevelXp*0.08,sample.precision*10);
+      const sequence=consistent?priorPending.sequence+1:repeat;
+      pending={sample,count:repeat,sequence,confidence,at:now};
+      let rebase=false;
       if(!accepted) {
-        const consistent=priorPending&&confidence>=75&&priorPending.confidence>=75&&sample.level===priorPending.sample.level&&sample.nextLevelXp===priorPending.sample.nextLevelXp&&sample.xp>=priorPending.sample.xp&&sample.xp-priorPending.sample.xp<=Math.max(sample.nextLevelXp*0.08,sample.precision*10);
         if(repeat<2&&!consistent)return null;
       }
       else if(sample.level===accepted.sample.level && sample.nextLevelXp===accepted.sample.nextLevelXp) {
         const difference=sample.xp-accepted.sample.xp;
         if(difference<0 && Math.abs(difference)<2*Math.max(sample.precision,accepted.sample.precision))return null;
         const large=Math.abs(difference)>Math.max(sample.nextLevelXp*0.08,sample.precision*10)*Math.max(1,(now-accepted.at)/2000);
-        if((difference<0||large) && repeat<2)return null;
+        if((difference<0||large) && repeat<2&&sequence<3)return null;
       } else {
-        // Threshold changes at the same level indicate an unstable crop/OCR read.
-        if(sample.level===accepted.sample.level || Math.abs(sample.level-accepted.sample.level)>1)return null;
-        if(repeat<2)return null;
+        if(Math.abs(sample.level-accepted.sample.level)>1)return null;
+        if(sample.level===accepted.sample.level){
+          // Recover from a bad denominator without inventing XP at that boundary.
+          if(sequence<3||confidence<75)return null;
+          rebase=true;
+        }else if(repeat<2&&!consistent)return null;
       }
-      accepted={sample,at:now};return {...sample};
+      accepted={sample,at:now};return {...sample,...(rebase?{rebase:true}:{})};
     }
   };
 }

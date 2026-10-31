@@ -2,7 +2,7 @@
 
 Prévia **0.1.0** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
 
-[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.1.0/deadfrontier-overview-windows-0.1.0.zip)
+[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.1.1/deadfrontier-overview-windows-0.1.1.zip)
 
 ## Usar a versão portátil
 
@@ -69,6 +69,8 @@ Resultado: `../dist/windows/DeadFrontier Overview-win32-x64/`. Todos os arquivos
 `npm run demo` abre dados fictícios sem capturar outras aplicações. Para o teste completo de captura, `electron . --self-test` cria uma janela própria com um HUD fictício que avança a cada quatro segundos. O helper limita esse teste ao processo e título exatos da janela fictícia. Perfis de teste ficam separados dos dados normais; `--test-data CAMINHO_ABSOLUTO` pode definir uma pasta própria para testes. Este modo não deve ser usado para medir o jogo real.
 
 O teste completo comprovou captura sem seletor, OCR, início automático, ganho contínuo, parar, zerar e salvamento ao fechar a janela fictícia. No client real do usuário, o processo `DeadFrontier` foi reconhecido, a leitura do HUD iniciou a sessão automaticamente e o usuário confirmou o overlay sobre o jogo. Outras resoluções, escalas de tela e comportamentos de tela cheia ainda precisam ser conferidos nas respectivas configurações.
+
+Para diagnosticar o OCR localmente, inicie o executável com `--diagnostic-file CAMINHO_ABSOLUTO.json`. Esse modo opcional grava apenas a última tentativa de texto numérico do HUD, confiança e estado; não grava imagens e não envia dados. O arquivo é atualizado no caminho escolhido e não é necessário no uso normal.
 
 ## English quick start
 

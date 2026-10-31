@@ -40,4 +40,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         shell: pwsh
-        run: gh release create "$env:GITHUB_REF_NAME" dist/deadfrontier-overview-windows-0.1.0.zip dist/WINDOWS-SHA256SUMS.txt --verify-tag --prerelease --title "DeadFrontier Overview Windows 0.1.0 preview" --notes-file desktop/RELEASE_NOTES.md
+        run: |
+          $version = (Get-Content desktop/package.json -Raw | ConvertFrom-Json).version
+          gh release create "$env:GITHUB_REF_NAME" "dist/deadfrontier-overview-windows-$version.zip" dist/WINDOWS-SHA256SUMS.txt --verify-tag --prerelease --title "DeadFrontier Overview Windows $version preview" --notes-file desktop/RELEASE_NOTES.md

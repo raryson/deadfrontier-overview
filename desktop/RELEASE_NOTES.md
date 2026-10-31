@@ -1,4 +1,4 @@
-# Windows desktop preview 0.1.0
+# Windows desktop preview 0.1.1
 
 Extraia todo o ZIP e abra `DeadFrontier Overview.exe`. Deixe o acompanhamento automático ligado e abra o client do jogo. A janela é associada ao processo do Dead Frontier, sem repetir um seletor de compartilhamento. A sessão começa na primeira leitura estável.
 
@@ -16,7 +16,9 @@ Os recursos de XP do addon ainda estão disponíveis durante a migração. Loot,
 
 Captura e OCR são locais, sem áudio, gravação ou upload. A precisão continua limitada pelo HUD: valores em K têm passos de aproximadamente 1.000 XP. Leia `desktop/README.md` no repositório para calibração, armazenamento e limitações.
 
-Validação: 67 testes da extensão e 3 do desktop, teste completo de captura com uma janela fictícia e confirmação de detecção, leitura inicial e overlay no client real.
+Correções 0.1.1: recuperação de leituras após mudança de nível ou limite de XP incorreto, descarte de sufixos/percentuais incompatíveis, contraste alternativo para o HUD e aviso quando a leitura fica desatualizada. Sessões antigas são preservadas; dados já afetados por OCR incorreto não são recalculados.
+
+Validação: 71 testes da extensão e 3 do desktop, incluindo recuperação do OCR e teste de captura com ganhos contínuos numa janela fictícia.
 
 ## English
 

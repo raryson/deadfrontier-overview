@@ -47,6 +47,8 @@ test('sufixo perdido e percentual incompatível não criam ganhos ou mortes fals
   assert.equal(parseHudXp('LV 94: 2,113K / 5,500K (38%)').xp,2113000);
   assert.equal(parseHudXp('LV 94: 2,178K / 5500K (407%)').xp,2178000);
   assert.equal(parseHudXp('LV 1: 123 / 500 (25%)').xp,123);
+  const slash=parseHudXp('LV 94: 2249K 7 5.500K 141%');
+  assert.equal(slash.xp,2249000);assert.equal(slash.nextLevelXp,5500000);
 });
 
 test('limiar errado se recupera com três leituras coerentes mesmo enquanto XP sobe',()=>{

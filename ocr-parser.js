@@ -16,7 +16,10 @@ function hudNumber(text) {
   return {value,precision:Math.max(1,unit/(10**decimals))};
 }
 export function parseHudXp(text) {
-  const normalized=String(text).toUpperCase().replace(/[|]/g,'/').replace(/[：]/g,':');
+  const normalized=String(text).toUpperCase().replace(/[|]/g,'/').replace(/[：]/g,':')
+    // The HUD's narrow slash is sometimes recognized as an isolated 7.
+    // Restrict the repair to a separator after an explicit XP unit.
+    .replace(/([KMB])\s+7[.,]?\s+(?=\d)/g,'$1 / ');
   const match=/(?:L\.?[VY]|LEVEL)\s*\.?\s*(\d{1,3})\s*[:;]\s*([\d.,\s]+[KMB]?)\s*\/\s*([\d.,\s]+[KMB]?)/.exec(normalized);
   if(!match)return null;
   const level=Number(match[1]),current=hudNumber(match[2]),target=hudNumber(match[3]);

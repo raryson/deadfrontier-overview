@@ -1,6 +1,6 @@
-# Windows preview 0.2.0 — loot experimental
+# Windows preview 0.2.1 — loot experimental
 
-Extraia todo o ZIP e abra DeadFrontier Overview.exe. O leitor de XP permanece separado do leitor de loot.
+Extraia todo o ZIP e abra DeadFrontier Overview.exe. O leitor de XP permanece separado do leitor de loot. A revisão 0.2.1 acrescenta contraste neutro e leitura adaptativa para fundos difíceis e exige confiança nas palavras do nome do item.
 
 - Histórico local de itens e dinheiro encontrados, associado à sessão de XP quando disponível.
 - Observa Yes (E), No (T), Use (C) ou o clique nos respectivos botões, somente com o diálogo reconhecido e o jogo em primeiro plano.
@@ -9,6 +9,8 @@ Extraia todo o ZIP e abra DeadFrontier Overview.exe. O leitor de XP permanece se
 - SQLite conserva os registros; o painel mostra os últimos 200.
 
 Prévia experimental: nomes dependem do OCR. Não confirma inventário pelo servidor, não estima preços nem quantidades de pilhas. O primeiro teste real identificou dinheiro, mas o clique ficou não confirmado. O fluxo completo de clique foi validado em uma janela fictícia. A mensagem de busca ainda depende de validação na interface real do jogo.
+
+Validação: 71 testes da extensão e 9 do desktop passaram. Captura simulada confirmou mouse/Yes, E/Yes, T/No e a indicação de busca; a leitura real de XP foi conferida após as alternativas de contraste.
 
 Apenas captura local da janela do client: sem áudio, gravação de imagens ou upload. O helper não injeta código nem envia comandos ao jogo. Histórico e configuração anteriores são preservados.
 

@@ -1,6 +1,6 @@
 import Tesseract from '../../vendor/ocr/tesseract.esm.min.js';
 import {parseHudXp,createOcrGate,defaultHudRegion} from '../../ocr-parser.js';
-import {lootRegion,parseLootDialog,lootButtons,searchInProgress} from './loot-model.mjs';
+import {lootRegion,parseLootDialog,lootButtons,searchInProgress,wordsOf} from './loot-model.mjs';
 const bridge=window.captureBridge;
 const video=document.getElementById('game');
 const gate=createOcrGate();
@@ -62,11 +62,16 @@ window.startCapture=async()=>{
             let result,text,parsed,buttonResult,buttonImage;
             for(const threshold of [null,160,100]){
               const promptImage=prepare(promptArea,threshold,threshold!==null);
-              result=await lootWorker.recognize(await canvasBytes(promptImage));
+              result=await lootWorker.recognize(await canvasBytes(promptImage),{},{text:true,blocks:true});
               buttonImage=prepare(buttonArea,110,true);
               buttonResult=await lootWorker.recognize(await canvasBytes(buttonImage),{},{text:true,blocks:true});
               text=result.data.text+'\n'+buttonResult.data.text;parsed=parseLootDialog(text);
-              if(parsed)break;
+              if(parsed){
+                const tokens=parsed.item.toUpperCase().split(/\s+/).map(t=>t.replace(/[^A-Z0-9]/g,''));
+                const words=wordsOf(result.data.blocks).filter(w=>parsed.cash?/[\d$]/.test(w.text):tokens.includes(w.text.toUpperCase().replace(/[^A-Z0-9]/g,'')));
+                if(!words.length||words.some(w=>w.confidence<65))parsed=null;
+                else break;
+              }
             }
             if(revision!==epoch)return;
             // A partially read dialog must not be mistaken for a dismissal.
@@ -100,8 +105,8 @@ window.startCapture=async()=>{
         if(!config.region&&region.y*video.videoHeight<85)candidates.push({...region,y:Math.min((80+32)/video.videoHeight,1-region.height)});
         let best=null,diagnostic=[];
         for(const candidate of candidates){
-          for(const threshold of [160,80]){
-            const image=prepare(candidate,threshold);const result=await worker.recognize(await canvasBytes(image));
+          for(const [threshold,neutral] of [[160,false],[80,false],[110,true],[null,false]]){
+            const image=prepare(candidate,threshold,neutral);const result=await worker.recognize(await canvasBytes(image));
             const sample=parseHudXp(result.data.text);
             diagnostic.push({text:String(result.data.text).replace(/[^0-9LVYlvKkMmBb.,:/()%\s]/g,'').slice(0,100),confidence:Math.round(result.data.confidence),threshold});
             if(sample&&(!best||result.data.confidence>best.confidence))best={sample,confidence:result.data.confidence,candidate};

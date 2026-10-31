@@ -1,4 +1,4 @@
-# Windows preview 0.3.2 — leitura de loot e quantidades
+# Windows preview 0.3.3 — leitura de loot e quantidades
 
 - Separa nome e quantidade: Gasoline (812) vira Gasoline e 812 ml; munição usa a quantidade da pilha.
 - Normaliza os registros antigos com sufixo numérico sem alterar a sessão nem transformar resultados incertos em coletas.
@@ -10,8 +10,10 @@
 
 Use a extensão 0.9.1 para cotações de Gasoline em ml. Equipamentos continuam no Yard/NPC. O OCR permanece experimental: uma imagem do inventário final não comprova quais itens entraram durante uma sessão sem uma referência anterior.
 
-Validation: 79 shared/extension tests and 20 desktop tests. Real-client dialog inspected: 12.7mm Rifle Bullets (880). Final Yes observation remains to be confirmed by the user. No screenshots, runtime databases or account data are included in this release.
+Validation: 79 shared/extension tests and 21 desktop tests. Real-client dialog inspected: 12.7mm Rifle Bullets (880). Final Yes observation remains to be confirmed by the user. No screenshots, runtime databases or account data are included in this release.
 
 ## English
 
 Separates item names from stack quantities, including Gasoline in ml, and repairs legacy stack labels without changing pickup outcomes. Uses one frozen dialog frame, earlier choice observation, faster native input polling and consecutive quantity validation. Uncertain prior dialogs no longer block new item names. OCR failures alone do not prove dismissal. Unknown quantities remain editable and excluded from estimates. Use browser addon 0.9.1 for Gasoline ml quotes. Loot OCR remains experimental.
+
+0.3.3 also prevents spelling variations within one unchanged dialog from creating additional item events. A new search/visual dismissal or an observed choice distinguishes the next drop.

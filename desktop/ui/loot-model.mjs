@@ -40,11 +40,11 @@ export function titleStillVisible(before,after){
   return total<20?null:preserved/total>=.65;
 }
 export class LootFlow {
-  constructor(store){this.store=store;this.pending=null;this.candidate=null;this.absent=0;this.hintAt=null;this.earlyInputs=[];}
+  constructor(store){this.store=store;this.pending=null;this.candidate=null;this.absent=0;this.hintAt=null;this.earlyInputs=[];this.boundary=false;}
   armed(now=Date.now()){return!!(this.pending||this.candidate||(this.hintAt!==null&&now-this.hintAt<4000));}
   observe(reading,sessionId,now=Date.now()){
     if(reading.kind==='hint'){this.hintAt=now;return;}
-    if(reading.kind==='searching'){this.searchingAt=now;if(this.pending?.choice)this.finish(now,true);return;}
+    if(reading.kind==='searching'){this.searchingAt=now;if(this.pending)this.finish(now,true);return;}
     if(reading.kind==='unknown')return;
     if(reading.kind==='found'){
       const parsed=parseLootDialog(reading.text);
@@ -60,8 +60,8 @@ export class LootFlow {
       if(this.pending){
         if(this.pending.item===parsed.item&&this.pending.quantityUncertain&&parsed.quantity){Object.assign(this.pending,{quantity:parsed.quantity,quantityUncertain:false,key:parsed.key});this.store.saveLoot(this.pending);}
         if(this.pending.item===parsed.item&&this.pending.quantity&&!parsed.quantity){parsed.quantity=this.pending.quantity;parsed.key=this.pending.key;}
-        if(this.pending.key===parsed.key){this.pending.lastSeenAt=now;this.pending.buttons=reading.buttons??{};this.candidate=null;if(!this.pending.sessionId&&sessionId){this.pending.sessionId=sessionId;this.store.saveLoot(this.pending);}}
-        else {
+        if(this.pending.key===parsed.key){this.boundary=false;this.pending.lastSeenAt=now;this.pending.buttons=reading.buttons??{};this.candidate=null;if(!this.pending.sessionId&&sessionId){this.pending.sessionId=sessionId;this.store.saveLoot(this.pending);}}
+        else if(this.pending.choice||this.boundary){
           const same=this.candidate?.key===parsed.key&&now-this.candidate.at<4000;
           this.candidate={...parsed,at:now,count:same?this.candidate.count+1:1};
           if(this.candidate.count>=2){const candidate=this.candidate;this.finish(now,true);this.pending={id:crypto.randomUUID(),sessionId:sessionId??null,...candidate,foundAt:now,lastSeenAt:now,status:'found',buttons:reading.buttons??{}};delete this.pending.at;delete this.pending.count;this.store.saveLoot(this.pending);}
@@ -76,6 +76,7 @@ export class LootFlow {
       for(const input of this.earlyInputs.filter(e=>now-e.at<=4000))this.choose(input,input.at);
       this.earlyInputs=[];
     }else if(reading.kind==='absent'){
+      this.boundary=true;
       this.candidate=null;
       if(this.pending&&++this.absent>=3&&now-this.pending.lastSeenAt>=900)this.finish(now,true);
     }
@@ -89,6 +90,6 @@ export class LootFlow {
   }
   finish(now=Date.now(),disappeared=false){
     if(this.pending)this.store.saveLoot({...this.pending,status:disappeared&&this.pending.choice&&now-this.pending.choiceAt<=10000?this.pending.choice:'unconfirmed',endedAt:now});
-    this.pending=null;this.candidate=null;this.absent=0;this.hintAt=null;this.earlyInputs=[];this.quantityCandidate=null;
+    this.pending=null;this.candidate=null;this.absent=0;this.hintAt=null;this.earlyInputs=[];this.quantityCandidate=null;this.boundary=false;
   }
 }

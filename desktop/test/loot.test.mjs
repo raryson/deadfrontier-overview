@@ -78,6 +78,7 @@ test('a stale or unrelated early click cannot accept a later item',()=>{
 test('an unconfirmed old dialog cannot block the next equipment drop',()=>{
   const rows=new Map(),flow=new LootFlow({saveLoot:e=>rows.set(e.id,structuredClone(e))});
   flow.observe(found,'s1',0);flow.observe(found,'s1',500);
+  flow.observe({kind:'searching'},'s1',800);
   const next={...found,text:text.replace('NEROTONIN 8B','GREY MESH SLX')};
   flow.observe(next,'s1',1000);flow.observe(next,'s1',1400);
   assert.equal(rows.size,2);assert.equal([...rows.values()][0].status,'unconfirmed');assert.equal(flow.pending.item,'GREY MESH SLX');
@@ -104,4 +105,10 @@ test('uncertain stack quantities need matching consecutive numeric observations 
 test('an OCR failure is not a disappearance while the title pixels remain visible',()=>{
  const before=new Uint8ClampedArray(160),same=new Uint8ClampedArray(160),gone=new Uint8ClampedArray(160);for(let i=0;i<160;i+=4){before[i]=before[i+1]=before[i+2]=180;same[i]=same[i+1]=same[i+2]=160;gone[i]=gone[i+1]=gone[i+2]=30;}
  assert.equal(titleStillVisible(before,same),true);assert.equal(titleStillVisible(before,gone),false);assert.equal(titleStillVisible(gone,gone),null);
+});
+
+test('OCR spelling changes in an unchanged dialog do not create extra equipment drops',()=>{
+ const rows=new Map(),flow=new LootFlow({saveLoot:e=>rows.set(e.id,structuredClone(e))});flow.observe(found,'s',0);flow.observe(found,'s',500);
+ const variant={...found,text:text.replace('NEROTONIN 8B','NEROTON1N 8B')};for(let i=0;i<5;i++)flow.observe(variant,'s',1000+i*300);
+ assert.equal(rows.size,1);assert.equal(flow.pending.item,'NEROTONIN 8B');
 });

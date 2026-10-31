@@ -1,8 +1,8 @@
 # DeadFrontier Overview — Windows
 
-Prévia **0.3.2** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
+Prévia **0.3.3** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
 
-[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.3.2/deadfrontier-overview-windows-0.3.2.zip)
+[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.3.3/deadfrontier-overview-windows-0.3.3.zip)
 
 ## Usar a versão portátil
 
@@ -90,6 +90,6 @@ Sessions stay locally in SQLite under the app's user-data folder. Stop freezes t
 
 Veja [o guia de conexão com a extensão](../docs/prices.md). Equipamentos comuns usam a referência Yard/NPC do jogo; somente uma escolha explícita de variante customizada/GC/NGC usa anúncios. Nomes originais são preservados. Estimativas aparecem por loot, por sessão, no overlay e no CSV.
 
-## Leitura de loot na versão 0.3.2
+## Leitura de loot na versão 0.3.3
 
 O leitor separa nome e quantidade (Gasoline em ml), confirma números em leituras concordantes e mantém ajuste manual para pilhas. Registros antigos como GASOLINE (812 são normalizados preservando o texto original, a sessão e o estado de coleta. A detecção do título antecipa a observação de Yes/No/Use; nome e botões vêm de um único quadro. Uma falha de OCR não comprova fechamento do diálogo. O inventário final sozinho não permite reconstruir com certeza os itens perdidos de uma run passada, pois pode conter itens anteriores, consumidos ou vendidos.

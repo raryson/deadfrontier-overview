@@ -93,8 +93,8 @@ function positionOverlay(){
   let bounds={x:target.x,y:target.y,width:target.width,height:target.height};
   if(screen.screenToDipRect)bounds=screen.screenToDipRect(null,bounds);
   const display=screen.getDisplayMatching(bounds).workArea;
-  const x=Math.max(display.x,Math.min(bounds.x+bounds.width-365,display.x+display.width-350));
-  const y=Math.max(display.y,Math.min(bounds.y+65,display.y+display.height-250));
+  const x=Math.max(display.x,Math.min(bounds.x+bounds.width-365,display.x+display.width-365));
+  const y=Math.max(display.y,Math.min(bounds.y+bounds.height-260,display.y+display.height-260));
   overlayWindow.setBounds({x:Math.round(x),y:Math.round(y),width:350,height:245});overlayWindow.showInactive();
 }
 async function updateWindows(next){

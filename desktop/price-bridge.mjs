@@ -6,7 +6,7 @@ export const BRIDGE_PORT=17373;
 const hash=value=>createHash('sha256').update(value).digest('hex');
 const extensionOrigin=value=>/^chrome-extension:\/\/[a-p]{32}$/.test(value)||/^moz-extension:\/\/[a-zA-Z0-9-]{1,80}$/.test(value);
 export class PriceBridge{
-  constructor({store,onPrices=()=>{},port=BRIDGE_PORT}){this.store=store;this.onPrices=onPrices;this.port=port;this.server=null;this.code=null;this.expiresAt=0;this.failures=[];this.lastSync=null;this.error=null;}
+  constructor({store,onPrices=()=>{},port=BRIDGE_PORT,directPricing=false}){this.directPricing=directPricing;this.store=store;this.onPrices=onPrices;this.port=port;this.server=null;this.code=null;this.expiresAt=0;this.failures=[];this.lastSync=null;this.error=null;}
   get clients(){return this.store.get('priceClients',[]);}
   status(){return{listening:!!this.server?.listening,clients:this.clients.length,pairCode:Date.now()<this.expiresAt?this.code:null,pairExpiresAt:this.expiresAt,lastSync:this.lastSync,error:this.error};}
   async start(){
@@ -59,7 +59,7 @@ export class PriceBridge{
     if(req.url==='/v1/catalog'&&req.method==='POST'){
       const batch=sanitizeItemCatalog(await this.json(req));this.store.saveCatalog(batch);this.onPrices(null);this.reply(res,200,{accepted:batch.items.length});return;
     }
-    if(req.url==='/v1/status'&&req.method==='GET'){this.reply(res,200,{version:1,lastSync:this.lastSync});return;}
+    if(req.url==='/v1/status'&&req.method==='GET'){this.reply(res,200,{version:1,lastSync:this.lastSync,directPricing:this.directPricing});return;}
     if(req.url==='/v1/needs'&&req.method==='GET'){
       const aliases=this.store.get('priceAliases',{}),unique=new Map(),catalog=this.store.itemCatalog();
       for(const entry of this.store.valuationLoot())if(!entry.cash){const definition=resolveCatalog(entry.item,catalog,aliases[itemKey(entry.item)]?.split('_')[0]);if(!definition||definition.kind==='equipment'&&entry.priceMode!=='market')continue;const name=definition.name;unique.set(itemKey(name),{name,custom:definition.kind==='equipment'});if(unique.size>=50)break;}

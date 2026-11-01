@@ -32,3 +32,11 @@ test('an injected fetch that already has a bound receiver remains usable',async(
   const extension=new ExtensionDesktop(mockApi(),fetcher.bind(receiver));
   await extension.local('/v1/status','test-token');assert.equal(receiver.calls,1);
 });
+
+test('new native app receives catalog but does not delegate public market queries to the extension',async()=>{
+  const api=mockApi(),calls=[];
+  await api.storage.local.set({desktopSync:{token:'f'.repeat(43),enabled:true,zone:'21'},itemCatalog:{version:1,observedAt:Date.now(),revision:1,items:[{itemId:'fuelammo',name:'Gasoline',kind:'round'}]}});
+  const extension=new ExtensionDesktop(api,async url=>{calls.push(url);return Response.json({version:1,directPricing:true});});
+  const result=await extension.tick();assert.equal(result.online,true);assert.equal(result.error,null);
+  assert.ok(calls.includes(LOCAL_ORIGIN+'/v1/catalog'));assert.ok(!calls.includes(LOCAL_ORIGIN+'/v1/needs'));assert.ok(!calls.includes(MARKET_ENDPOINT));
+});

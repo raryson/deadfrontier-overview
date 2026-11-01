@@ -66,7 +66,8 @@ export class ExtensionDesktop{
   async tick(){return this.run(async()=>{
     const state=await this.state();if(!state.enabled||!state.token)return this.publicState(state);
     try{
-      await this.local('/v1/status',state.token);await this.flush(state);
+      const server=await this.local('/v1/status',state.token);await this.flush(state);
+      if(server.directPricing){state.online=true;state.error=null;await this.save(state);return this.publicState(state);}
       const needs=await this.local('/v1/needs',state.token);
       if(!Array.isArray(needs.names)||needs.names.length>50)throw Error('Invalid request.');
       const names=needs.names.filter(name=>typeof name==='string'&&name.length<=120&&name.trim()&&Date.now()-(state.queried?.[`${state.zone}:${itemKey(name)}`]??0)>10*60000).slice(0,6);

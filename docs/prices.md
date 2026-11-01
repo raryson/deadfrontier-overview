@@ -1,58 +1,59 @@
 # Preços no app / Prices in the app
 
-Requer extensão **0.9.0** e app Windows **0.3.0** ou superior. Nomes de itens permanecem como no jogo; apenas a interface é traduzida.
+App Windows **0.5.0** ou superior. Nomes de itens permanecem no idioma original.
 
-## Conectar uma vez
+## Usar sem código ou extensão
 
-1. Atualize a extensão. No Chrome, extraia o ZIP para Chrome na pasta usada em chrome://extensions e clique em Recarregar. No Firefox, recarregue a extensão temporária ou carregue o novo ZIP. Reabra o painel pelo ícone do navegador.
-2. Abra o app Windows e, em **Preços do mercado**, clique em **Gerar código de conexão**.
-3. Na extensão, em **Preços no app Windows**, digite os oito dígitos e clique em **Conectar ao app**. Autorize os acessos opcionais solicitados ao app local e ao site do jogo.
-4. Abra ou recarregue o **inventário da cidade**. A extensão lê as definições públicas dos itens e a função de valor do Yard usada pelo jogo.
-5. Use **Sincronizar agora** ou aguarde a consulta automática. Os valores aparecem no app, no histórico de sessões, no CSV e no overlay.
+1. Extraia o ZIP Windows completo e abra `DeadFrontier Overview.exe`.
+2. Em **Preços do mercado**, mantenha **Secronom Bunker / Outposts** ou selecione outra região. A escolha fica salva no app, sem seguir a localização do navegador.
+3. Jogue normalmente. Quando o OCR reconhecer um loot do catálogo, o app prepara uma consulta pública. Uma coleta aceita com quantidade conhecida entra no total assim que houver referência disponível.
+4. Para testar sem coletar, informe **Gasoline** em **Nome original do item** e clique em **Consultar preço**. Abra **Referências Yard e cotações** para conferir preço unitário e horário.
 
-O pareamento é mantido após reiniciar os programas; não é necessário repetir o código em cada sessão. O código expira em cinco minutos e funciona uma vez. A extensão deve continuar instalada e o navegador precisa estar aberto para novas consultas. O app não consulta o mercado diretamente.
+O catálogo público acompanha o app: 1.308 definições e 857 valores-base Yard nesta versão. O snapshot está em `desktop/data/item-catalog.json`; contém apenas identificador, nome, categoria e valor-base público, com data e origem. Novas definições podem ser incorporadas em atualizações ou pela integração opcional abaixo.
 
 ## Referências de valor
 
-- **Equipamentos comuns** (armas, armaduras, mochilas, implantes e roupas): valor-base de venda no **Yard/NPC**, informado pela função do jogo. Não geram buscas automáticas no mercado.
-- **Equipamento customizado / GC / NGC**: na busca manual da extensão, marque a opção de equipamento customizado e consulte o nome original. No loot do app, escolha a variante exata com os atributos correspondentes. O padrão continua sendo Yard; o OCR não identifica craft pelo nome.
-- **Demais itens**: menor preço por unidade observado nos anúncios retornados, separado por zona de mercado. É uma referência, sem garantia de venda ou desconto de taxas.
-- **Dinheiro**: valor nominal do loot aceito, sem depender de cotação.
+- **Equipamentos comuns**: valor-base de venda no **Yard/NPC**. Não geram buscas automáticas no mercado.
+- **Equipamento customizado / GC / NGC**: marque a exceção na consulta manual do app. No loot, selecione a variante exata com os atributos correspondentes. O padrão continua sendo Yard; o OCR não identifica craft pelo nome.
+- **Consumíveis e munição**: menor preço por unidade dos anúncios retornados na região selecionada. **Gasoline usa ml**. É uma estimativa, sem garantia de venda ou desconto de taxas.
+- **Dinheiro**: valor nominal aceito, sem cotação.
 
-Anúncios vencem em **15 minutos**. A consulta automática tem cache de dez minutos e limite de **seis buscas por minuto**. Somente nomes reconhecidos pelo catálogo são consultados. Uma busca de equipamento comum é bloqueada mesmo quando iniciada manualmente sem marcar a exceção customizada. A referência Yard é atualizada ao recarregar a cidade, sem depender de anúncios.
+Secronom e os demais outposts compartilham a região atual **21**. A seleção também inclui Camp Valcrest, Wastelands e regiões da cidade. Não usamos os IDs antigos dos outposts como mercados separados.
 
-Munição é normalizada por unidade. Se a quantidade do loot não foi lida, informe-a na linha correspondente; ela fica fora do total até então. A durabilidade de armaduras não é tratada como quantidade de unidades.
+Anúncios vencem em **15 minutos**. O cache automático dura dez minutos, com até **seis buscas por minuto**, inclusive nas consultas manuais. Erros de rede aguardam um minuto antes de nova tentativa automática. **Atualizar cotações pendentes** processa as necessidades respeitando cache e limite; não faz uma varredura de todo o catálogo.
 
-Se o OCR errou o nome, use **Associar um nome lido pelo OCR** no app. A associação escolhe a definição original do jogo, sem tradução nem aproximação automática de nomes. Equipamentos associados continuam no Yard até a escolha explícita da variante customizada daquele loot.
+Sem anúncio, nome reconhecido ou quantidade, o item fica indicado como sem referência; o app não inventa um preço. Se o OCR errou, use **Associar um nome lido pelo OCR**. Nomes de equipamentos com cor ou variante que não coincidam com o catálogo também podem precisar dessa associação. Quantidades continuam editáveis na linha do loot. A durabilidade de uma armadura não é quantidade de unidades.
 
-O total soma dinheiro aceito, itens com referência disponível e quantidades conhecidas. A contagem de **sem preço ou quantidade** identifica o que ficou de fora. Os valores históricos são recalculados com as referências sincronizadas atuais; não representam o preço de uma venda passada. O CSV inclui cashLoot, estimatedItemLoot e unpricedLoot.
+O histórico e o CSV usam referências atuais, sem representar vendas realizadas no passado. Coletas incertas não são contabilizadas até confirmação explícita do usuário.
+
+## Integração opcional com o navegador
+
+Não é necessária para preços no app 0.5.0. Serve para atualizar as definições públicas do catálogo a partir da cidade.
+
+1. No app, abra **Opcional: atualizar catálogo pela extensão** e gere um código.
+2. Na extensão **0.9.3**, abra a seção opcional de catálogo e informe os oito dígitos. Autorize o acesso local quando solicitado.
+3. Recarregue o inventário da cidade. A extensão envia apenas definições públicas filtradas. Não importa sessões de XP.
+
+O código autoriza a extensão a escrever no app local; expira em cinco minutos e funciona uma vez. A credencial persiste no navegador. A extensão 0.9.3 reconhece o app novo e deixa as consultas automáticas de mercado para ele. A busca manual antiga permanece para compatibilidade com apps anteriores.
+
+**Desconectar extensões** revoga esse acesso e encerra o servidor local. As consultas diretas continuam funcionando. Se a integração opcional disser para conectar novamente, isso não impede as consultas próprias do app.
 
 ## Dados e conexão
 
-A conexão usa apenas 127.0.0.1:17373. O app recebe definições públicas de itens, referência Yard e cotações filtradas. Cookies, senha, ID da conta, nomes de vendedores e imagens não fazem parte do protocolo. As buscas públicas usam credentials: omit. O servidor só aceita as rotas de catálogo/preço, protegidas por pareamento; não possui operações bancárias ou comandos do jogo. A credencial local fica na extensão, e o app guarda apenas seu hash. **Desconectar extensões** revoga o acesso e encerra o servidor local.
+O processo principal do app consulta somente o endpoint público `https://fairview.deadfrontier.com/onlinezombiemmo/trade_search.php`, com `credentials: omit`, sem login nem cookies. Os campos aproveitados são item, nome, preço, quantidade e região; identificadores de vendedores não são armazenados. Os renderers continuam sem acesso arbitrário à rede. Não existem operações de compra, venda ou banco no app.
 
-Se o app estiver fechado, as consultas manuais ficam pendentes e são reenviadas quando ele voltar. A sincronização automática não consulta o jogo quando o app está indisponível.
+A integração opcional mantém `127.0.0.1:17373` autenticado por pareamento. Cookies, senha, ID da conta e imagens não fazem parte do protocolo. O app guarda apenas o hash da credencial local.
 
 ## English
 
-Update the browser extension to **0.9.0** and the Windows app to **0.3.0**. Generate an eight-digit code under **Market prices** in the app. Open the extension from the browser toolbar, enter the code under **Prices in the Windows app**, and allow the optional local-app/game-site access. Reload the outpost inventory to load the public item catalog and Yard reference. Pairing persists across restarts.
+Windows app **0.5.0** queries public listings directly; no extension or pairing code is needed. Keep **Secronom Bunker / Outposts** as the default or choose another region in **Market prices**. Enter **Gasoline** and click **Look up price** to test. Confirmed pickups with recognized names and known quantities are valued automatically as quotes become available.
 
-Ordinary equipment uses **Yard/NPC values** and is excluded from automatic market searches. Custom/GC/NGC equipment requires an explicit manual search and exact variant selection for that loot. Other items use the lowest observed unit listing in the chosen trade zone. Quotes expire after 15 minutes; the query cache lasts ten minutes, with a six-query-per-minute limit. Unknown quantities, missing quotes and unconfirmed pickups are excluded from totals. Original item names are never translated.
+Ordinary equipment uses bundled **Yard/NPC values** without market searches. Custom equipment requires an explicit manual query and exact variant selection. Other items use the lowest observed unit listing; Gasoline uses ml. Quotes expire after 15 minutes; cache lasts ten minutes, with up to six queries per minute. Missing or uncertain values stay excluded and can be corrected manually.
 
-The app receives filtered price/catalog data over authenticated loopback only. No account credentials, cookies, seller identities or screenshots are transferred. Prices remain estimates; crafting attributes are not inferred from OCR. CSV values use current synced references rather than historical realized sales.
+The optional extension connection updates public catalog definitions only. Its eight-digit code protects local write access. No account credentials, cookies, screenshots or seller identities are transferred. Your sessions stay local and are preserved during updates.
 
 ## Referências técnicas
 
-- [Requisições entre origens em extensões Chrome](https://developer.chrome.com/docs/extensions/develop/concepts/network-requests)
-- [Permissões opcionais do Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/optional_host_permissions)
-- [Protocolo de anúncios: implementação pública de referência](https://greasyfork.org/en/scripts/441829-dead-frontier-api/code). O endpoint e o formato também foram conferidos com consultas públicas reais. A extensão não incorpora esse script.
-
-## Quantidades de loot (app 0.3.2 / extensão 0.9.1)
-
-Gasoline usa ml no histórico e nas cotações. Nome e quantidade são separados antes da busca. A leitura precisa de concordância numérica; uma quantidade ambígua fica fora da estimativa até ser confirmada ou ajustada na linha do loot. O ajuste permanece disponível para corrigir números reconhecidos incorretamente. A atualização normaliza sufixos numéricos antigos sem converter resultados não confirmados em aceitos.
-
-Gasoline is measured in ml. Stack names and quantities are stored separately; uncertain quantities stay excluded and editable. Legacy normalization preserves the original text and pickup outcome.
-
-## Erro WorkerGlobalScope / Illegal invocation
-
-Corrigido na extensão 0.9.2. Atualize o ZIP da extensão, recarregue-a no navegador e reabra o painel. Gere um novo código no app Windows para repetir o pareamento. O app 0.4.0 continua compatível.
+- [Protocolo e regiões do mercado: implementação pública de referência](https://greasyfork.org/en/scripts/441829-dead-frontier-api/code). Conferidos também no código público do jogo e em consultas reais. Este script não é incorporado ao app.
+- [Requisições em extensões Chrome](https://developer.chrome.com/docs/extensions/develop/concepts/network-requests)
+- [Permissões opcionais Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/optional_host_permissions)

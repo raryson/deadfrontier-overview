@@ -1,0 +1,7405 @@
+{
+  "version": 1,
+  "source": "Dead Frontier public item definitions; base Yard values from the game scrapValue function",
+  "sourceUrl": "https://fairview.deadfrontier.com/onlinezombiemmo/index.php",
+  "observedAt": 1793570256178,
+  "items": [
+    {
+      "itemId": "10gaugeammo",
+      "name": "10 Gauge Shells",
+      "kind": "round"
+    },
+    {
+      "itemId": "127rifleammo",
+      "name": "12.7mm Rifle Bullets",
+      "kind": "round"
+    },
+    {
+      "itemId": "12gaugeammo",
+      "name": "12 Gauge Shells",
+      "kind": "round"
+    },
+    {
+      "itemId": "14rifleammo",
+      "name": "14mm Rifle Bullets",
+      "kind": "round"
+    },
+    {
+      "itemId": "16gaugeammo",
+      "name": "16 Gauge Shells",
+      "kind": "round"
+    },
+    {
+      "itemId": "20gaugeammo",
+      "name": "20 Gauge Shells",
+      "kind": "round"
+    },
+    {
+      "itemId": "2unlimitedg19",
+      "name": "GAU-19",
+      "kind": "equipment",
+      "yardValue": 40050
+    },
+    {
+      "itemId": "32ammo",
+      "name": ".32 Handgun Bullets",
+      "kind": "round"
+    },
+    {
+      "itemId": "357ammo",
+      "name": ".357 Handgun Bullets",
+      "kind": "round"
+    },
+    {
+      "itemId": "35ammo",
+      "name": "9mm Handgun Bullets",
+      "kind": "round"
+    },
+    {
+      "itemId": "38ammo",
+      "name": ".38 Handgun Bullets",
+      "kind": "round"
+    },
+    {
+      "itemId": "40ammo",
+      "name": ".40 Handgun Bullets",
+      "kind": "round"
+    },
+    {
+      "itemId": "45ammo",
+      "name": ".45 Handgun Bullets",
+      "kind": "round"
+    },
+    {
+      "itemId": "475magnum",
+      "name": "475 Magnum",
+      "kind": "equipment",
+      "yardValue": 48450
+    },
+    {
+      "itemId": "50ammo",
+      "name": ".50 Handgun Bullets",
+      "kind": "round"
+    },
+    {
+      "itemId": "55ammo",
+      "name": ".55 Handgun Bullets",
+      "kind": "round"
+    },
+    {
+      "itemId": "55rifleammo",
+      "name": "5.5mm Rifle Bullets",
+      "kind": "round"
+    },
+    {
+      "itemId": "577rex",
+      "name": "577 Rex",
+      "kind": "equipment",
+      "yardValue": 48450
+    },
+    {
+      "itemId": "577widow",
+      "name": "577 Widow",
+      "kind": "equipment",
+      "yardValue": 150000
+    },
+    {
+      "itemId": "75rifleammo",
+      "name": "7.5mm Rifle Bullets",
+      "kind": "round"
+    },
+    {
+      "itemId": "7daygoldmembershipticket",
+      "name": "7 Day Membership Ticket",
+      "kind": "item"
+    },
+    {
+      "itemId": "9rifleammo",
+      "name": "9mm Rifle Bullets",
+      "kind": "round"
+    },
+    {
+      "itemId": "a10bullshark",
+      "name": "A10 Bull Shark",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "a10bullsharkblueprints",
+      "name": "A10 Bullshark Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "aa12",
+      "name": "AA-12",
+      "kind": "equipment",
+      "yardValue": 48450
+    },
+    {
+      "itemId": "abyssalabomination",
+      "name": "Abyssal Abomination",
+      "kind": "equipment",
+      "yardValue": 67650
+    },
+    {
+      "itemId": "acebarrelgz3",
+      "name": "Ace Barrel GZ3",
+      "kind": "equipment",
+      "yardValue": 100000
+    },
+    {
+      "itemId": "adrenaline",
+      "name": "Adrenaline",
+      "kind": "item"
+    },
+    {
+      "itemId": "adrenastim",
+      "name": "Adrenastim",
+      "kind": "equipment",
+      "yardValue": 3500000
+    },
+    {
+      "itemId": "advancedimplantblueprints",
+      "name": "Advanced Implant Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "advancedimplantcase",
+      "name": "Advanced Implant Case",
+      "kind": "item"
+    },
+    {
+      "itemId": "advancedmutantsample",
+      "name": "Infected Blood Sample",
+      "kind": "item"
+    },
+    {
+      "itemId": "agilityimplant",
+      "name": "Agility Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "ak47",
+      "name": "AK 47",
+      "kind": "equipment",
+      "yardValue": 19250
+    },
+    {
+      "itemId": "akp",
+      "name": "AKP",
+      "kind": "equipment",
+      "yardValue": 67650
+    },
+    {
+      "itemId": "alienmask",
+      "name": "Alien Mask",
+      "kind": "equipment",
+      "yardValue": 7012
+    },
+    {
+      "itemId": "alphabull",
+      "name": "Alpha Bull",
+      "kind": "equipment",
+      "yardValue": 40050
+    },
+    {
+      "itemId": "alphajudge",
+      "name": "Alpha Judge",
+      "kind": "equipment",
+      "yardValue": 14750
+    },
+    {
+      "itemId": "amberimplant",
+      "name": "Amber Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "amberraider",
+      "name": "Amber Raider",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "amberraiderblueprints",
+      "name": "Amber Raider Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "amberraiderparts",
+      "name": "Amber Raider Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "amethystraider",
+      "name": "Amethyst Raider",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "amputator",
+      "name": "Amputator",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "amulet",
+      "name": "Amulet",
+      "kind": "item"
+    },
+    {
+      "itemId": "amythyst",
+      "name": "Amethyst",
+      "kind": "item"
+    },
+    {
+      "itemId": "annihilationimplant",
+      "name": "Annihilation Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "anniversaryhat2021",
+      "name": "Anniversary Hat 2021",
+      "kind": "equipment",
+      "yardValue": 51
+    },
+    {
+      "itemId": "anniversaryhat2026",
+      "name": "Anniversary Hat 2026",
+      "kind": "equipment",
+      "yardValue": 51
+    },
+    {
+      "itemId": "anonymousmask",
+      "name": "Anonymous Mask",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "antibiotics",
+      "name": "Antibiotics",
+      "kind": "item"
+    },
+    {
+      "itemId": "antisepticspray",
+      "name": "Antiseptic Spray",
+      "kind": "item"
+    },
+    {
+      "itemId": "apeximplant",
+      "name": "Apex Implant",
+      "kind": "equipment",
+      "yardValue": 40000
+    },
+    {
+      "itemId": "ar9silvertide",
+      "name": "AR-9 Silvertide",
+      "kind": "equipment",
+      "yardValue": 25000
+    },
+    {
+      "itemId": "arc9teslacannon",
+      "name": "ARC-9 Tesla Cannon",
+      "kind": "equipment",
+      "yardValue": 72950
+    },
+    {
+      "itemId": "ash12",
+      "name": "ASH 12",
+      "kind": "equipment",
+      "yardValue": 48450
+    },
+    {
+      "itemId": "ashensrsa1",
+      "name": "Ashen SRS-A1",
+      "kind": "equipment",
+      "yardValue": 24350
+    },
+    {
+      "itemId": "asval",
+      "name": "AS-VAL",
+      "kind": "equipment",
+      "yardValue": 40050
+    },
+    {
+      "itemId": "asvalghost",
+      "name": "AS-VAL Ghost",
+      "kind": "equipment",
+      "yardValue": 100000
+    },
+    {
+      "itemId": "avalanchemg14",
+      "name": "Avalanche MG14",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "bakedbeans",
+      "name": "Baked Beans",
+      "kind": "item"
+    },
+    {
+      "itemId": "bandages",
+      "name": "Bandages",
+      "kind": "item"
+    },
+    {
+      "itemId": "bandana",
+      "name": "Bandana",
+      "kind": "equipment",
+      "yardValue": 5050
+    },
+    {
+      "itemId": "banhammer",
+      "name": "Ban Hammer",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "bar",
+      "name": "BAR",
+      "kind": "equipment",
+      "yardValue": 19250
+    },
+    {
+      "itemId": "barnellrf31crossbow",
+      "name": "Barnell RF31 Crossbow",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "barrelbackpack",
+      "name": "Barrel Backpack",
+      "kind": "equipment",
+      "yardValue": 1800
+    },
+    {
+      "itemId": "barricadekit",
+      "name": "Barricade Kit",
+      "kind": "item"
+    },
+    {
+      "itemId": "baseballbat",
+      "name": "Baseball Bat",
+      "kind": "equipment",
+      "yardValue": 63
+    },
+    {
+      "itemId": "baseballhelmet",
+      "name": "Baseball Helmet",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "basicbackpack",
+      "name": "Basic Backpack",
+      "kind": "equipment",
+      "yardValue": 1200
+    },
+    {
+      "itemId": "battery",
+      "name": "Battery",
+      "kind": "item"
+    },
+    {
+      "itemId": "battleaxe",
+      "name": "Battle Axe",
+      "kind": "equipment",
+      "yardValue": 20050
+    },
+    {
+      "itemId": "beansandfranks",
+      "name": "Beans and Franks",
+      "kind": "item"
+    },
+    {
+      "itemId": "beer",
+      "name": "Beer",
+      "kind": "item"
+    },
+    {
+      "itemId": "behemothbiomass",
+      "name": "Behemoth Biomass",
+      "kind": "item"
+    },
+    {
+      "itemId": "behemothimplant",
+      "name": "Behemoth Implant",
+      "kind": "equipment",
+      "yardValue": 40000
+    },
+    {
+      "itemId": "behemothsample",
+      "name": "Infected Blood Sample",
+      "kind": "item"
+    },
+    {
+      "itemId": "berret",
+      "name": "Beret",
+      "kind": "equipment",
+      "yardValue": 1400
+    },
+    {
+      "itemId": "beta8000",
+      "name": "Beta 8000",
+      "kind": "equipment",
+      "yardValue": 1300
+    },
+    {
+      "itemId": "betacx4",
+      "name": "Beta CX4",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "betarx4",
+      "name": "Beta RX4",
+      "kind": "equipment",
+      "yardValue": 150
+    },
+    {
+      "itemId": "betarx42",
+      "name": "Beta RX4",
+      "kind": "equipment",
+      "yardValue": 150
+    },
+    {
+      "itemId": "betatomcat",
+      "name": "Beta Tomcat",
+      "kind": "equipment",
+      "yardValue": 75
+    },
+    {
+      "itemId": "betatomcat2",
+      "name": "Beta Tomcat",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "biforcec7",
+      "name": "Biforce C7",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "bilespewer",
+      "name": "Bile Spewer",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "biohelmet",
+      "name": "Bio Helmet",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "bioimplantcase",
+      "name": "Bio Implant Case",
+      "kind": "item"
+    },
+    {
+      "itemId": "biomassammo",
+      "name": "Biomass",
+      "kind": "round"
+    },
+    {
+      "itemId": "bioreactive",
+      "name": "Bio Reactive",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "biowolf127",
+      "name": "Biowolf 127",
+      "kind": "equipment",
+      "yardValue": 48450
+    },
+    {
+      "itemId": "bishopce9",
+      "name": "Bishop CE9",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "blackdragonscale",
+      "name": "Black Dragon Scale",
+      "kind": "equipment",
+      "yardValue": 5250
+    },
+    {
+      "itemId": "blackoutb19",
+      "name": "Blackout B19",
+      "kind": "equipment",
+      "yardValue": 1850
+    },
+    {
+      "itemId": "bloodfiendblood",
+      "name": "Bloodfiend Blood",
+      "kind": "item"
+    },
+    {
+      "itemId": "bloodfiendeye",
+      "name": "Bloodfiend Eye",
+      "kind": "item"
+    },
+    {
+      "itemId": "bloodfiendhead",
+      "name": "Bloodfiend Head",
+      "kind": "equipment",
+      "yardValue": 7012
+    },
+    {
+      "itemId": "bloodfiendheart",
+      "name": "Bloodfiend Heart",
+      "kind": "item"
+    },
+    {
+      "itemId": "bloodfiendimplant",
+      "name": "Bloodfiend Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "bloodfrostmask",
+      "name": "Bloodfrost Mask",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "bloodlustimplant",
+      "name": "Bloodlust Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "bloodsample",
+      "name": "Blood Sample",
+      "kind": "item"
+    },
+    {
+      "itemId": "bloodseeker",
+      "name": "Bloodseeker",
+      "kind": "equipment",
+      "yardValue": 33850
+    },
+    {
+      "itemId": "bloodseekerblueprints",
+      "name": "Bloodseeker Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "bloodymachete",
+      "name": "Bloody Machete",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "bloodysantajacket",
+      "name": "Bloody Santa Jacket",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "bloodyscarecrowhead",
+      "name": "Bloody Scarecrow Head",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "bm14savage",
+      "name": "BM14 Savage",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "bm14survival",
+      "name": "BM14 Survival",
+      "kind": "equipment",
+      "yardValue": 20050
+    },
+    {
+      "itemId": "bm59",
+      "name": "BM59",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "bobblehat",
+      "name": "Bobble Hat",
+      "kind": "equipment",
+      "yardValue": 150
+    },
+    {
+      "itemId": "bomberjacket",
+      "name": "Bomber Jacket",
+      "kind": "equipment",
+      "yardValue": 675
+    },
+    {
+      "itemId": "bonecleaver",
+      "name": "Bone Cleaver",
+      "kind": "equipment",
+      "yardValue": 28850
+    },
+    {
+      "itemId": "bonespiregraft",
+      "name": "Bone Spire Graft",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "book",
+      "name": "Book",
+      "kind": "item"
+    },
+    {
+      "itemId": "bookfaithanddeath",
+      "name": "Torn Diary",
+      "kind": "item"
+    },
+    {
+      "itemId": "bookjournal1",
+      "name": "Tattered Pages",
+      "kind": "item"
+    },
+    {
+      "itemId": "bookzombification",
+      "name": "Old Notebook",
+      "kind": "item"
+    },
+    {
+      "itemId": "boomerpx",
+      "name": "Boomer PX",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "bowieknife",
+      "name": "Bowie Knife",
+      "kind": "equipment",
+      "yardValue": 450
+    },
+    {
+      "itemId": "bracelet",
+      "name": "Bracelet",
+      "kind": "item"
+    },
+    {
+      "itemId": "bracelettreasure",
+      "name": "Bracelet",
+      "kind": "item"
+    },
+    {
+      "itemId": "brawlerimplant",
+      "name": "Brawler Implant",
+      "kind": "equipment",
+      "yardValue": 100
+    },
+    {
+      "itemId": "breacher730",
+      "name": "Breacher 730",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "breacher730blueprints",
+      "name": "Breacher 730 Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "broach",
+      "name": "Broach",
+      "kind": "item"
+    },
+    {
+      "itemId": "broachtreasure",
+      "name": "Broach",
+      "kind": "item"
+    },
+    {
+      "itemId": "brokenitem",
+      "name": "Broken Item; Contact Support",
+      "kind": "unknown"
+    },
+    {
+      "itemId": "brokenwater",
+      "name": "Broken Water",
+      "kind": "item"
+    },
+    {
+      "itemId": "browninghp",
+      "name": "Gerring HP",
+      "kind": "equipment",
+      "yardValue": 75
+    },
+    {
+      "itemId": "buckblast99a",
+      "name": "Buckblast 99A",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "bucktoothblaster",
+      "name": "Bucktooth Blaster",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "bunnybackpack",
+      "name": "Bunny Backpack",
+      "kind": "equipment",
+      "yardValue": 300
+    },
+    {
+      "itemId": "bunnyeyes",
+      "name": "Bunny Eyes",
+      "kind": "item"
+    },
+    {
+      "itemId": "bunnygasmask",
+      "name": "Bunny Gas Mask",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "bunnyhead",
+      "name": "Bunny Head",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "bunnyheart",
+      "name": "Bunny Heart",
+      "kind": "item"
+    },
+    {
+      "itemId": "bunnystuffing",
+      "name": "Bunny Stuffing",
+      "kind": "item"
+    },
+    {
+      "itemId": "bunnyteeth",
+      "name": "Bunny Teeth",
+      "kind": "item"
+    },
+    {
+      "itemId": "burgers",
+      "name": "Beef Burgers",
+      "kind": "item"
+    },
+    {
+      "itemId": "burlap",
+      "name": "Burlap",
+      "kind": "item"
+    },
+    {
+      "itemId": "butchermask",
+      "name": "Butcher Mask",
+      "kind": "equipment",
+      "yardValue": 7012
+    },
+    {
+      "itemId": "butchersaw",
+      "name": "Butcher Saw",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "butchersawblade",
+      "name": "Butcher Saw Blade",
+      "kind": "item"
+    },
+    {
+      "itemId": "butchersawengine",
+      "name": "Butcher Saw Engine",
+      "kind": "item"
+    },
+    {
+      "itemId": "butchersawpole",
+      "name": "Butcher Saw Pole",
+      "kind": "item"
+    },
+    {
+      "itemId": "buzzbladern8",
+      "name": "Buzzblade RN8",
+      "kind": "equipment",
+      "yardValue": 28850
+    },
+    {
+      "itemId": "calamityimplant",
+      "name": "Calamity Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "camera",
+      "name": "Camera",
+      "kind": "item"
+    },
+    {
+      "itemId": "candy",
+      "name": "Candy",
+      "kind": "item"
+    },
+    {
+      "itemId": "cargopants",
+      "name": "Cargo Pants",
+      "kind": "equipment",
+      "yardValue": 450
+    },
+    {
+      "itemId": "carriersample",
+      "name": "Carrier Sample",
+      "kind": "item"
+    },
+    {
+      "itemId": "catalystimplant",
+      "name": "Catalyst Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "catearsa",
+      "name": "Cat Ears A",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "catearsb",
+      "name": "Cat Ears B",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "catearsc",
+      "name": "Cat Ears C",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "cateyeimplant",
+      "name": "Cat Eye Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "caviar",
+      "name": "Caviar",
+      "kind": "item"
+    },
+    {
+      "itemId": "cc12",
+      "name": "CC-12",
+      "kind": "equipment",
+      "yardValue": 150000
+    },
+    {
+      "itemId": "celerityimplant",
+      "name": "Celerity Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "cellphone",
+      "name": "Cell Phone",
+      "kind": "item"
+    },
+    {
+      "itemId": "chainrevolver",
+      "name": "Chain Revolver",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "chainrevolver55",
+      "name": "Chain Revolver 55",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "challengerimplant",
+      "name": "Challenger Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "charredfemalesample",
+      "name": "Infected Blood Sample",
+      "kind": "item"
+    },
+    {
+      "itemId": "charredmalesample",
+      "name": "Infected Blood Sample",
+      "kind": "item"
+    },
+    {
+      "itemId": "cheese",
+      "name": "Cheese",
+      "kind": "item"
+    },
+    {
+      "itemId": "chefknife",
+      "name": "Chef Knife",
+      "kind": "equipment",
+      "yardValue": 100
+    },
+    {
+      "itemId": "chefknife2",
+      "name": "Chef Knife",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "chemicals",
+      "name": "Chemicals",
+      "kind": "item"
+    },
+    {
+      "itemId": "chemicals2",
+      "name": "Chemicals",
+      "kind": "item"
+    },
+    {
+      "itemId": "chemicals3",
+      "name": "Chemicals",
+      "kind": "item"
+    },
+    {
+      "itemId": "cherrypie",
+      "name": "Cherry Pie",
+      "kind": "item"
+    },
+    {
+      "itemId": "chester1300",
+      "name": "Chester 1300",
+      "kind": "equipment",
+      "yardValue": 2500
+    },
+    {
+      "itemId": "chesterfield",
+      "name": "Chesterfield",
+      "kind": "equipment",
+      "yardValue": 4100
+    },
+    {
+      "itemId": "chicagotypewriter",
+      "name": "Chicago Typewriter",
+      "kind": "equipment",
+      "yardValue": 19250
+    },
+    {
+      "itemId": "childsample",
+      "name": "Infected Blood Sample",
+      "kind": "item"
+    },
+    {
+      "itemId": "childsbody",
+      "name": "Child`s Body",
+      "kind": "item"
+    },
+    {
+      "itemId": "chimneysweeper",
+      "name": "Chimney Sweeper",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "chinalake",
+      "name": "China Lake",
+      "kind": "equipment",
+      "yardValue": 5050
+    },
+    {
+      "itemId": "christmasbox",
+      "name": "Christmas Box",
+      "kind": "item"
+    },
+    {
+      "itemId": "christmascandy",
+      "name": "Christmas Candy",
+      "kind": "item"
+    },
+    {
+      "itemId": "christmascloak",
+      "name": "Christmas Cloak",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "christmasgift",
+      "name": "Christmas Gift",
+      "kind": "item"
+    },
+    {
+      "itemId": "christmasgift2",
+      "name": "Christmas Gift 2016",
+      "kind": "item"
+    },
+    {
+      "itemId": "christmasgift2019",
+      "name": "Christmas Gift 2019",
+      "kind": "item"
+    },
+    {
+      "itemId": "christmasgift2020",
+      "name": "Christmas Gift 2020",
+      "kind": "item"
+    },
+    {
+      "itemId": "christmasgift2021",
+      "name": "Christmas Gift 2021",
+      "kind": "item"
+    },
+    {
+      "itemId": "christmasgift3",
+      "name": "Christmas Gift 2017",
+      "kind": "item"
+    },
+    {
+      "itemId": "christmasgift4",
+      "name": "Christmas Gift 2018",
+      "kind": "item"
+    },
+    {
+      "itemId": "christmashat",
+      "name": "Christmas Hat",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "christmasimplant",
+      "name": "Christmas Implant",
+      "kind": "equipment",
+      "yardValue": 10000
+    },
+    {
+      "itemId": "christmasstocking2022",
+      "name": "Christmas Stocking 2022",
+      "kind": "item"
+    },
+    {
+      "itemId": "christmasstocking2023",
+      "name": "Christmas Stocking 2023",
+      "kind": "item"
+    },
+    {
+      "itemId": "christmasstocking2024",
+      "name": "Christmas Stocking 2024",
+      "kind": "item"
+    },
+    {
+      "itemId": "christmasstocking2025",
+      "name": "Christmas Stocking 2025",
+      "kind": "item"
+    },
+    {
+      "itemId": "cigarettes",
+      "name": "Cigarettes",
+      "kind": "item"
+    },
+    {
+      "itemId": "ck75",
+      "name": "CK 75",
+      "kind": "equipment",
+      "yardValue": 1850
+    },
+    {
+      "itemId": "ck75auto",
+      "name": "CK 75 Auto",
+      "kind": "equipment",
+      "yardValue": 1850
+    },
+    {
+      "itemId": "ck97b",
+      "name": "CK 97B",
+      "kind": "equipment",
+      "yardValue": 24350
+    },
+    {
+      "itemId": "ck99",
+      "name": "CK 99",
+      "kind": "equipment",
+      "yardValue": 10850
+    },
+    {
+      "itemId": "clawhammer",
+      "name": "Claw Hammer",
+      "kind": "item"
+    },
+    {
+      "itemId": "clawshot10",
+      "name": "Clawshot 10",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "clawshot16",
+      "name": "Clawshot 16",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "cleverdisguise",
+      "name": "Clever Disguise",
+      "kind": "equipment",
+      "yardValue": 1999
+    },
+    {
+      "itemId": "cloak",
+      "name": "Cloak",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "clothscrap",
+      "name": "Cloth Scrap",
+      "kind": "item"
+    },
+    {
+      "itemId": "clownmask",
+      "name": "Clown Mask",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "cmgxaftershock",
+      "name": "CMG-X Aftershock",
+      "kind": "equipment",
+      "yardValue": 67650
+    },
+    {
+      "itemId": "coffee",
+      "name": "Coffee",
+      "kind": "item"
+    },
+    {
+      "itemId": "cognitivestimulants",
+      "name": "Cognitive Stimulants",
+      "kind": "item"
+    },
+    {
+      "itemId": "combatimplant",
+      "name": "Combat Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "combatknife",
+      "name": "Combat Knife",
+      "kind": "equipment",
+      "yardValue": 163
+    },
+    {
+      "itemId": "combats",
+      "name": "Combats",
+      "kind": "equipment",
+      "yardValue": 3088
+    },
+    {
+      "itemId": "combattrainingmanual",
+      "name": "Combat Training Manual",
+      "kind": "item"
+    },
+    {
+      "itemId": "commander10",
+      "name": "Commander 10",
+      "kind": "equipment",
+      "yardValue": 67650
+    },
+    {
+      "itemId": "commuterbackblueprints",
+      "name": "Commuter Backpack Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "commuterbackpack",
+      "name": "Commuter Backpack",
+      "kind": "equipment",
+      "yardValue": 1500
+    },
+    {
+      "itemId": "computerpcb",
+      "name": "Computer PCB",
+      "kind": "item"
+    },
+    {
+      "itemId": "concreteegg",
+      "name": "Concrete Egg",
+      "kind": "item"
+    },
+    {
+      "itemId": "constructionhelmet",
+      "name": "Construction Helmet",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "corpseblaster",
+      "name": "Corpse Blaster",
+      "kind": "equipment",
+      "yardValue": 40050
+    },
+    {
+      "itemId": "corpsecannon",
+      "name": "Corpse Cannon",
+      "kind": "equipment",
+      "yardValue": 72950
+    },
+    {
+      "itemId": "corpsecannonbio",
+      "name": "Corpse Cannon",
+      "kind": "equipment",
+      "yardValue": 72950
+    },
+    {
+      "itemId": "corpsecarapace",
+      "name": "Corpse Carapace",
+      "kind": "equipment",
+      "yardValue": 40250
+    },
+    {
+      "itemId": "corpsecrusher",
+      "name": "Corpse Crusher",
+      "kind": "equipment",
+      "yardValue": 24250
+    },
+    {
+      "itemId": "corpsedestroyer",
+      "name": "Corpse Destroyer",
+      "kind": "equipment",
+      "yardValue": 48450
+    },
+    {
+      "itemId": "corpseerruptor",
+      "name": "Corpse Erruptor",
+      "kind": "equipment",
+      "yardValue": 48450
+    },
+    {
+      "itemId": "corpseface",
+      "name": "Corpse Face",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "corpsegrinder",
+      "name": "Corpse Grinder",
+      "kind": "equipment",
+      "yardValue": 24250
+    },
+    {
+      "itemId": "corpsemask",
+      "name": "Corpse Mask",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "corpsemesh",
+      "name": "Corpse Mesh",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "corpsepiercer",
+      "name": "Corpse Piercer",
+      "kind": "equipment",
+      "yardValue": 48450
+    },
+    {
+      "itemId": "corpsereactive",
+      "name": "Corpse Reactive",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "corpseripper",
+      "name": "Corpse Ripper",
+      "kind": "equipment",
+      "yardValue": 44150
+    },
+    {
+      "itemId": "corpseshooter",
+      "name": "Corpse Shooter",
+      "kind": "equipment",
+      "yardValue": 48450
+    },
+    {
+      "itemId": "corsaircoat",
+      "name": "Corsair Coat",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "corsairhat",
+      "name": "Corsair Hat",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "corsairhelmet",
+      "name": "Corsair Helmet",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "corsairpants",
+      "name": "Corsair Pants",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "corsairshirt",
+      "name": "Corsair Shirt",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "cottontailcoat",
+      "name": "Cottontail Coat",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "cottontailmask",
+      "name": "Cottontail Mask",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "cottontailpants",
+      "name": "Cottontail Pants",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "cottontailsuit",
+      "name": "Cottontail Suit",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "cowboyhat",
+      "name": "Cowboy Hat",
+      "kind": "equipment",
+      "yardValue": 6100
+    },
+    {
+      "itemId": "cqccommander40",
+      "name": "CQC Commander 40",
+      "kind": "equipment",
+      "yardValue": 10850
+    },
+    {
+      "itemId": "crashhelmet",
+      "name": "Crash Helmet",
+      "kind": "equipment",
+      "yardValue": 2450
+    },
+    {
+      "itemId": "credits",
+      "name": "Credits",
+      "kind": "unknown"
+    },
+    {
+      "itemId": "cricketbat",
+      "name": "Cricket Bat",
+      "kind": "equipment",
+      "yardValue": 100
+    },
+    {
+      "itemId": "crimsoncortex",
+      "name": "Crimson Cortex",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "crisps",
+      "name": "Potato Chips",
+      "kind": "item"
+    },
+    {
+      "itemId": "crissvictor",
+      "name": "Criss Victor",
+      "kind": "equipment",
+      "yardValue": 48450
+    },
+    {
+      "itemId": "crowbar",
+      "name": "Crowbar",
+      "kind": "equipment",
+      "yardValue": 1650
+    },
+    {
+      "itemId": "crowblood",
+      "name": "Crow Blood",
+      "kind": "item"
+    },
+    {
+      "itemId": "crowfeathers",
+      "name": "Crow Feathers",
+      "kind": "item"
+    },
+    {
+      "itemId": "crowmask",
+      "name": "Crow Mask",
+      "kind": "equipment",
+      "yardValue": 7012
+    },
+    {
+      "itemId": "crown",
+      "name": "Crown",
+      "kind": "equipment",
+      "yardValue": 55000
+    },
+    {
+      "itemId": "crowsample",
+      "name": "Infected Blood Sample",
+      "kind": "item"
+    },
+    {
+      "itemId": "crowslayer",
+      "name": "Crow Slayer",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "cryolauncher",
+      "name": "Cryo Launcher",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "cryostormc1",
+      "name": "Cryostorm C1",
+      "kind": "equipment",
+      "yardValue": 67650
+    },
+    {
+      "itemId": "cryostormhelmet",
+      "name": "Cryostorm Helmet",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "cryostormreactive",
+      "name": "Cryostorm Reactive",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "cultistcoat",
+      "name": "Cultist Coat",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "cultisthat",
+      "name": "Cultist Hat",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "cultistmask",
+      "name": "Cultist Mask",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "cultistvisage",
+      "name": "Cultist Visage",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "cyclonex150",
+      "name": "Cyclone X-150",
+      "kind": "equipment",
+      "yardValue": 72950
+    },
+    {
+      "itemId": "cyclonex150blueprints",
+      "name": "Cyclone X-150 Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "damageboost",
+      "name": "Damage Boost",
+      "kind": "item"
+    },
+    {
+      "itemId": "damageboostex",
+      "name": "Damage Boost EX",
+      "kind": "item"
+    },
+    {
+      "itemId": "darkdepthscrate",
+      "name": "Dark Depths Crate",
+      "kind": "item"
+    },
+    {
+      "itemId": "darkdepthstoken",
+      "name": "Dark Depths Token",
+      "kind": "item"
+    },
+    {
+      "itemId": "darkpumpkinhead",
+      "name": "Dark Pumpkin Head",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "darkpumpkinimplant",
+      "name": "Dark Pumpkin Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "dataimplant",
+      "name": "Data Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "dawnar",
+      "name": "Dawn AR",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "dawnarblueprints",
+      "name": "Dawn AR Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "dawncarbine",
+      "name": "Dawn Carbine",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "dawncarbineblueprints",
+      "name": "Dawn Carbine Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "dawncrossbow",
+      "name": "Dawn Crossbow",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "dawncrossbowblueprints",
+      "name": "Dawn Crossbow Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "dawnenforcer",
+      "name": "Dawn Enforcer",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "dawnenforcerblueprints",
+      "name": "Dawn Enforcer Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "dawnflamethrower",
+      "name": "Dawn Flamethrower",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "dawnflamethrowerblueprints",
+      "name": "Dawn Flamethrower Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "dawnguardianimplant",
+      "name": "Dawn Guardian Implant",
+      "kind": "equipment",
+      "yardValue": 40000
+    },
+    {
+      "itemId": "dawnhelmet",
+      "name": "Dawn Helmet",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "dawnimplant",
+      "name": "Dawn Warrior Implant",
+      "kind": "equipment",
+      "yardValue": 40000
+    },
+    {
+      "itemId": "dawnimplantblueprints",
+      "name": "Dawn Implant Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "dawnimplantcase",
+      "name": "Dawn Implant Case",
+      "kind": "item"
+    },
+    {
+      "itemId": "dawnkris",
+      "name": "Dawn Kris",
+      "kind": "equipment",
+      "yardValue": 15000
+    },
+    {
+      "itemId": "dawnkrisblueprints",
+      "name": "Dawn Kris Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "dawnlauncher",
+      "name": "Dawn Launcher",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "dawnlauncherblueprints",
+      "name": "Dawn Launcher Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "dawnmag",
+      "name": "Dawn MAG",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "dawnmagblueprints",
+      "name": "Dawn MAG Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "dawnmesh",
+      "name": "Dawn Mesh",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "dawnmeshblueprints",
+      "name": "Dawn Mesh Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "dawnmeshtype2",
+      "name": "Dawn Mesh",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "dawnminigun",
+      "name": "Dawn Minigun",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "dawnminigunblueprints",
+      "name": "Dawn Minigun Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "dawnparts",
+      "name": "Dawn Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "dawnreactive",
+      "name": "Dawn Reactive",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "dawnreactiveblueprints",
+      "name": "Dawn Reactive Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "dawnsabre",
+      "name": "Dawn Blade",
+      "kind": "equipment",
+      "yardValue": 80000
+    },
+    {
+      "itemId": "dawnsabreblueprints",
+      "name": "Dawn Blade Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "dawnsaw",
+      "name": "Dawn Saw",
+      "kind": "equipment",
+      "yardValue": 80000
+    },
+    {
+      "itemId": "dawnsawblueprints",
+      "name": "Dawn Saw Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "dawnscavengerimplant",
+      "name": "Dawn Scavenger Implant",
+      "kind": "equipment",
+      "yardValue": 40000
+    },
+    {
+      "itemId": "dawnsmg",
+      "name": "Dawn SMG",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "dawnsmgblueprints",
+      "name": "Dawn SMG Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "dawnsniper",
+      "name": "Dawn Sniper",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "dawnsniperblueprints",
+      "name": "Dawn Sniper Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "dawnstriker",
+      "name": "Dawn Striker",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "dawnstrikerblueprints",
+      "name": "Dawn Striker Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "dawnweaponcase",
+      "name": "Dawn Weapon Case",
+      "kind": "item"
+    },
+    {
+      "itemId": "daypack",
+      "name": "Daypack",
+      "kind": "equipment",
+      "yardValue": 1800
+    },
+    {
+      "itemId": "daystar55",
+      "name": "Daystar 55",
+      "kind": "equipment",
+      "yardValue": 100000
+    },
+    {
+      "itemId": "deadmansgrasp",
+      "name": "Deadman`s Grasp",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "dealbreaker1858",
+      "name": "Dealbreaker 1858",
+      "kind": "equipment",
+      "yardValue": 25000
+    },
+    {
+      "itemId": "dealbreakers1858",
+      "name": "Dealbreakers 1858",
+      "kind": "equipment",
+      "yardValue": 25000
+    },
+    {
+      "itemId": "dealerimplant",
+      "name": "Dealer Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "deathdefierimplant",
+      "name": "Death Defier Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "decapitator",
+      "name": "Decapitator",
+      "kind": "equipment",
+      "yardValue": 28850
+    },
+    {
+      "itemId": "decapitatorblueprints",
+      "name": "Decapitator Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "desertfox",
+      "name": "Desert Fox",
+      "kind": "equipment",
+      "yardValue": 40050
+    },
+    {
+      "itemId": "desertrat",
+      "name": "Desert Rat",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "destructionimplant",
+      "name": "Destruction Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "devilsheart",
+      "name": "Devils Heart",
+      "kind": "item"
+    },
+    {
+      "itemId": "devilsimplant",
+      "name": "Devils Implant",
+      "kind": "equipment",
+      "yardValue": 40000
+    },
+    {
+      "itemId": "diary",
+      "name": "Diary",
+      "kind": "item"
+    },
+    {
+      "itemId": "dilmarps",
+      "name": "Dilmar PS",
+      "kind": "equipment",
+      "yardValue": 1650
+    },
+    {
+      "itemId": "disc",
+      "name": "Disc",
+      "kind": "item"
+    },
+    {
+      "itemId": "dogbiscuits",
+      "name": "Dog Biscuits",
+      "kind": "item"
+    },
+    {
+      "itemId": "dogfood",
+      "name": "Dog Food",
+      "kind": "item"
+    },
+    {
+      "itemId": "doll",
+      "name": "Doll",
+      "kind": "item"
+    },
+    {
+      "itemId": "dominatorm12",
+      "name": "Dominator M12",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "doomcane",
+      "name": "Doom Cane",
+      "kind": "equipment",
+      "yardValue": 20050
+    },
+    {
+      "itemId": "doomstar",
+      "name": "Doomstar",
+      "kind": "equipment",
+      "yardValue": 100000
+    },
+    {
+      "itemId": "doomstarblueprints",
+      "name": "Doomstar Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "doubleshotaax",
+      "name": "Doubleshot AAX",
+      "kind": "equipment",
+      "yardValue": 100000
+    },
+    {
+      "itemId": "doubletapd16",
+      "name": "Double Tap D16",
+      "kind": "equipment",
+      "yardValue": 1850
+    },
+    {
+      "itemId": "dragonhead",
+      "name": "Dragon Head",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "dragonsmaw",
+      "name": "Dragon`s Maw",
+      "kind": "equipment",
+      "yardValue": 72950
+    },
+    {
+      "itemId": "dragonsmawblueprints",
+      "name": "Dragon`s Maw Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "dragonsvd",
+      "name": "Dragon SVD",
+      "kind": "equipment",
+      "yardValue": 24350
+    },
+    {
+      "itemId": "dragunov",
+      "name": "Dragon SVD",
+      "kind": "equipment",
+      "yardValue": 24350
+    },
+    {
+      "itemId": "dreadnoughtad",
+      "name": "Dreadnought AD",
+      "kind": "equipment",
+      "yardValue": 67650
+    },
+    {
+      "itemId": "driedtruffles",
+      "name": "Dried Truffles",
+      "kind": "item"
+    },
+    {
+      "itemId": "drownedboy",
+      "name": "Drowned Boy",
+      "kind": "item"
+    },
+    {
+      "itemId": "dualblade",
+      "name": "Dual Blade",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "dualbroncos",
+      "name": "Dual Broncos",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "ducttape",
+      "name": "Duct Tape",
+      "kind": "item"
+    },
+    {
+      "itemId": "duskar",
+      "name": "Dusk AR",
+      "kind": "equipment",
+      "yardValue": 80000
+    },
+    {
+      "itemId": "duskcarbine",
+      "name": "Dusk Carbine",
+      "kind": "equipment",
+      "yardValue": 100000
+    },
+    {
+      "itemId": "duskcrossbow",
+      "name": "Dusk Crossbow",
+      "kind": "equipment",
+      "yardValue": 100000
+    },
+    {
+      "itemId": "duskenforcer",
+      "name": "Dusk Enforcer",
+      "kind": "equipment",
+      "yardValue": 80000
+    },
+    {
+      "itemId": "duskflamethrower",
+      "name": "Dusk Flamethrower",
+      "kind": "equipment",
+      "yardValue": 80000
+    },
+    {
+      "itemId": "duskhelmet",
+      "name": "Dusk Helmet",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "duskimplant",
+      "name": "Dusk Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "duskkris",
+      "name": "Dusk Kris",
+      "kind": "equipment",
+      "yardValue": 5000
+    },
+    {
+      "itemId": "dusklauncher",
+      "name": "Dusk Launcher",
+      "kind": "equipment",
+      "yardValue": 80000
+    },
+    {
+      "itemId": "duskmag",
+      "name": "Dusk MAG",
+      "kind": "equipment",
+      "yardValue": 80000
+    },
+    {
+      "itemId": "duskmesh",
+      "name": "Dusk Mesh",
+      "kind": "equipment",
+      "yardValue": 40250
+    },
+    {
+      "itemId": "duskminigun",
+      "name": "Dusk Minigun",
+      "kind": "equipment",
+      "yardValue": 80000
+    },
+    {
+      "itemId": "duskrazor",
+      "name": "Dusk Razor",
+      "kind": "equipment",
+      "yardValue": 40000
+    },
+    {
+      "itemId": "duskreactive",
+      "name": "Dusk Reactive",
+      "kind": "equipment",
+      "yardValue": 40250
+    },
+    {
+      "itemId": "duskreward",
+      "name": "Dusk Reward",
+      "kind": "item"
+    },
+    {
+      "itemId": "dusksaw",
+      "name": "Dusk Saw",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "dusksmg",
+      "name": "Dusk SMG",
+      "kind": "equipment",
+      "yardValue": 80000
+    },
+    {
+      "itemId": "dusksniper",
+      "name": "Dusk Sniper",
+      "kind": "equipment",
+      "yardValue": 100000
+    },
+    {
+      "itemId": "duskstriker",
+      "name": "Dusk Striker",
+      "kind": "equipment",
+      "yardValue": 80000
+    },
+    {
+      "itemId": "earring",
+      "name": "Ear Ring",
+      "kind": "item"
+    },
+    {
+      "itemId": "earringtreasure",
+      "name": "Ear Ring",
+      "kind": "item"
+    },
+    {
+      "itemId": "easterbasket2024",
+      "name": "Easter Basket 2024",
+      "kind": "item"
+    },
+    {
+      "itemId": "easterbox",
+      "name": "Easter Box",
+      "kind": "item"
+    },
+    {
+      "itemId": "eastercandy",
+      "name": "Easter Candy",
+      "kind": "item"
+    },
+    {
+      "itemId": "easteregg",
+      "name": "Easter Egg 2019",
+      "kind": "item"
+    },
+    {
+      "itemId": "easteregg2",
+      "name": "Easter Egg 2018",
+      "kind": "item"
+    },
+    {
+      "itemId": "easteregg2020",
+      "name": "Easter Egg 2020",
+      "kind": "item"
+    },
+    {
+      "itemId": "easteregg2021",
+      "name": "Easter Egg 2021",
+      "kind": "item"
+    },
+    {
+      "itemId": "easteregg2022",
+      "name": "Easter Egg 2022",
+      "kind": "item"
+    },
+    {
+      "itemId": "easteregg2023",
+      "name": "Easter Egg 2023",
+      "kind": "item"
+    },
+    {
+      "itemId": "easteregg2024",
+      "name": "Easter Egg 2024",
+      "kind": "item"
+    },
+    {
+      "itemId": "easteregg2025",
+      "name": "Easter Egg 2025",
+      "kind": "item"
+    },
+    {
+      "itemId": "easteregg2026",
+      "name": "Easter Egg 2026",
+      "kind": "item"
+    },
+    {
+      "itemId": "easteregg3",
+      "name": "Easter Egg",
+      "kind": "item"
+    },
+    {
+      "itemId": "easterimplant",
+      "name": "Easter Implant",
+      "kind": "equipment",
+      "yardValue": 10000
+    },
+    {
+      "itemId": "ebr12",
+      "name": "EBR-12",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "ebr14",
+      "name": "EBR-14",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "ecocs20v",
+      "name": "ECO CS-20V",
+      "kind": "equipment",
+      "yardValue": 100
+    },
+    {
+      "itemId": "ecocs20v2",
+      "name": "ECO CS 20V",
+      "kind": "equipment",
+      "yardValue": 150
+    },
+    {
+      "itemId": "ecohc150",
+      "name": "ECO HC-150",
+      "kind": "equipment",
+      "yardValue": 450
+    },
+    {
+      "itemId": "egghead",
+      "name": "Egg Head",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "eggheadblueprints",
+      "name": "Egg Head Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "eggs",
+      "name": "Eggs",
+      "kind": "item"
+    },
+    {
+      "itemId": "eggshell",
+      "name": "Egg Shell",
+      "kind": "item"
+    },
+    {
+      "itemId": "eggsploderblueprints",
+      "name": "Eggsploder Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "eggsplodermm1",
+      "name": "Eggsploder-MM1",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "eggsploderparts",
+      "name": "Eggsploder Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "eggsterminator",
+      "name": "Eggsterminator",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "eggsterminatorblueprints",
+      "name": "Eggsterminator Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "electronicparts",
+      "name": "Electronic Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "electronicparts2",
+      "name": "Electronic Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "elfimplant",
+      "name": "Elf Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "elfimplantblueprints",
+      "name": "Elf Implant Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "elfimplantparts",
+      "name": "Elf Implant Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "elitechristmasgift",
+      "name": "Elite Christmas Gift",
+      "kind": "item"
+    },
+    {
+      "itemId": "elitecultistmask",
+      "name": "Elite Cultist Mask",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "eliteeasteregg",
+      "name": "Elite Easter Egg 2010",
+      "kind": "item"
+    },
+    {
+      "itemId": "eliteegg2021",
+      "name": "Elite Egg 2021",
+      "kind": "item"
+    },
+    {
+      "itemId": "eliteegg2022",
+      "name": "Elite Egg 2022",
+      "kind": "item"
+    },
+    {
+      "itemId": "eliteegg2023",
+      "name": "Elite Egg 2023",
+      "kind": "item"
+    },
+    {
+      "itemId": "emerald",
+      "name": "Emerald",
+      "kind": "item"
+    },
+    {
+      "itemId": "energybar",
+      "name": "Energy Bar",
+      "kind": "item"
+    },
+    {
+      "itemId": "energycellammo",
+      "name": "Energy Cell",
+      "kind": "round"
+    },
+    {
+      "itemId": "energydrink",
+      "name": "Energy Drink",
+      "kind": "item"
+    },
+    {
+      "itemId": "enforcerimplant",
+      "name": "Enforcer Implant",
+      "kind": "equipment",
+      "yardValue": 100
+    },
+    {
+      "itemId": "engagementring",
+      "name": "Engagement Ring",
+      "kind": "item"
+    },
+    {
+      "itemId": "engravedeasteregg2023",
+      "name": "Engraved Easter Egg 2023",
+      "kind": "item"
+    },
+    {
+      "itemId": "engravedpumpkin",
+      "name": "Engraved Pumpkin",
+      "kind": "item"
+    },
+    {
+      "itemId": "engravedsanta",
+      "name": "Engraved Santa",
+      "kind": "item"
+    },
+    {
+      "itemId": "engravedsilveregg",
+      "name": "Engraved Silver Egg",
+      "kind": "item"
+    },
+    {
+      "itemId": "epicegg2021",
+      "name": "Epic Egg 2021",
+      "kind": "item"
+    },
+    {
+      "itemId": "erragilityimplant",
+      "name": "Err Agility Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "errexperienceimplant",
+      "name": "Err Experience Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "errforagerimplant",
+      "name": "Err Forager Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "errhyperimplant",
+      "name": "Err Hyper Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "errironskinimplant",
+      "name": "Err Ironskin Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "errperceptionimplant",
+      "name": "Err Perception Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "errrageimplant",
+      "name": "Err Rage Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "errsalvageimplant",
+      "name": "Err Salvage Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "errsurvivalimplant",
+      "name": "Err Survival Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "errviolenceimplant",
+      "name": "Err Violence Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "errxhyperimplant",
+      "name": "Err X-Hyper Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "errxironskinimplant",
+      "name": "Err X-Ironskin Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "errxperceptionimplant",
+      "name": "Err X-Perception Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "errxsalvageimplant",
+      "name": "Err X-Salvage Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "errxviolenceimplant",
+      "name": "Err X-Violence Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "eviscerator",
+      "name": "Eviscerator",
+      "kind": "equipment",
+      "yardValue": 28850
+    },
+    {
+      "itemId": "evisceratorengineparts",
+      "name": "Eviscerator Engine Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "evisceratormangledmetal",
+      "name": "Eviscerator Mangled Metal",
+      "kind": "item"
+    },
+    {
+      "itemId": "evisceratorreelparts",
+      "name": "Eviscerator Reel Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "exilemesh",
+      "name": "Exile Mesh",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "expboost",
+      "name": "EXP Boost",
+      "kind": "item"
+    },
+    {
+      "itemId": "expboostex",
+      "name": "EXP Boost EX",
+      "kind": "item"
+    },
+    {
+      "itemId": "experienceimplant",
+      "name": "Experience Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "experimentalparts",
+      "name": "Experimental Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "experimentalserum",
+      "name": "Experimental Serum",
+      "kind": "item"
+    },
+    {
+      "itemId": "exterminatorhelmet",
+      "name": "Exterminator Helmet",
+      "kind": "equipment",
+      "yardValue": 7012
+    },
+    {
+      "itemId": "exterminatormesh",
+      "name": "Exterminator Mesh",
+      "kind": "equipment",
+      "yardValue": 40250
+    },
+    {
+      "itemId": "exterminatormeshgt",
+      "name": "Exterminator Mesh GT",
+      "kind": "equipment",
+      "yardValue": 40250
+    },
+    {
+      "itemId": "exterminatormeshxt",
+      "name": "Exterminator Mesh XT",
+      "kind": "equipment",
+      "yardValue": 1050
+    },
+    {
+      "itemId": "exterminatorreactive",
+      "name": "Exterminator Reactive",
+      "kind": "equipment",
+      "yardValue": 40250
+    },
+    {
+      "itemId": "exterminatorreactivext",
+      "name": "Exterminator Reactive XT",
+      "kind": "equipment",
+      "yardValue": 40250
+    },
+    {
+      "itemId": "extralargesecuritybox",
+      "name": "XL Security Box",
+      "kind": "item"
+    },
+    {
+      "itemId": "eyepatch",
+      "name": "Eye Patch",
+      "kind": "equipment",
+      "yardValue": 3088
+    },
+    {
+      "itemId": "fabric",
+      "name": "Fabric",
+      "kind": "item"
+    },
+    {
+      "itemId": "facebandana",
+      "name": "Face Bandana",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "falconmm1",
+      "name": "Falcon-MM1",
+      "kind": "equipment",
+      "yardValue": 14750
+    },
+    {
+      "itemId": "fatmanscryothrower",
+      "name": "Fatman`s Cryothrower",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "fatmansimplant",
+      "name": "Fatman`s Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "femalesample",
+      "name": "Infected Blood Sample",
+      "kind": "item"
+    },
+    {
+      "itemId": "feralheart",
+      "name": "Feral Heart",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "festivefacebandana",
+      "name": "Festive Face Bandana",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "festivehorns",
+      "name": "Festive Horns",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "festiveplaguecoat",
+      "name": "Festive Plague Coat",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "festiveplaguehat",
+      "name": "Festive Plague Hat",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "festiveplaguemask",
+      "name": "Festive Plague Mask",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "fiftyseven",
+      "name": "Fifty-Seven",
+      "kind": "equipment",
+      "yardValue": 275
+    },
+    {
+      "itemId": "fireaxe",
+      "name": "Fire Axe",
+      "kind": "equipment",
+      "yardValue": 163
+    },
+    {
+      "itemId": "fireaxe2",
+      "name": "Damaged Fire Axe",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "firemanhelmet",
+      "name": "Fireman Helmet",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "firepoker",
+      "name": "Fire Poker",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "flakjacket",
+      "name": "Flak Jacket",
+      "kind": "equipment",
+      "yardValue": 11050
+    },
+    {
+      "itemId": "fleshreaver",
+      "name": "Flesh Reaver",
+      "kind": "equipment",
+      "yardValue": 33850
+    },
+    {
+      "itemId": "fleshreaverblueprints",
+      "name": "Flesh Reaver Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "fleshseeker",
+      "name": "Flesh Seeker",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "flightrecorder",
+      "name": "Flight Recorder",
+      "kind": "item"
+    },
+    {
+      "itemId": "flyingcap",
+      "name": "Flying Cap",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "flyinggoggles",
+      "name": "Flying Goggles",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "fm12abekp3mask",
+      "name": "FM12 ABEKP3 Mask",
+      "kind": "equipment",
+      "yardValue": 7250
+    },
+    {
+      "itemId": "fmfal",
+      "name": "FM FAL",
+      "kind": "equipment",
+      "yardValue": 14750
+    },
+    {
+      "itemId": "fmfnc",
+      "name": "FM FNC",
+      "kind": "equipment",
+      "yardValue": 850
+    },
+    {
+      "itemId": "fmmag",
+      "name": "FM MAG",
+      "kind": "equipment",
+      "yardValue": 40050
+    },
+    {
+      "itemId": "fmmitrail",
+      "name": "FM Mitrail",
+      "kind": "equipment",
+      "yardValue": 24350
+    },
+    {
+      "itemId": "fmp90",
+      "name": "FM P90",
+      "kind": "equipment",
+      "yardValue": 850
+    },
+    {
+      "itemId": "foodsupplies",
+      "name": "Food Supplies",
+      "kind": "item"
+    },
+    {
+      "itemId": "forsakentitaniumblades",
+      "name": "Titanium Blades",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "fortuneimplant",
+      "name": "Fortune Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "frenchfries",
+      "name": "French Fries",
+      "kind": "item"
+    },
+    {
+      "itemId": "frenzyimplant",
+      "name": "Frenzy Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "freshcoffeegrounds",
+      "name": "Fresh Coffee Grounds",
+      "kind": "item"
+    },
+    {
+      "itemId": "freshherbs",
+      "name": "Fresh Herbs",
+      "kind": "item"
+    },
+    {
+      "itemId": "freshmeat",
+      "name": "Fresh Meat",
+      "kind": "item"
+    },
+    {
+      "itemId": "freshmilk",
+      "name": "Fresh Milk",
+      "kind": "item"
+    },
+    {
+      "itemId": "freshvegetables",
+      "name": "Fresh Vegetables",
+      "kind": "item"
+    },
+    {
+      "itemId": "frostbiteimplant",
+      "name": "Frostbite Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "frostbitejacket",
+      "name": "Frostbite Jacket",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "frostbitemask",
+      "name": "Frostbite Mask",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "frostbitepants",
+      "name": "Frostbite Pants",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "frostbiteturtleneck",
+      "name": "Frostbite Turtleneck",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "frostborncape",
+      "name": "Frostborn Cape",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "frostbornhelmet",
+      "name": "Frostborn Helmet",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "frostbornpants",
+      "name": "Frostborn Pants",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "frostbornshirt",
+      "name": "Frostborn Shirt",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "frostshotfx50",
+      "name": "Frostshot FX-50",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "fruitjuice",
+      "name": "Fruit Juice",
+      "kind": "item"
+    },
+    {
+      "itemId": "fryingpan",
+      "name": "Frying Pan",
+      "kind": "equipment",
+      "yardValue": 150
+    },
+    {
+      "itemId": "fuel",
+      "name": "Fuel",
+      "kind": "item"
+    },
+    {
+      "itemId": "fuelammo",
+      "name": "Gasoline",
+      "kind": "round"
+    },
+    {
+      "itemId": "furrcoat",
+      "name": "Fur Coat",
+      "kind": "equipment",
+      "yardValue": 1400
+    },
+    {
+      "itemId": "furyclawpdw",
+      "name": "Furyclaw PDW",
+      "kind": "equipment",
+      "yardValue": 67650
+    },
+    {
+      "itemId": "g3",
+      "name": "G3",
+      "kind": "equipment",
+      "yardValue": 10850
+    },
+    {
+      "itemId": "gambitimplant",
+      "name": "Gambit Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "gasmask",
+      "name": "Gas Mask",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "gau19",
+      "name": "GAU-19",
+      "kind": "equipment",
+      "yardValue": 40050
+    },
+    {
+      "itemId": "gau19df2",
+      "name": "GAU-19",
+      "kind": "equipment",
+      "yardValue": 40050
+    },
+    {
+      "itemId": "gau19npc",
+      "name": "GAU-19",
+      "kind": "equipment",
+      "yardValue": 40050
+    },
+    {
+      "itemId": "gaussrifle",
+      "name": "Gauss Rifle",
+      "kind": "equipment",
+      "yardValue": 40050
+    },
+    {
+      "itemId": "gawbl1n",
+      "name": "GAW BL-1N",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "gawbl1nblueprints",
+      "name": "GAW BL-1N Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "gemamulet",
+      "name": "Gem Amulet",
+      "kind": "item"
+    },
+    {
+      "itemId": "gemcrown",
+      "name": "Gem Crown",
+      "kind": "equipment",
+      "yardValue": 550000
+    },
+    {
+      "itemId": "geniusimplant",
+      "name": "Genius Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "gerringhp",
+      "name": "Gerring HP",
+      "kind": "equipment",
+      "yardValue": 150
+    },
+    {
+      "itemId": "ghastlyimplant",
+      "name": "Ghastly Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "ghostimplant",
+      "name": "Ghost Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "giftwrap",
+      "name": "Gift Wrap",
+      "kind": "item"
+    },
+    {
+      "itemId": "gimpmask",
+      "name": "Gimp Mask",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "gingerbreadcookie",
+      "name": "Gingerbread Cookie",
+      "kind": "item"
+    },
+    {
+      "itemId": "glacialwarfare",
+      "name": "Glacial Warfare",
+      "kind": "equipment",
+      "yardValue": 5050
+    },
+    {
+      "itemId": "gm94",
+      "name": "GM94",
+      "kind": "equipment",
+      "yardValue": 3250
+    },
+    {
+      "itemId": "goldbangle",
+      "name": "Gold Bangle",
+      "kind": "item"
+    },
+    {
+      "itemId": "goldenchristmashat",
+      "name": "Golden Christmas Hat",
+      "kind": "equipment",
+      "yardValue": 199999
+    },
+    {
+      "itemId": "goldenfryingpan",
+      "name": "Golden Frying Pan",
+      "kind": "equipment",
+      "yardValue": 150
+    },
+    {
+      "itemId": "goldenpumpkin",
+      "name": "Golden Pumpkin",
+      "kind": "item"
+    },
+    {
+      "itemId": "goldenpumpkinhead",
+      "name": "Golden Pumpkin Head",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "goldenpumpkinimplant",
+      "name": "Golden Pumpkin Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "goldenrabbitimplant",
+      "name": "Golden Rabbit Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "goldensanta",
+      "name": "Golden Santa",
+      "kind": "item"
+    },
+    {
+      "itemId": "goldensledgehammer",
+      "name": "Golden Sledge Hammer",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "goldmembershipticket",
+      "name": "Gold Membership Ticket",
+      "kind": "item"
+    },
+    {
+      "itemId": "goldnecklace",
+      "name": "Gold Necklace",
+      "kind": "item"
+    },
+    {
+      "itemId": "golfclub",
+      "name": "Golf Club",
+      "kind": "equipment",
+      "yardValue": 100
+    },
+    {
+      "itemId": "gorebloom",
+      "name": "Gorebloom",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "gorespikewaraxe",
+      "name": "Gorespike Waraxe",
+      "kind": "equipment",
+      "yardValue": 33850
+    },
+    {
+      "itemId": "goretooth44g",
+      "name": "Goretooth 44G",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "grammm11",
+      "name": "Gramm M11",
+      "kind": "equipment",
+      "yardValue": 3250
+    },
+    {
+      "itemId": "grenadeammo",
+      "name": "Grenades",
+      "kind": "round"
+    },
+    {
+      "itemId": "greyhawk55",
+      "name": "Greyhawk 55",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "grimmask",
+      "name": "Grim Mask",
+      "kind": "equipment",
+      "yardValue": 7012
+    },
+    {
+      "itemId": "grimworm",
+      "name": "Grimworm",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "grinder",
+      "name": "Grinder",
+      "kind": "equipment",
+      "yardValue": 20050
+    },
+    {
+      "itemId": "grinderx3",
+      "name": "Grinder X3",
+      "kind": "equipment",
+      "yardValue": 28850
+    },
+    {
+      "itemId": "grizzlyknife",
+      "name": "Grizzly Knife",
+      "kind": "equipment",
+      "yardValue": 12200
+    },
+    {
+      "itemId": "grizzlymask",
+      "name": "Grizzly Mask",
+      "kind": "equipment",
+      "yardValue": 7012
+    },
+    {
+      "itemId": "guitar",
+      "name": "Guitar",
+      "kind": "item"
+    },
+    {
+      "itemId": "gunslingerchaps",
+      "name": "Gunslinger Chaps",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "gunslingerhat",
+      "name": "Gunslinger Hat",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "gunslingerponcho",
+      "name": "Gunslinger Poncho",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "gunslingersgambitmesh",
+      "name": "Gunslinger`s Gambit Mesh",
+      "kind": "equipment",
+      "yardValue": 40250
+    },
+    {
+      "itemId": "gunslingershades",
+      "name": "Gunslinger Shades",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "gunslingervest",
+      "name": "Gunslinger Vest",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "gutsplitter",
+      "name": "Gut Splitter",
+      "kind": "equipment",
+      "yardValue": 28850
+    },
+    {
+      "itemId": "gutstitcher",
+      "name": "Gut Stitcher",
+      "kind": "equipment",
+      "yardValue": 72950
+    },
+    {
+      "itemId": "hailstormc12",
+      "name": "Hailstorm C12",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "halloweenbox",
+      "name": "Halloween Box",
+      "kind": "item"
+    },
+    {
+      "itemId": "halloweencandy",
+      "name": "Halloween Candy",
+      "kind": "item"
+    },
+    {
+      "itemId": "halloweenimplant",
+      "name": "Halloween Implant",
+      "kind": "equipment",
+      "yardValue": 10000
+    },
+    {
+      "itemId": "halloweenmask",
+      "name": "Halloween Mask",
+      "kind": "equipment",
+      "yardValue": 7012
+    },
+    {
+      "itemId": "halloweenmaskcrate",
+      "name": "Halloween Mask Crate",
+      "kind": "item"
+    },
+    {
+      "itemId": "hammerhead47",
+      "name": "Hammerhead 47",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "handshocka8",
+      "name": "Handshock A8",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "handtalon38",
+      "name": "Handtalon 38",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "handtalon55",
+      "name": "Handtalon 55",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "hardcoreboost",
+      "name": "Hardcore Boost",
+      "kind": "item"
+    },
+    {
+      "itemId": "harddisk",
+      "name": "Hard Disk",
+      "kind": "item"
+    },
+    {
+      "itemId": "hareraiser",
+      "name": "Hareraiser",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "hareraiserblueprints",
+      "name": "Hareraiser Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "haresplitter",
+      "name": "Haresplitter",
+      "kind": "equipment",
+      "yardValue": 28850
+    },
+    {
+      "itemId": "haretrigger47",
+      "name": "Hare Trigger 47",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "harpoongun",
+      "name": "Harpoon Gun",
+      "kind": "equipment",
+      "yardValue": 67650
+    },
+    {
+      "itemId": "harvesterblueprints",
+      "name": "Harvester Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "harvesterofsorrow",
+      "name": "Harvester of Sorrow",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "hasteimplant",
+      "name": "Haste Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "havocimplant",
+      "name": "Havoc Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "hawkop96",
+      "name": "Hawk OP96",
+      "kind": "equipment",
+      "yardValue": 19250
+    },
+    {
+      "itemId": "hazardimplant",
+      "name": "Hazard Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "hazardmask",
+      "name": "Hazard Mask",
+      "kind": "equipment",
+      "yardValue": 15653
+    },
+    {
+      "itemId": "hazardmesh",
+      "name": "Hazard Mesh",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "hazardreactive",
+      "name": "Hazard Reactive",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "hazmathelmet",
+      "name": "Hazmat Helmet",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "hcimreward",
+      "name": "HCIM Reward",
+      "kind": "item"
+    },
+    {
+      "itemId": "heartbreakerblueprints",
+      "name": "Heartbreaker Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "heartbreakerhelmet",
+      "name": "Heartbreaker Helmet",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "heartbreakerjacket",
+      "name": "Heartbreaker Jacket",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "heartbreakerleather",
+      "name": "Heartbreaker Leather",
+      "kind": "item"
+    },
+    {
+      "itemId": "heartbreakerthread",
+      "name": "Heartbreaker Thread",
+      "kind": "item"
+    },
+    {
+      "itemId": "heatpit75",
+      "name": "Heat Pit 75",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "heatpit75blueprints",
+      "name": "Heat Pit 75 Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "heavygrenadeammo",
+      "name": "Heavy Grenades",
+      "kind": "round"
+    },
+    {
+      "itemId": "helicopterflightrecorder",
+      "name": "Helicopter Flight Recorder",
+      "kind": "item"
+    },
+    {
+      "itemId": "hellboundcloak",
+      "name": "Hellbound Cloak",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "hellspawnmask",
+      "name": "Hellspawn Mask",
+      "kind": "equipment",
+      "yardValue": 7012
+    },
+    {
+      "itemId": "hemogothiccape",
+      "name": "Hemogothic Cape",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "hemogothichat",
+      "name": "Hemogothic Hat",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "hemogothicpants",
+      "name": "Hemogothic Pants",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "hemogothicshirt",
+      "name": "Hemogothic Shirt",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "hemostaticgauze",
+      "name": "Hemostatic Gauze",
+      "kind": "item"
+    },
+    {
+      "itemId": "henryfield",
+      "name": "Henryfield",
+      "kind": "equipment",
+      "yardValue": 1850
+    },
+    {
+      "itemId": "highlander",
+      "name": "Highlander",
+      "kind": "equipment",
+      "yardValue": 150
+    },
+    {
+      "itemId": "hippouch",
+      "name": "Hip Pouch",
+      "kind": "equipment",
+      "yardValue": 300
+    },
+    {
+      "itemId": "hk69",
+      "name": "HK69",
+      "kind": "equipment",
+      "yardValue": 850
+    },
+    {
+      "itemId": "hockeymask",
+      "name": "Hockey Mask",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "hoodlesscloak",
+      "name": "Hoodless Cloak",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "hookimplant",
+      "name": "Hook Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "hopshot2x",
+      "name": "Hopshot X2",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "hornetyj9",
+      "name": "Hornet YJ-9",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "hornetyj9blueprints",
+      "name": "Hornet YJ-9 Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "horsehead",
+      "name": "Horse Head",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "hotdogs",
+      "name": "Tinned Hotdogs",
+      "kind": "item"
+    },
+    {
+      "itemId": "hugesecuritybox",
+      "name": "Huge Security Box",
+      "kind": "item"
+    },
+    {
+      "itemId": "humanskull",
+      "name": "Human Skull",
+      "kind": "item"
+    },
+    {
+      "itemId": "hunterimplant",
+      "name": "Hunter Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "hunterscowl",
+      "name": "Hunter`s Cowl",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "huntershat",
+      "name": "Hunter`s Hat",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "huntersmask",
+      "name": "Hunter`s Mask",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "huntingknife",
+      "name": "Hunting Knife",
+      "kind": "equipment",
+      "yardValue": 100
+    },
+    {
+      "itemId": "huntsmanxp12",
+      "name": "Huntsman XP12",
+      "kind": "equipment",
+      "yardValue": 1850
+    },
+    {
+      "itemId": "hypercoilx1",
+      "name": "Hypercoil X1",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "hyperimplant",
+      "name": "Hyper Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "idcard",
+      "name": "ID Card",
+      "kind": "item"
+    },
+    {
+      "itemId": "im2combathelmet",
+      "name": "IM-2 Combat Helmet",
+      "kind": "equipment",
+      "yardValue": 7012
+    },
+    {
+      "itemId": "im2combatsuit",
+      "name": "IM-2 Combat Suit",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "im2implant",
+      "name": "IM-2 Implant",
+      "kind": "equipment",
+      "yardValue": 40000
+    },
+    {
+      "itemId": "immolatorad",
+      "name": "Immolator AD",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "impalercrossbow",
+      "name": "Impaler Crossbow",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "implantbattery",
+      "name": "Implant Battery",
+      "kind": "item"
+    },
+    {
+      "itemId": "implantinterface",
+      "name": "Implant Interface",
+      "kind": "item"
+    },
+    {
+      "itemId": "implantmimickit",
+      "name": "Implant Mimic Kit",
+      "kind": "item"
+    },
+    {
+      "itemId": "implantpcb",
+      "name": "Implant PCB",
+      "kind": "item"
+    },
+    {
+      "itemId": "implantstarterkit",
+      "name": "Implant Starter Kit",
+      "kind": "item"
+    },
+    {
+      "itemId": "incineratorft9",
+      "name": "Incinerator FT-9",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "independencecrate",
+      "name": "Independence Crate",
+      "kind": "item"
+    },
+    {
+      "itemId": "independencecrate2",
+      "name": "Independence Crate 2",
+      "kind": "item"
+    },
+    {
+      "itemId": "independencepants",
+      "name": "Independence Pants",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "independenceshirt",
+      "name": "Independence Shirt",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "independencetailcoat",
+      "name": "Independence Tailcoat",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "infiltratorimplant",
+      "name": "Infiltrator Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "infinyaimplant",
+      "name": "Infinya Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "ingenuityimplant",
+      "name": "Ingenuity Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "inhaler",
+      "name": "Inhaler",
+      "kind": "item"
+    },
+    {
+      "itemId": "innocentblood",
+      "name": "Innocent Blood",
+      "kind": "item"
+    },
+    {
+      "itemId": "inquisitor",
+      "name": "Inquisitor",
+      "kind": "equipment",
+      "yardValue": 100000
+    },
+    {
+      "itemId": "inquisitorblueprints",
+      "name": "Inquisitor Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "insanitymask",
+      "name": "Insanity Mask",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "instanthotcocoa",
+      "name": "Instant Hot Cocoa",
+      "kind": "item"
+    },
+    {
+      "itemId": "iotvhardplate",
+      "name": "IOTV Hard Plate",
+      "kind": "equipment",
+      "yardValue": 14950
+    },
+    {
+      "itemId": "ironpipe",
+      "name": "Iron Pipe",
+      "kind": "equipment",
+      "yardValue": 450
+    },
+    {
+      "itemId": "ironpipe2",
+      "name": "Damaged Iron Pipe",
+      "kind": "equipment",
+      "yardValue": 150
+    },
+    {
+      "itemId": "ironsight33f",
+      "name": "Ironsight 33-F",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "ironskinimplant",
+      "name": "Ironskin Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "jacket",
+      "name": "Jacket",
+      "kind": "equipment",
+      "yardValue": 275
+    },
+    {
+      "itemId": "jackhammer10g",
+      "name": "Jackhammer 10G",
+      "kind": "equipment",
+      "yardValue": 100000
+    },
+    {
+      "itemId": "jackobackpack",
+      "name": "Jack-o`-Backpack",
+      "kind": "equipment",
+      "yardValue": 300
+    },
+    {
+      "itemId": "jackofallimplant",
+      "name": "Jack Of All Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "jackrabbitb12",
+      "name": "Jackrabbit B12",
+      "kind": "equipment",
+      "yardValue": 100000
+    },
+    {
+      "itemId": "jeans",
+      "name": "Jeans",
+      "kind": "equipment",
+      "yardValue": 63
+    },
+    {
+      "itemId": "jinglebellimplant",
+      "name": "Jingle Bell Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "jollyimplant",
+      "name": "Jolly Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "jollyimplantparts",
+      "name": "Jolly Implant Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "juggernautimplant",
+      "name": "Juggernaut Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "july4thhat2022",
+      "name": "July 4th Hat 2022",
+      "kind": "equipment",
+      "yardValue": 51
+    },
+    {
+      "itemId": "july4thhat2023",
+      "name": "July 4th Hat 2023",
+      "kind": "equipment",
+      "yardValue": 51
+    },
+    {
+      "itemId": "july4thhat2025",
+      "name": "July 4th Hat 2025",
+      "kind": "equipment",
+      "yardValue": 51
+    },
+    {
+      "itemId": "junker6",
+      "name": "Junker 6",
+      "kind": "equipment",
+      "yardValue": 100000
+    },
+    {
+      "itemId": "k50m",
+      "name": "K-50M",
+      "kind": "equipment",
+      "yardValue": 24350
+    },
+    {
+      "itemId": "k9",
+      "name": "K9",
+      "kind": "equipment",
+      "yardValue": 7400
+    },
+    {
+      "itemId": "katana",
+      "name": "Katana",
+      "kind": "equipment",
+      "yardValue": 20050
+    },
+    {
+      "itemId": "kevlarvest",
+      "name": "Kevlar Vest",
+      "kind": "equipment",
+      "yardValue": 3450
+    },
+    {
+      "itemId": "keycard",
+      "name": "Keycard",
+      "kind": "item"
+    },
+    {
+      "itemId": "koltanaconda",
+      "name": "Kolt Anaconda",
+      "kind": "equipment",
+      "yardValue": 10850
+    },
+    {
+      "itemId": "koltpython",
+      "name": "Kolt Python",
+      "kind": "equipment",
+      "yardValue": 850
+    },
+    {
+      "itemId": "krakenslayer",
+      "name": "Kraken Slayer",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "kris",
+      "name": "Kris",
+      "kind": "equipment",
+      "yardValue": 2550
+    },
+    {
+      "itemId": "kukri",
+      "name": "Kukri",
+      "kind": "equipment",
+      "yardValue": 9650
+    },
+    {
+      "itemId": "laptop",
+      "name": "Laptop",
+      "kind": "item"
+    },
+    {
+      "itemId": "largebackpack",
+      "name": "Large Backpack",
+      "kind": "equipment",
+      "yardValue": 1500
+    },
+    {
+      "itemId": "largerucksack",
+      "name": "Large Rucksack",
+      "kind": "equipment",
+      "yardValue": 2700
+    },
+    {
+      "itemId": "largesecuritybox",
+      "name": "Large Security Box",
+      "kind": "item"
+    },
+    {
+      "itemId": "leatherjacket",
+      "name": "Leather Jacket",
+      "kind": "equipment",
+      "yardValue": 2450
+    },
+    {
+      "itemId": "leatherpants",
+      "name": "Leather Pants",
+      "kind": "equipment",
+      "yardValue": 1888
+    },
+    {
+      "itemId": "lemonade",
+      "name": "Lemonade",
+      "kind": "item"
+    },
+    {
+      "itemId": "lethalityimplant",
+      "name": "Lethality Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "leviathanlauncher",
+      "name": "Leviathan Launcher",
+      "kind": "equipment",
+      "yardValue": 72950
+    },
+    {
+      "itemId": "lock17",
+      "name": "Lock 17",
+      "kind": "equipment",
+      "yardValue": 3250
+    },
+    {
+      "itemId": "lock19",
+      "name": "Lock 19",
+      "kind": "equipment",
+      "yardValue": 850
+    },
+    {
+      "itemId": "lock25",
+      "name": "Lock 25",
+      "kind": "equipment",
+      "yardValue": 5050
+    },
+    {
+      "itemId": "lock25xmos",
+      "name": "Lock 25X MOS",
+      "kind": "equipment",
+      "yardValue": 10850
+    },
+    {
+      "itemId": "locket",
+      "name": "Locket",
+      "kind": "item"
+    },
+    {
+      "itemId": "lockettreasure",
+      "name": "Locket",
+      "kind": "item"
+    },
+    {
+      "itemId": "longshotpp10",
+      "name": "Longshot PP10",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "looterimplant",
+      "name": "Looter Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "losthost",
+      "name": "Lost Host",
+      "kind": "equipment",
+      "yardValue": 100000
+    },
+    {
+      "itemId": "lr32",
+      "name": "LR-32",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "lr32blueprints",
+      "name": "LR-32 Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "luger",
+      "name": "Luger",
+      "kind": "equipment",
+      "yardValue": 2500
+    },
+    {
+      "itemId": "lumberjackgg6",
+      "name": "Lumberjack GG-6",
+      "kind": "equipment",
+      "yardValue": 5450
+    },
+    {
+      "itemId": "lunarhorsemask",
+      "name": "Lunar Horse Mask",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "luxurywatch",
+      "name": "Luxury Watch",
+      "kind": "item"
+    },
+    {
+      "itemId": "m16",
+      "name": "M16",
+      "kind": "equipment",
+      "yardValue": 150
+    },
+    {
+      "itemId": "m162",
+      "name": "M16",
+      "kind": "equipment",
+      "yardValue": 150
+    },
+    {
+      "itemId": "m1garand",
+      "name": "M1 Garand",
+      "kind": "equipment",
+      "yardValue": 3250
+    },
+    {
+      "itemId": "m21",
+      "name": "M21",
+      "kind": "equipment",
+      "yardValue": 6100
+    },
+    {
+      "itemId": "m24",
+      "name": "M24",
+      "kind": "equipment",
+      "yardValue": 1850
+    },
+    {
+      "itemId": "m4",
+      "name": "M4",
+      "kind": "equipment",
+      "yardValue": 24350
+    },
+    {
+      "itemId": "m60",
+      "name": "M60",
+      "kind": "equipment",
+      "yardValue": 48450
+    },
+    {
+      "itemId": "m79",
+      "name": "M79",
+      "kind": "equipment",
+      "yardValue": 150
+    },
+    {
+      "itemId": "m792",
+      "name": "M79",
+      "kind": "equipment",
+      "yardValue": 150
+    },
+    {
+      "itemId": "m82a2",
+      "name": "M82A2",
+      "kind": "equipment",
+      "yardValue": 40050
+    },
+    {
+      "itemId": "machete",
+      "name": "Machete",
+      "kind": "equipment",
+      "yardValue": 7400
+    },
+    {
+      "itemId": "machineparts",
+      "name": "Machine Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "machineparts2",
+      "name": "Machine Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "maimingmaws",
+      "name": "Maiming Maws",
+      "kind": "equipment",
+      "yardValue": 33850
+    },
+    {
+      "itemId": "makeshiftar",
+      "name": "Makeshift AR",
+      "kind": "equipment",
+      "yardValue": 1000
+    },
+    {
+      "itemId": "makeshiftchainsaw",
+      "name": "Makeshift Chainsaw",
+      "kind": "equipment",
+      "yardValue": 1000
+    },
+    {
+      "itemId": "makeshiftflamethrower",
+      "name": "Makeshift Flamethrower",
+      "kind": "equipment",
+      "yardValue": 5050
+    },
+    {
+      "itemId": "makeshiftlauncher",
+      "name": "Makeshift Launcher",
+      "kind": "equipment",
+      "yardValue": 1000
+    },
+    {
+      "itemId": "makeshiftrevolver",
+      "name": "Makeshift Revolver",
+      "kind": "equipment",
+      "yardValue": 1000
+    },
+    {
+      "itemId": "makeshiftrifle",
+      "name": "Makeshift Rifle",
+      "kind": "equipment",
+      "yardValue": 1000
+    },
+    {
+      "itemId": "makeshiftshotgun",
+      "name": "Makeshift Shotgun",
+      "kind": "equipment",
+      "yardValue": 1000
+    },
+    {
+      "itemId": "makeshiftsmg",
+      "name": "Makeshift SMG",
+      "kind": "equipment",
+      "yardValue": 1000
+    },
+    {
+      "itemId": "malesample",
+      "name": "Infected Blood Sample",
+      "kind": "item"
+    },
+    {
+      "itemId": "mancinim1",
+      "name": "Mancini M1",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "mancinim12",
+      "name": "Mancini M1",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "manglerapron",
+      "name": "Mangler Apron",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "manglermask",
+      "name": "Mangler Mask",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "manglerpants",
+      "name": "Mangler Pants",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "manglerraincoat",
+      "name": "Mangler Raincoat",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "mannberg500",
+      "name": "Mannberg 500",
+      "kind": "equipment",
+      "yardValue": 10850
+    },
+    {
+      "itemId": "map",
+      "name": "Map",
+      "kind": "item"
+    },
+    {
+      "itemId": "marauder55",
+      "name": "Marauder 55",
+      "kind": "equipment",
+      "yardValue": 72950
+    },
+    {
+      "itemId": "marauder55blueprints",
+      "name": "Marauder 55 Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "marksmang8",
+      "name": "Marksman G8",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "marksmanmx90",
+      "name": "Marksman MX90",
+      "kind": "equipment",
+      "yardValue": 10850
+    },
+    {
+      "itemId": "mastercraftimplant",
+      "name": "Mastercraft Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "masteryimplant",
+      "name": "Mastery Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "meatjerky",
+      "name": "Meat Jerky",
+      "kind": "item"
+    },
+    {
+      "itemId": "medicalsupplies",
+      "name": "Medical Supplies",
+      "kind": "item"
+    },
+    {
+      "itemId": "mediumsecuritybox",
+      "name": "Medium Security Box",
+      "kind": "item"
+    },
+    {
+      "itemId": "mesaacr",
+      "name": "Mesa ACR",
+      "kind": "equipment",
+      "yardValue": 3250
+    },
+    {
+      "itemId": "meshrx2",
+      "name": "Mesh RX-2",
+      "kind": "equipment",
+      "yardValue": 19450
+    },
+    {
+      "itemId": "meshslx",
+      "name": "Mesh SLX",
+      "kind": "equipment",
+      "yardValue": 19450
+    },
+    {
+      "itemId": "messengerbag",
+      "name": "Messenger Bag",
+      "kind": "equipment",
+      "yardValue": 600
+    },
+    {
+      "itemId": "metalbar",
+      "name": "Metal Bar",
+      "kind": "item"
+    },
+    {
+      "itemId": "metalscrap",
+      "name": "Metal Scrap",
+      "kind": "item"
+    },
+    {
+      "itemId": "metalshards",
+      "name": "Metal Shards",
+      "kind": "item"
+    },
+    {
+      "itemId": "mg42",
+      "name": "MG42",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "mgl6",
+      "name": "MGL 6",
+      "kind": "equipment",
+      "yardValue": 24350
+    },
+    {
+      "itemId": "militarydaypack",
+      "name": "Military Daypack",
+      "kind": "equipment",
+      "yardValue": 2100
+    },
+    {
+      "itemId": "militaryhelmet",
+      "name": "Military Helmet",
+      "kind": "equipment",
+      "yardValue": 675
+    },
+    {
+      "itemId": "milk",
+      "name": "Milk",
+      "kind": "item"
+    },
+    {
+      "itemId": "millet",
+      "name": "Millet",
+      "kind": "item"
+    },
+    {
+      "itemId": "mimicimplant",
+      "name": "Mimic Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "mini41",
+      "name": "Mini-41",
+      "kind": "equipment",
+      "yardValue": 275
+    },
+    {
+      "itemId": "mini412",
+      "name": "Mini-41",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "minidamageboost",
+      "name": "Mini Damage Boost",
+      "kind": "item"
+    },
+    {
+      "itemId": "minidamageboostex",
+      "name": "Mini Damage Boost EX",
+      "kind": "item"
+    },
+    {
+      "itemId": "miniexpboost",
+      "name": "Mini EXP Boost",
+      "kind": "item"
+    },
+    {
+      "itemId": "miniexpboostex",
+      "name": "Mini EXP Boost EX",
+      "kind": "item"
+    },
+    {
+      "itemId": "minifirstaidkit",
+      "name": "Mini First Aid Kit",
+      "kind": "item"
+    },
+    {
+      "itemId": "minispeedboost",
+      "name": "Mini Speed Boost",
+      "kind": "item"
+    },
+    {
+      "itemId": "minispeedboostex",
+      "name": "Mini Speed Boost EX",
+      "kind": "item"
+    },
+    {
+      "itemId": "minitrinityboost",
+      "name": "Mini Trinity Boost",
+      "kind": "item"
+    },
+    {
+      "itemId": "minitrinityboostex",
+      "name": "Mini Trinity Boost EX",
+      "kind": "item"
+    },
+    {
+      "itemId": "mirages8",
+      "name": "Mirage S8",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "mixednuts",
+      "name": "Mixed Nuts",
+      "kind": "item"
+    },
+    {
+      "itemId": "monkeymask",
+      "name": "Monkey Mask",
+      "kind": "equipment",
+      "yardValue": 7012
+    },
+    {
+      "itemId": "morphine",
+      "name": "Morphine",
+      "kind": "item"
+    },
+    {
+      "itemId": "mortalityimplant",
+      "name": "Mortality Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "motlimplant",
+      "name": "MOTL Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "motorcyclejacket",
+      "name": "Motorcycle Jacket",
+      "kind": "equipment",
+      "yardValue": 6100
+    },
+    {
+      "itemId": "mp40",
+      "name": "MP40",
+      "kind": "equipment",
+      "yardValue": 5050
+    },
+    {
+      "itemId": "mp5",
+      "name": "MP5",
+      "kind": "equipment",
+      "yardValue": 1300
+    },
+    {
+      "itemId": "mre",
+      "name": "MRE",
+      "kind": "item"
+    },
+    {
+      "itemId": "msg9",
+      "name": "MSG-9",
+      "kind": "equipment",
+      "yardValue": 10850
+    },
+    {
+      "itemId": "multivitamins",
+      "name": "Multivitamins",
+      "kind": "item"
+    },
+    {
+      "itemId": "murderimplant",
+      "name": "Murder Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "mutantimplant",
+      "name": "Mutant Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "mutantsample",
+      "name": "Infected Blood Sample",
+      "kind": "item"
+    },
+    {
+      "itemId": "mutilatorg12",
+      "name": "Mutilator G12",
+      "kind": "equipment",
+      "yardValue": 33850
+    },
+    {
+      "itemId": "mysteriouscharm",
+      "name": "Mysterious Charm",
+      "kind": "item"
+    },
+    {
+      "itemId": "mysterybox",
+      "name": "Mystery Box",
+      "kind": "item"
+    },
+    {
+      "itemId": "nailbat",
+      "name": "Nail Bat",
+      "kind": "equipment",
+      "yardValue": 950
+    },
+    {
+      "itemId": "nails",
+      "name": "Nails",
+      "kind": "item"
+    },
+    {
+      "itemId": "naughtyimplant",
+      "name": "Naughty Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "naughtylist",
+      "name": "Naughty List",
+      "kind": "item"
+    },
+    {
+      "itemId": "naughtylist2020",
+      "name": "Naughty List 2020",
+      "kind": "item"
+    },
+    {
+      "itemId": "necklace",
+      "name": "Necklace",
+      "kind": "item"
+    },
+    {
+      "itemId": "necklacetreasure",
+      "name": "Necklace",
+      "kind": "item"
+    },
+    {
+      "itemId": "nerotonin",
+      "name": "Nerotonin-2",
+      "kind": "item"
+    },
+    {
+      "itemId": "nerotonin5a",
+      "name": "Nerotonin 5A",
+      "kind": "item"
+    },
+    {
+      "itemId": "nerotonin8b",
+      "name": "Nerotonin 8B",
+      "kind": "item"
+    },
+    {
+      "itemId": "nervelock",
+      "name": "Nervelock",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "neurodrive",
+      "name": "Neurodrive",
+      "kind": "equipment",
+      "yardValue": 3500000
+    },
+    {
+      "itemId": "niceimplant",
+      "name": "Nice Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "nicelist",
+      "name": "Nice List",
+      "kind": "item"
+    },
+    {
+      "itemId": "nicelist2020",
+      "name": "Nice List 2020",
+      "kind": "item"
+    },
+    {
+      "itemId": "nighthawkyj4",
+      "name": "Nighthawk YJ-4",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "nighthawkyj4blueprints",
+      "name": "Nighthawk YJ-4 Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "ninecutterx",
+      "name": "Nine Cutter X",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "noblenodachi",
+      "name": "Noble Nodachi",
+      "kind": "equipment",
+      "yardValue": 75000
+    },
+    {
+      "itemId": "nodachi",
+      "name": "Nodachi",
+      "kind": "equipment",
+      "yardValue": 24250
+    },
+    {
+      "itemId": "nomadhelmet",
+      "name": "Nomad Helmet",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "nomadmesh",
+      "name": "Nomad Mesh",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "northpoleaxe",
+      "name": "North Poleaxe",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "northpoleaxeblueprints",
+      "name": "North Poleaxe Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "northpoleaxeparts",
+      "name": "North Poleaxe Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "notorietyimplant",
+      "name": "Notoriety Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "oats",
+      "name": "Oats",
+      "kind": "item"
+    },
+    {
+      "itemId": "oblivionimplant",
+      "name": "Oblivion Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "obsidianimplant",
+      "name": "Obsidian Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "occulticeye",
+      "name": "Occultic Eye",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "officerscap",
+      "name": "Officer`s Cap",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "omnidriveimplant",
+      "name": "OmniDrive Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "orangejackhead",
+      "name": "Orangejack Head",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "orangejackimplant",
+      "name": "Orangejack Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "orangejuice",
+      "name": "Orange Juice",
+      "kind": "item"
+    },
+    {
+      "itemId": "outbreakpamphlet",
+      "name": "Outbreak Pamphlet",
+      "kind": "item"
+    },
+    {
+      "itemId": "package",
+      "name": "Package",
+      "kind": "item"
+    },
+    {
+      "itemId": "painshot10",
+      "name": "Painshot 10",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "pairofglasses",
+      "name": "Pair of Glasses",
+      "kind": "item"
+    },
+    {
+      "itemId": "paleparasite",
+      "name": "Pale Parasite",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "pamelasheart",
+      "name": "Pamela`s Heart",
+      "kind": "item"
+    },
+    {
+      "itemId": "panhammer",
+      "name": "Pan Hammer",
+      "kind": "equipment",
+      "yardValue": 33850
+    },
+    {
+      "itemId": "parasitichusk",
+      "name": "Parasitic Husk",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "pasta",
+      "name": "Pasta",
+      "kind": "item"
+    },
+    {
+      "itemId": "patriarchblueprints",
+      "name": "Patriarch Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "patriarchparasite",
+      "name": "Patriarch Parasite",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "paw20",
+      "name": "PAW-20",
+      "kind": "equipment",
+      "yardValue": 48450
+    },
+    {
+      "itemId": "pendant",
+      "name": "Pendant",
+      "kind": "item"
+    },
+    {
+      "itemId": "pendanttreasure",
+      "name": "Pendant",
+      "kind": "item"
+    },
+    {
+      "itemId": "penknife",
+      "name": "Pen Knife",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "perceptionimplant",
+      "name": "Perception Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "photograph",
+      "name": "Photograph",
+      "kind": "item"
+    },
+    {
+      "itemId": "piercer",
+      "name": "Piercer",
+      "kind": "equipment",
+      "yardValue": 28850
+    },
+    {
+      "itemId": "pierceshot33p",
+      "name": "Pierceshot 33-P",
+      "kind": "equipment",
+      "yardValue": 67650
+    },
+    {
+      "itemId": "pigskin",
+      "name": "Pig Skin",
+      "kind": "item"
+    },
+    {
+      "itemId": "pioneerimplant",
+      "name": "Pioneer Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "pizza",
+      "name": "Pizza",
+      "kind": "item"
+    },
+    {
+      "itemId": "plagueseekercoat",
+      "name": "Plague Seeker Coat",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "plagueseekerhat",
+      "name": "Plague Seeker Hat",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "plagueseekermask",
+      "name": "Plague Seeker Mask",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "plasters",
+      "name": "Plasters",
+      "kind": "item"
+    },
+    {
+      "itemId": "pocketcannon",
+      "name": "Pocket Cannon",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "pocketwatch",
+      "name": "Pocket Watch",
+      "kind": "item"
+    },
+    {
+      "itemId": "porkrinds",
+      "name": "Pork Rinds",
+      "kind": "item"
+    },
+    {
+      "itemId": "potatoes",
+      "name": "Potatoes",
+      "kind": "item"
+    },
+    {
+      "itemId": "potatosack",
+      "name": "Potato Sack",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "pp19",
+      "name": "PP-19",
+      "kind": "equipment",
+      "yardValue": 1850
+    },
+    {
+      "itemId": "pp90",
+      "name": "PP90",
+      "kind": "equipment",
+      "yardValue": 2500
+    },
+    {
+      "itemId": "ppsh41",
+      "name": "PPSH-41",
+      "kind": "equipment",
+      "yardValue": 40050
+    },
+    {
+      "itemId": "predatorgland",
+      "name": "Predator Gland",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "prodigydefence",
+      "name": "Prodigy Defence",
+      "kind": "equipment",
+      "yardValue": 11050
+    },
+    {
+      "itemId": "proficiencyimplant",
+      "name": "Proficiency Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "prophecyimplant",
+      "name": "Prophecy Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "prosperityimplant",
+      "name": "Prosperity Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "prowlerimplant",
+      "name": "Prowler Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "prowlerp225",
+      "name": "Prowler-P225",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "prowlerp225blueprints",
+      "name": "Prowler-P225 Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "prowlerp225parts",
+      "name": "Prowler-P225 Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "pumpkincarver",
+      "name": "Pumpkin Carver",
+      "kind": "equipment",
+      "yardValue": 150000
+    },
+    {
+      "itemId": "pumpkinmask",
+      "name": "Pumpkin Head",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "pumpkinpie",
+      "name": "Pumpkin Pie",
+      "kind": "item"
+    },
+    {
+      "itemId": "qr22obsidian",
+      "name": "QR22 Obsidian",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "qr22obsidianblueprints",
+      "name": "QR22 Obsidian Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "quartermasterimplant",
+      "name": "Quartermaster Implant",
+      "kind": "equipment",
+      "yardValue": 100
+    },
+    {
+      "itemId": "quinoa",
+      "name": "Quinoa",
+      "kind": "item"
+    },
+    {
+      "itemId": "rabbitfootimplant",
+      "name": "Rabbit Foot Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "radiatedadvancedmutantsample",
+      "name": "Infected Blood Sample",
+      "kind": "item"
+    },
+    {
+      "itemId": "radiatedcharredsample",
+      "name": "Infected Blood Sample",
+      "kind": "item"
+    },
+    {
+      "itemId": "radiatedmutantsample",
+      "name": "Infected Blood Sample",
+      "kind": "item"
+    },
+    {
+      "itemId": "radiatedsample",
+      "name": "Infected Blood Sample",
+      "kind": "item"
+    },
+    {
+      "itemId": "radio",
+      "name": "Radio",
+      "kind": "item"
+    },
+    {
+      "itemId": "rageimplant",
+      "name": "Rage Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "raidermesh",
+      "name": "Raider Mesh",
+      "kind": "equipment",
+      "yardValue": 40250
+    },
+    {
+      "itemId": "raiderreactive",
+      "name": "Raider Reactive",
+      "kind": "equipment",
+      "yardValue": 40250
+    },
+    {
+      "itemId": "raptorx9",
+      "name": "Raptor-X9",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "rareclothscrap",
+      "name": "Rare Cloth Scrap",
+      "kind": "item"
+    },
+    {
+      "itemId": "rarefabric",
+      "name": "Rare Fabric",
+      "kind": "item"
+    },
+    {
+      "itemId": "raremetalbar",
+      "name": "Rare Metal Bar",
+      "kind": "item"
+    },
+    {
+      "itemId": "raremetalscrap",
+      "name": "Rare Metal Scrap",
+      "kind": "item"
+    },
+    {
+      "itemId": "ratpack",
+      "name": "Rat Pack",
+      "kind": "equipment",
+      "yardValue": 4500
+    },
+    {
+      "itemId": "ravenousgut",
+      "name": "Ravenous Gut",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "ravenplushie",
+      "name": "Raven Plushie",
+      "kind": "item"
+    },
+    {
+      "itemId": "razor",
+      "name": "Razor",
+      "kind": "equipment",
+      "yardValue": 950
+    },
+    {
+      "itemId": "reactiveslx",
+      "name": "Reactive SLX",
+      "kind": "equipment",
+      "yardValue": 19450
+    },
+    {
+      "itemId": "reactivext800",
+      "name": "Reactive XT800",
+      "kind": "equipment",
+      "yardValue": 19450
+    },
+    {
+      "itemId": "rebellion",
+      "name": "Rebellion",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "rebreather",
+      "name": "Rebreather",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "reconimplant",
+      "name": "Recon Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "redenvelope",
+      "name": "Red Envelope",
+      "kind": "item"
+    },
+    {
+      "itemId": "redwine",
+      "name": "Red Wine",
+      "kind": "item"
+    },
+    {
+      "itemId": "refleximplant",
+      "name": "Reflex Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "reindeerblood",
+      "name": "Reindeer Blood",
+      "kind": "item"
+    },
+    {
+      "itemId": "repairkit",
+      "name": "Repair Kit",
+      "kind": "item"
+    },
+    {
+      "itemId": "revenantcape",
+      "name": "Revenant Cape",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "revenantmask",
+      "name": "Revenant Mask",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "revenantpants",
+      "name": "Revenant Pants",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "revenantshirt",
+      "name": "Revenant Shirt",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "revsaw750",
+      "name": "Revsaw 750",
+      "kind": "equipment",
+      "yardValue": 33850
+    },
+    {
+      "itemId": "rg6",
+      "name": "RG6",
+      "kind": "equipment",
+      "yardValue": 10850
+    },
+    {
+      "itemId": "rgm40",
+      "name": "RGM40",
+      "kind": "equipment",
+      "yardValue": 1850
+    },
+    {
+      "itemId": "rhea55",
+      "name": "Rhea 55",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "rhea55blueprints",
+      "name": "Rhea 55 Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "ribbons",
+      "name": "Ribbons",
+      "kind": "item"
+    },
+    {
+      "itemId": "rice",
+      "name": "Rice",
+      "kind": "item"
+    },
+    {
+      "itemId": "ring",
+      "name": "Ring",
+      "kind": "item"
+    },
+    {
+      "itemId": "riothelmet",
+      "name": "Riot Helmet",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "ripsawg12",
+      "name": "Ripsaw G12",
+      "kind": "equipment",
+      "yardValue": 28850
+    },
+    {
+      "itemId": "riptidemarinepro",
+      "name": "Riptide Marine Pro",
+      "kind": "equipment",
+      "yardValue": 950
+    },
+    {
+      "itemId": "ronanpro",
+      "name": "Ronan Pro",
+      "kind": "equipment",
+      "yardValue": 5450
+    },
+    {
+      "itemId": "rottencabbage",
+      "name": "Rotten Cabbage",
+      "kind": "item"
+    },
+    {
+      "itemId": "ruby",
+      "name": "Ruby",
+      "kind": "item"
+    },
+    {
+      "itemId": "rucksack",
+      "name": "Rucksack",
+      "kind": "equipment",
+      "yardValue": 2400
+    },
+    {
+      "itemId": "runnerimplant",
+      "name": "Runner Implant",
+      "kind": "equipment",
+      "yardValue": 100
+    },
+    {
+      "itemId": "rusthound37e",
+      "name": "Rusthound 37-E",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "rusthound37eblueprints",
+      "name": "Rusthound 37-E Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "rustwarden36",
+      "name": "Rust Warden 36",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "rustykey",
+      "name": "Rusty Key",
+      "kind": "item"
+    },
+    {
+      "itemId": "sa80",
+      "name": "SA80",
+      "kind": "equipment",
+      "yardValue": 1850
+    },
+    {
+      "itemId": "sabre",
+      "name": "Sabre",
+      "kind": "equipment",
+      "yardValue": 9650
+    },
+    {
+      "itemId": "sageimplant",
+      "name": "Sage Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "salmon",
+      "name": "Tinned Salmon",
+      "kind": "item"
+    },
+    {
+      "itemId": "salvageimplant",
+      "name": "Salvage Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "samuraimask",
+      "name": "Samurai Mask",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "sandscorcher",
+      "name": "Sand Scorcher",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "sandstorms19",
+      "name": "Sandstorm S19",
+      "kind": "equipment",
+      "yardValue": 67650
+    },
+    {
+      "itemId": "santaclaws",
+      "name": "Santa Claws",
+      "kind": "equipment",
+      "yardValue": 33850
+    },
+    {
+      "itemId": "santajacket",
+      "name": "Santa Jacket",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "santasblade",
+      "name": "Santa`s Blade",
+      "kind": "item"
+    },
+    {
+      "itemId": "santasgiftsack",
+      "name": "Santa`s Gift Sack",
+      "kind": "equipment",
+      "yardValue": 900
+    },
+    {
+      "itemId": "santasgrip",
+      "name": "Santa`s Grip",
+      "kind": "item"
+    },
+    {
+      "itemId": "santaslittlehelper",
+      "name": "Santa`s Little Helper",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "santasslayer",
+      "name": "Santa`s Slayer",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "sapphire",
+      "name": "Sapphire",
+      "kind": "item"
+    },
+    {
+      "itemId": "sausages",
+      "name": "Sausages",
+      "kind": "item"
+    },
+    {
+      "itemId": "savageeye",
+      "name": "Savage Eye",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "sawbladelauncher",
+      "name": "Sawblade Launcher",
+      "kind": "equipment",
+      "yardValue": 67650
+    },
+    {
+      "itemId": "sawedoffm79",
+      "name": "Sawed-Off M79",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "scalpel",
+      "name": "Scalpel",
+      "kind": "equipment",
+      "yardValue": 1650
+    },
+    {
+      "itemId": "scar9000",
+      "name": "SCAR 9000",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "scarabhelmet",
+      "name": "Scarab Helmet",
+      "kind": "equipment",
+      "yardValue": 15653
+    },
+    {
+      "itemId": "scarabreactive",
+      "name": "Scarab Reactive",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "scarecrowhead",
+      "name": "Scarecrow Head",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "scarecrowscowl",
+      "name": "Scarecrow`s Cowl",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "scavengergland",
+      "name": "Scavenger Gland",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "scavengerhuntimplant",
+      "name": "Scavenger Hunt Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "scavengerimplant",
+      "name": "Scavenger Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "scavengermask",
+      "name": "Scavenger Mask",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "scavengermesh",
+      "name": "Scavenger Mesh",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "scorchernk19",
+      "name": "Scorcher NK19",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "scorchernk19blueprints",
+      "name": "Scorcher NK19 Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "scorchstoneimplant",
+      "name": "Scorchstone Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "scourgeshot10",
+      "name": "Scourgeshot 10",
+      "kind": "equipment",
+      "yardValue": 67650
+    },
+    {
+      "itemId": "scrapshotsws88",
+      "name": "Scrapshot SWS88",
+      "kind": "equipment",
+      "yardValue": 67650
+    },
+    {
+      "itemId": "scrutinyimplant",
+      "name": "Scrutiny Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "scythehead",
+      "name": "Scythe Head",
+      "kind": "item"
+    },
+    {
+      "itemId": "scytheshaft",
+      "name": "Scythe Shaft",
+      "kind": "item"
+    },
+    {
+      "itemId": "seaserpentm50",
+      "name": "Sea Serpent M-50",
+      "kind": "equipment",
+      "yardValue": 24350
+    },
+    {
+      "itemId": "seasidebottom",
+      "name": "Seaside Bottom",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "seasideglasses",
+      "name": "Seaside Glasses",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "seasiderobe",
+      "name": "Seaside Robe",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "seasidetop",
+      "name": "Seaside Top",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "secrolink",
+      "name": "Secrolink",
+      "kind": "equipment",
+      "yardValue": 3500000
+    },
+    {
+      "itemId": "secronomkeycard",
+      "name": "Secronom Keycard",
+      "kind": "item"
+    },
+    {
+      "itemId": "secronomresearchnotes",
+      "name": "Secronom Research Notes",
+      "kind": "item"
+    },
+    {
+      "itemId": "seeds",
+      "name": "Seeds",
+      "kind": "item"
+    },
+    {
+      "itemId": "sega20",
+      "name": "Sega-20",
+      "kind": "equipment",
+      "yardValue": 4100
+    },
+    {
+      "itemId": "sentinels19",
+      "name": "Sentinel S19",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "serpentimplant",
+      "name": "Serpent Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "serpentsfangs",
+      "name": "Serpent`s Fangs",
+      "kind": "equipment",
+      "yardValue": 20000
+    },
+    {
+      "itemId": "severedhand",
+      "name": "Severed Hand",
+      "kind": "item"
+    },
+    {
+      "itemId": "sharktail",
+      "name": "Sharktail",
+      "kind": "equipment",
+      "yardValue": 28850
+    },
+    {
+      "itemId": "sharktoothripper",
+      "name": "Sharktooth Ripper",
+      "kind": "equipment",
+      "yardValue": 100000
+    },
+    {
+      "itemId": "sharktoothripperblueprints",
+      "name": "Sharktooth Ripper Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "shattergun10g",
+      "name": "Shattergun 10g",
+      "kind": "equipment",
+      "yardValue": 67650
+    },
+    {
+      "itemId": "shelfstablecookie",
+      "name": "Shelf-stable Cookie",
+      "kind": "item"
+    },
+    {
+      "itemId": "shelfstablecookieh2026",
+      "name": "Halloween Cookie",
+      "kind": "item"
+    },
+    {
+      "itemId": "shemaghs",
+      "name": "Shemagh",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "shinobumask",
+      "name": "Shinobu Mask",
+      "kind": "equipment",
+      "yardValue": 15653
+    },
+    {
+      "itemId": "shinobumesh",
+      "name": "Shinobu Mesh",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "shirt",
+      "name": "Shirt",
+      "kind": "equipment",
+      "yardValue": 63
+    },
+    {
+      "itemId": "shortfusecrossbow",
+      "name": "Short Fuse Crossbow",
+      "kind": "equipment",
+      "yardValue": 67650
+    },
+    {
+      "itemId": "shovel",
+      "name": "Shovel",
+      "kind": "equipment",
+      "yardValue": 2550
+    },
+    {
+      "itemId": "shovel2",
+      "name": "Shovel",
+      "kind": "equipment",
+      "yardValue": 1000
+    },
+    {
+      "itemId": "sic550",
+      "name": "SIC 550",
+      "kind": "equipment",
+      "yardValue": 16925
+    },
+    {
+      "itemId": "sicapollo",
+      "name": "SIC Apollo",
+      "kind": "equipment",
+      "yardValue": 14750
+    },
+    {
+      "itemId": "siegecannon",
+      "name": "Siege Cannon",
+      "kind": "equipment",
+      "yardValue": 67650
+    },
+    {
+      "itemId": "silvereasteregg",
+      "name": "Silver Easter Egg",
+      "kind": "item"
+    },
+    {
+      "itemId": "silveringot",
+      "name": "Silver Ingots",
+      "kind": "item"
+    },
+    {
+      "itemId": "silverrabbitimplant",
+      "name": "Silver Rabbit Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "silverslugster",
+      "name": "Silver Slugster",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "silverslugsterblueprints",
+      "name": "Silver Slugster Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "silverslugsterparts",
+      "name": "Silver Slugster Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "skimask",
+      "name": "Ski Mask",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "skorpion",
+      "name": "Skorpion",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "skorpion2",
+      "name": "Skorpion",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "skullsplitter",
+      "name": "Skull Splitter",
+      "kind": "equipment",
+      "yardValue": 5450
+    },
+    {
+      "itemId": "sl8",
+      "name": "SL8",
+      "kind": "equipment",
+      "yardValue": 850
+    },
+    {
+      "itemId": "slamfires4compact",
+      "name": "SlamFire S4 Compact",
+      "kind": "equipment",
+      "yardValue": 10850
+    },
+    {
+      "itemId": "slasherjacket",
+      "name": "Slasher Jacket",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "slashermask",
+      "name": "Slasher Mask",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "slayerimplant",
+      "name": "Slayer Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "sledgehammer",
+      "name": "Sledge Hammer",
+      "kind": "equipment",
+      "yardValue": 12200
+    },
+    {
+      "itemId": "slothplushie",
+      "name": "Sloth Plushie",
+      "kind": "item"
+    },
+    {
+      "itemId": "smallbackpack",
+      "name": "Small Backpack",
+      "kind": "equipment",
+      "yardValue": 900
+    },
+    {
+      "itemId": "smallsecuritybox",
+      "name": "Small Security Box",
+      "kind": "item"
+    },
+    {
+      "itemId": "smartsnowmanhead",
+      "name": "Smart Snowman Head",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "smg7tidalwave",
+      "name": "SMG-7 Tidal Wave",
+      "kind": "equipment",
+      "yardValue": 67650
+    },
+    {
+      "itemId": "sn42",
+      "name": "SN-42",
+      "kind": "equipment",
+      "yardValue": 11050
+    },
+    {
+      "itemId": "snakehead",
+      "name": "Snake Head",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "snowglobeimplant",
+      "name": "Snow Globe Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "snowmanhead",
+      "name": "Snowman Head",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "soda",
+      "name": "Soda",
+      "kind": "item"
+    },
+    {
+      "itemId": "spaghetti",
+      "name": "Tinned Spaghetti",
+      "kind": "item"
+    },
+    {
+      "itemId": "spectersmg9",
+      "name": "Specter SMG9",
+      "kind": "equipment",
+      "yardValue": 67650
+    },
+    {
+      "itemId": "spectersmg9blueprints",
+      "name": "Specter SMG9 Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "speedboost",
+      "name": "Speed Boost",
+      "kind": "item"
+    },
+    {
+      "itemId": "speedboostex",
+      "name": "Speed Boost EX",
+      "kind": "item"
+    },
+    {
+      "itemId": "spiker",
+      "name": "Spiker",
+      "kind": "equipment",
+      "yardValue": 28850
+    },
+    {
+      "itemId": "spiritpumpkinhead",
+      "name": "Spirit Pumpkin Head",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "splinterspitter",
+      "name": "Splinter Spitter",
+      "kind": "equipment",
+      "yardValue": 72950
+    },
+    {
+      "itemId": "sportsarmour",
+      "name": "Sports Armour",
+      "kind": "equipment",
+      "yardValue": 1050
+    },
+    {
+      "itemId": "spsa12",
+      "name": "SPSA 12",
+      "kind": "equipment",
+      "yardValue": 5050
+    },
+    {
+      "itemId": "sr10disruptor",
+      "name": "SR-10 Disruptor",
+      "kind": "equipment",
+      "yardValue": 72950
+    },
+    {
+      "itemId": "staminaimplant",
+      "name": "Stamina Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "steel090",
+      "name": "Steel 090",
+      "kind": "equipment",
+      "yardValue": 24250
+    },
+    {
+      "itemId": "steelcasehelmet",
+      "name": "Steelcase Helmet",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "steelcasereactive",
+      "name": "Steelcase Reactive",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "steelms800",
+      "name": "STEEL MS800",
+      "kind": "equipment",
+      "yardValue": 9650
+    },
+    {
+      "itemId": "steelrangerr03",
+      "name": "Steel Ranger R-03",
+      "kind": "equipment",
+      "yardValue": 24350
+    },
+    {
+      "itemId": "stellaug",
+      "name": "Stell AUG",
+      "kind": "equipment",
+      "yardValue": 5050
+    },
+    {
+      "itemId": "steristrips",
+      "name": "Steri Strips",
+      "kind": "item"
+    },
+    {
+      "itemId": "steroids",
+      "name": "Steroids",
+      "kind": "item"
+    },
+    {
+      "itemId": "stickyricecake",
+      "name": "Sticky Rice Cake",
+      "kind": "item"
+    },
+    {
+      "itemId": "stingerx5",
+      "name": "Stinger X5",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "stockingstuffer",
+      "name": "Stocking Stuffer",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "straw",
+      "name": "Straw",
+      "kind": "item"
+    },
+    {
+      "itemId": "streetdog99",
+      "name": "Street Dog 99",
+      "kind": "equipment",
+      "yardValue": 100000
+    },
+    {
+      "itemId": "streetsweeper",
+      "name": "Sweeper",
+      "kind": "equipment",
+      "yardValue": 19250
+    },
+    {
+      "itemId": "stuntmancape",
+      "name": "Stuntman Cape",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "stuntmanhelmet",
+      "name": "Stuntman Helmet",
+      "kind": "equipment",
+      "yardValue": 51
+    },
+    {
+      "itemId": "stuntmanjumper",
+      "name": "Stuntman Jumper",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "stuntmanpants",
+      "name": "Stuntman Pants",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "sturdyhandle",
+      "name": "Sturdy Handle",
+      "kind": "item"
+    },
+    {
+      "itemId": "sugarcookie",
+      "name": "Sugar Cookie",
+      "kind": "item"
+    },
+    {
+      "itemId": "sugarrushimplant",
+      "name": "Sugar Rush Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "sunglasses",
+      "name": "Sunglasses",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "superglue",
+      "name": "Superglue",
+      "kind": "item"
+    },
+    {
+      "itemId": "superslugger",
+      "name": "Super Slugger",
+      "kind": "equipment",
+      "yardValue": 950
+    },
+    {
+      "itemId": "supplements",
+      "name": "Supplements",
+      "kind": "item"
+    },
+    {
+      "itemId": "supplies",
+      "name": "Supplies",
+      "kind": "item"
+    },
+    {
+      "itemId": "supplysatchel2025",
+      "name": "Supply Satchel 2025",
+      "kind": "item"
+    },
+    {
+      "itemId": "surgicalhat",
+      "name": "Surgical Hat",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "surgicalmask",
+      "name": "Surgical Mask",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "survivalbackpack",
+      "name": "Survival Backpack",
+      "kind": "equipment",
+      "yardValue": 900
+    },
+    {
+      "itemId": "survivalhandbook",
+      "name": "Survival Handbook",
+      "kind": "item"
+    },
+    {
+      "itemId": "survivalimplant",
+      "name": "Survival Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "survivorschainsaw",
+      "name": "Survivor`s Chainsaw",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "survivorscombatknife",
+      "name": "Survivor`s Combat Knife",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "survivorsgm94",
+      "name": "Survivor`s GM94",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "survivorskolt45",
+      "name": "Survivor`s Kolt 45",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "survivorslock19c",
+      "name": "Survivor`s Lock 19c",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "survivorsmannberg500",
+      "name": "Survivor`s Mannberg 500",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "survivorsstyertmp",
+      "name": "Survivor`s Stell TMP",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "survivorstarterkit",
+      "name": "Survivor Starter Kit",
+      "kind": "item"
+    },
+    {
+      "itemId": "sw500",
+      "name": "SW 500",
+      "kind": "equipment",
+      "yardValue": 19250
+    },
+    {
+      "itemId": "symbiontimplant",
+      "name": "Symbiont Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "tacticalgoggles",
+      "name": "Tactical Goggles",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "talon40",
+      "name": "Talon 40",
+      "kind": "equipment",
+      "yardValue": 14750
+    },
+    {
+      "itemId": "taperecorder",
+      "name": "Tape Recorder",
+      "kind": "item"
+    },
+    {
+      "itemId": "tatakauhelmet",
+      "name": "Tatakau Helmet",
+      "kind": "equipment",
+      "yardValue": 15653
+    },
+    {
+      "itemId": "tatakaureactive",
+      "name": "Tatakau Reactive",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "teddybear",
+      "name": "Teddy Bear",
+      "kind": "item"
+    },
+    {
+      "itemId": "tempest",
+      "name": "Tempest",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "tempestblueprints",
+      "name": "Tempest Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "tenderizer",
+      "name": "Tenderizer",
+      "kind": "equipment",
+      "yardValue": 12200
+    },
+    {
+      "itemId": "terminatortx12",
+      "name": "Terminator TX-12",
+      "kind": "equipment",
+      "yardValue": 24350
+    },
+    {
+      "itemId": "thrasherfullmask",
+      "name": "Thrasher Full Mask",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "thrasherhalfmask",
+      "name": "Thrasher Half Mask",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "thrasherhelmet",
+      "name": "Thrasher Helmet",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "thrasherjacket",
+      "name": "Thrasher Jacket",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "thrasherpants",
+      "name": "Thrasher Pants",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "thrashershirt",
+      "name": "Thrasher Shirt",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "thread",
+      "name": "Thread",
+      "kind": "item"
+    },
+    {
+      "itemId": "threadandneedle",
+      "name": "Thread and Needle",
+      "kind": "item"
+    },
+    {
+      "itemId": "thunder12",
+      "name": "Thunder 12",
+      "kind": "equipment",
+      "yardValue": 44150
+    },
+    {
+      "itemId": "tidebreaker",
+      "name": "Tide Breaker",
+      "kind": "equipment",
+      "yardValue": 25000
+    },
+    {
+      "itemId": "tinhelmet",
+      "name": "Tin Helmet",
+      "kind": "equipment",
+      "yardValue": 1888
+    },
+    {
+      "itemId": "tinnedvegetables",
+      "name": "Tinned Vegetables",
+      "kind": "item"
+    },
+    {
+      "itemId": "titanhunterarmour",
+      "name": "Titan Hunter Mesh",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "titanhuntermask",
+      "name": "Titan Hunter Mask",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "tn8flamethrower",
+      "name": "TN8 Flamethrower",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "tophat",
+      "name": "Top Hat",
+      "kind": "equipment",
+      "yardValue": 1999
+    },
+    {
+      "itemId": "torchbolt",
+      "name": "Torchbolt",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "trackingdevice",
+      "name": "Tracking Device",
+      "kind": "item"
+    },
+    {
+      "itemId": "treasurechest2024",
+      "name": "Treasure Chest 2024",
+      "kind": "item"
+    },
+    {
+      "itemId": "trekkerbackblueprints",
+      "name": "Trekker Backpack Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "trekkerbackpack",
+      "name": "Trekker Backpack",
+      "kind": "equipment",
+      "yardValue": 2400
+    },
+    {
+      "itemId": "trenchcoat",
+      "name": "Trench Coat",
+      "kind": "equipment",
+      "yardValue": 7012
+    },
+    {
+      "itemId": "trenchknife",
+      "name": "Trench Knife",
+      "kind": "equipment",
+      "yardValue": 5450
+    },
+    {
+      "itemId": "trickortreat",
+      "name": "Trick Or Treat",
+      "kind": "item"
+    },
+    {
+      "itemId": "trickortreat2",
+      "name": "Trick Or Treat 2016",
+      "kind": "item"
+    },
+    {
+      "itemId": "trickortreat2020",
+      "name": "Trick Or Treat 2020",
+      "kind": "item"
+    },
+    {
+      "itemId": "trickortreat2021",
+      "name": "Trick Or Treat 2021",
+      "kind": "item"
+    },
+    {
+      "itemId": "trickortreat2022",
+      "name": "Trick Or Treat 2022",
+      "kind": "item"
+    },
+    {
+      "itemId": "trickortreat2023",
+      "name": "Trick Or Treat 2023",
+      "kind": "item"
+    },
+    {
+      "itemId": "trickortreat2024",
+      "name": "Trick Or Treat 2024",
+      "kind": "item"
+    },
+    {
+      "itemId": "trickortreat2025",
+      "name": "Trick Or Treat 2025",
+      "kind": "item"
+    },
+    {
+      "itemId": "trickortreat3",
+      "name": "Trick Or Treat 2017",
+      "kind": "item"
+    },
+    {
+      "itemId": "trickortreat4",
+      "name": "Trick Or Treat 2018",
+      "kind": "item"
+    },
+    {
+      "itemId": "trickortreat5",
+      "name": "Trick Or Treat 2019",
+      "kind": "item"
+    },
+    {
+      "itemId": "trinityboost",
+      "name": "Trinity Boost",
+      "kind": "item"
+    },
+    {
+      "itemId": "trinityboostex",
+      "name": "Trinity Boost EX",
+      "kind": "item"
+    },
+    {
+      "itemId": "trinityimplant",
+      "name": "Trinity Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "tripledefender",
+      "name": "Triple Defender",
+      "kind": "equipment",
+      "yardValue": 14750
+    },
+    {
+      "itemId": "trousers",
+      "name": "Trousers",
+      "kind": "equipment",
+      "yardValue": 63
+    },
+    {
+      "itemId": "tshirt",
+      "name": "T-shirt",
+      "kind": "equipment",
+      "yardValue": 63
+    },
+    {
+      "itemId": "tuna",
+      "name": "Tinned Tuna",
+      "kind": "item"
+    },
+    {
+      "itemId": "tunapastasalad",
+      "name": "Tuna Pasta Salad",
+      "kind": "item"
+    },
+    {
+      "itemId": "turban",
+      "name": "Turban",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "type87",
+      "name": "Type 87",
+      "kind": "equipment",
+      "yardValue": 19250
+    },
+    {
+      "itemId": "tyrantt220",
+      "name": "Tyrant T-220",
+      "kind": "equipment",
+      "yardValue": 12200
+    },
+    {
+      "itemId": "uimplant",
+      "name": "U Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "ultraboost",
+      "name": "Ultra Boost",
+      "kind": "item"
+    },
+    {
+      "itemId": "ump",
+      "name": "UMP",
+      "kind": "equipment",
+      "yardValue": 10850
+    },
+    {
+      "itemId": "uncommonclothscrap",
+      "name": "Uncommon Cloth Scrap",
+      "kind": "item"
+    },
+    {
+      "itemId": "uncommonfabric",
+      "name": "Uncommon Fabric",
+      "kind": "item"
+    },
+    {
+      "itemId": "uncommonmetalbar",
+      "name": "Uncommon Metal Bar",
+      "kind": "item"
+    },
+    {
+      "itemId": "uncommonmetalscrap",
+      "name": "Uncommon Metal Scrap",
+      "kind": "item"
+    },
+    {
+      "itemId": "unlimitedg19",
+      "name": "GAU-19",
+      "kind": "equipment",
+      "yardValue": 40050
+    },
+    {
+      "itemId": "usan12",
+      "name": "USAN-12",
+      "kind": "equipment",
+      "yardValue": 40050
+    },
+    {
+      "itemId": "usbdrive",
+      "name": "USB Drive",
+      "kind": "item"
+    },
+    {
+      "itemId": "usp",
+      "name": "USP",
+      "kind": "equipment",
+      "yardValue": 19250
+    },
+    {
+      "itemId": "uwraithcannon",
+      "name": "Wraith Cannon",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "uzi",
+      "name": "UZI",
+      "kind": "equipment",
+      "yardValue": 150
+    },
+    {
+      "itemId": "uziel14mm",
+      "name": "Uziel 14mm",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "valkyriemgl",
+      "name": "Valkyrie MGL",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "valkyriemglblueprints",
+      "name": "Valkyrie MGL Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "vegetables",
+      "name": "Frozen Vegetables",
+      "kind": "item"
+    },
+    {
+      "itemId": "vengeanceguard",
+      "name": "Vengeance Guard",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "vengeancemask",
+      "name": "Vengeance Mask",
+      "kind": "equipment",
+      "yardValue": 15653
+    },
+    {
+      "itemId": "versatilityimplant",
+      "name": "Versatility Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "vest",
+      "name": "Vest",
+      "kind": "equipment",
+      "yardValue": 150
+    },
+    {
+      "itemId": "videotape",
+      "name": "Video Tape",
+      "kind": "item"
+    },
+    {
+      "itemId": "vigilantecoat",
+      "name": "Vigilante Coat",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "vigilantehat",
+      "name": "Vigilante Hat",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "vigilantevest",
+      "name": "Vigilante Vest",
+      "kind": "equipment",
+      "yardValue": 50000
+    },
+    {
+      "itemId": "vilestorm",
+      "name": "Vilestorm",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "vindicatorm50",
+      "name": "Vindicator M50",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "vindicatorm50blueprints",
+      "name": "Vindicator M50 Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "violenceimplant",
+      "name": "Violence Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "visionsync",
+      "name": "Visionsync",
+      "kind": "equipment",
+      "yardValue": 3500000
+    },
+    {
+      "itemId": "vitalcorereactive",
+      "name": "Vitalcore Reactive",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "vlockxd11",
+      "name": "Vlock XD11",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "voidarmour",
+      "name": "Void Armour",
+      "kind": "equipment",
+      "yardValue": 40250
+    },
+    {
+      "itemId": "voidhelmet",
+      "name": "Void Helmet",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "volatiledevilimplant",
+      "name": "Volatile Devil Implant",
+      "kind": "equipment",
+      "yardValue": 40000
+    },
+    {
+      "itemId": "volatilehide",
+      "name": "Volatile Hide",
+      "kind": "item"
+    },
+    {
+      "itemId": "volatileimplant",
+      "name": "Volatile Implant",
+      "kind": "equipment",
+      "yardValue": 40000
+    },
+    {
+      "itemId": "voltguardcoat",
+      "name": "Voltguard Coat",
+      "kind": "equipment",
+      "yardValue": 39999
+    },
+    {
+      "itemId": "voltguardhelmet",
+      "name": "Voltguard Helmet",
+      "kind": "equipment",
+      "yardValue": 39999
+    },
+    {
+      "itemId": "voltguardpants",
+      "name": "Voltguard Pants",
+      "kind": "equipment",
+      "yardValue": 29999
+    },
+    {
+      "itemId": "voltguardshirt",
+      "name": "Voltguard Shirt",
+      "kind": "equipment",
+      "yardValue": 29999
+    },
+    {
+      "itemId": "vp12",
+      "name": "VP-12",
+      "kind": "equipment",
+      "yardValue": 24350
+    },
+    {
+      "itemId": "vssvintorez",
+      "name": "VSS Vintorez",
+      "kind": "equipment",
+      "yardValue": 40050
+    },
+    {
+      "itemId": "vulcan",
+      "name": "Vulcan",
+      "kind": "equipment",
+      "yardValue": 48450
+    },
+    {
+      "itemId": "wakizashi",
+      "name": "Wakizashi",
+      "kind": "equipment",
+      "yardValue": 24250
+    },
+    {
+      "itemId": "wall500",
+      "name": "WALL 500",
+      "kind": "equipment",
+      "yardValue": 3250
+    },
+    {
+      "itemId": "wallet",
+      "name": "Wallet",
+      "kind": "item"
+    },
+    {
+      "itemId": "warhawkx10",
+      "name": "Warhawk X10",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "warhawkx10blueprints",
+      "name": "Warhawk X10 Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "washington1100",
+      "name": "Washington 1100",
+      "kind": "equipment",
+      "yardValue": 1850
+    },
+    {
+      "itemId": "washington870",
+      "name": "Washington 870",
+      "kind": "equipment",
+      "yardValue": 850
+    },
+    {
+      "itemId": "wealthimplant",
+      "name": "Wealth Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "webster1942",
+      "name": "Webster 1942",
+      "kind": "equipment",
+      "yardValue": 3250
+    },
+    {
+      "itemId": "weldingmask",
+      "name": "Welding Mask",
+      "kind": "equipment",
+      "yardValue": 9572
+    },
+    {
+      "itemId": "wendigoblood",
+      "name": "Wendigo Blood",
+      "kind": "item"
+    },
+    {
+      "itemId": "wendigoheart",
+      "name": "Wendigo Heart",
+      "kind": "item"
+    },
+    {
+      "itemId": "wendigoskull",
+      "name": "Wendigo Skull",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "werewolfblood",
+      "name": "Werewolf Blood",
+      "kind": "item"
+    },
+    {
+      "itemId": "werewolfeyes",
+      "name": "Werewolf Eyes",
+      "kind": "item"
+    },
+    {
+      "itemId": "werewolffur",
+      "name": "Werewolf Fur",
+      "kind": "item"
+    },
+    {
+      "itemId": "werewolfhead",
+      "name": "Werewolf Head",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "werewolfheart",
+      "name": "Werewolf Heart",
+      "kind": "item"
+    },
+    {
+      "itemId": "werewolfteeth",
+      "name": "Werewolf Teeth",
+      "kind": "item"
+    },
+    {
+      "itemId": "whiskey",
+      "name": "Whiskey",
+      "kind": "item"
+    },
+    {
+      "itemId": "whitejackhead",
+      "name": "Whitejack Head",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "whitejackimplant",
+      "name": "Whitejack Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "wildcard1851",
+      "name": "Wild Card 1851",
+      "kind": "equipment",
+      "yardValue": 25000
+    },
+    {
+      "itemId": "wildcards1851",
+      "name": "Wild Cards 1851",
+      "kind": "equipment",
+      "yardValue": 25000
+    },
+    {
+      "itemId": "williamsppk",
+      "name": "Williams PPK",
+      "kind": "equipment",
+      "yardValue": 75
+    },
+    {
+      "itemId": "wintercoat",
+      "name": "Winter Coat",
+      "kind": "equipment",
+      "yardValue": 3088
+    },
+    {
+      "itemId": "winterfallcoat",
+      "name": "Winterfall Coat",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "winterfalljumper",
+      "name": "Winterfall Jumper",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "winterfallmask",
+      "name": "Winterfall Mask",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "winterfallpants",
+      "name": "Winterfall Pants",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "winterfallshades",
+      "name": "Winterfall Shades",
+      "kind": "equipment",
+      "yardValue": 49999
+    },
+    {
+      "itemId": "winterhat",
+      "name": "Winter Hat",
+      "kind": "equipment",
+      "yardValue": 450
+    },
+    {
+      "itemId": "wolfmask",
+      "name": "Wolf Mask",
+      "kind": "equipment",
+      "yardValue": 7012
+    },
+    {
+      "itemId": "wolfsbaneleveraction",
+      "name": "Wolfsbane Lever Action",
+      "kind": "equipment",
+      "yardValue": 100000
+    },
+    {
+      "itemId": "wolfsbaneleveraction127",
+      "name": "Wolfsbane Lever Action 127",
+      "kind": "equipment",
+      "yardValue": 100000
+    },
+    {
+      "itemId": "woodarmour",
+      "name": "Wood Armour",
+      "kind": "equipment",
+      "yardValue": 1050
+    },
+    {
+      "itemId": "woodaxe",
+      "name": "Wood Axe",
+      "kind": "equipment",
+      "yardValue": 5450
+    },
+    {
+      "itemId": "woodenplanks",
+      "name": "Wooden Planks",
+      "kind": "item"
+    },
+    {
+      "itemId": "woodmaul",
+      "name": "Wood Maul",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "woodspear",
+      "name": "Wood Spear",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "worgcarbine",
+      "name": "Worg Carbine",
+      "kind": "equipment",
+      "yardValue": 100000
+    },
+    {
+      "itemId": "wraithcannon",
+      "name": "Wraith Cannon",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "wraithcannondf2",
+      "name": "Wraith Cannon",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "wristwatch",
+      "name": "Wrist Watch",
+      "kind": "item"
+    },
+    {
+      "itemId": "wyvernrx8",
+      "name": "Wyvern RX8",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "wyvernrx8blueprints",
+      "name": "Wyvern RX8 Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "xaa12",
+      "name": "X-AA-12",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "xabyssalabomination",
+      "name": "X-Abyssal Abomination",
+      "kind": "equipment",
+      "yardValue": 72950
+    },
+    {
+      "itemId": "xak47",
+      "name": "X-AK47",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "xak47127",
+      "name": "X-AK47 127mm",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "xak47blueprints",
+      "name": "X-AK47 Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "xak47parts",
+      "name": "X-AK47 Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "xbetadawncat",
+      "name": "X-Beta Dawncat",
+      "kind": "equipment",
+      "yardValue": 75
+    },
+    {
+      "itemId": "xcmgxaftershock",
+      "name": "X-CMG-X Aftershock",
+      "kind": "equipment",
+      "yardValue": 72950
+    },
+    {
+      "itemId": "xduskar",
+      "name": "X-Dusk AR",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "xduskcarbine",
+      "name": "X-Dusk Carbine",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "xduskcrossbow",
+      "name": "X-Dusk Crossbow",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "xduskenforcer",
+      "name": "X-Dusk Enforcer",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "xduskflamethrower",
+      "name": "X-Dusk Flamethrower",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "xduskhelmet",
+      "name": "X-Dusk Helmet",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "xduskimplant",
+      "name": "X-Dusk Implant",
+      "kind": "equipment",
+      "yardValue": 29000
+    },
+    {
+      "itemId": "xduskkris",
+      "name": "X-Dusk Kris",
+      "kind": "equipment",
+      "yardValue": 10000
+    },
+    {
+      "itemId": "xdusklauncher",
+      "name": "X-Dusk Launcher",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "xduskmag",
+      "name": "X-Dusk MAG",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "xduskmesh",
+      "name": "X-Dusk Mesh",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "xduskminigun",
+      "name": "X-Dusk Minigun",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "xduskparts",
+      "name": "X-Dusk Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "xduskrazor",
+      "name": "X-Dusk Razor",
+      "kind": "equipment",
+      "yardValue": 60000
+    },
+    {
+      "itemId": "xduskreactive",
+      "name": "X-Dusk Reactive",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "xduskreward",
+      "name": "X-Dusk Reward",
+      "kind": "item"
+    },
+    {
+      "itemId": "xdusksaw",
+      "name": "X-Dusk Saw",
+      "kind": "equipment",
+      "yardValue": 60000
+    },
+    {
+      "itemId": "xdusksmg",
+      "name": "X-Dusk SMG",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "xdusksniper",
+      "name": "X-Dusk Sniper",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "xduskstriker",
+      "name": "X-Dusk Striker",
+      "kind": "equipment",
+      "yardValue": 115000
+    },
+    {
+      "itemId": "xeggsplodermm1",
+      "name": "X-Eggsploder-MM1",
+      "kind": "equipment",
+      "yardValue": 50
+    },
+    {
+      "itemId": "xeggsplodermm1blueprints",
+      "name": "X-Eggsploder-MM1 Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "xgarand",
+      "name": "X-Garand",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "xgarand14mm",
+      "name": "X-Garand 14mm",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "xgarandblueprints",
+      "name": "X-Garand Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "xgarandparts",
+      "name": "X-Garand Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "xhammer",
+      "name": "X-Hammer",
+      "kind": "equipment",
+      "yardValue": 28850
+    },
+    {
+      "itemId": "xhammerblueprints",
+      "name": "X-Hammer Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "xhammerparts",
+      "name": "X-Hammer Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "xhyperimplant",
+      "name": "X-Hyper Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "xironskinimplant",
+      "name": "X-Ironskin Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "xkukri",
+      "name": "X-Kukri",
+      "kind": "equipment",
+      "yardValue": 28850
+    },
+    {
+      "itemId": "xkukriblueprints",
+      "name": "X-Kukri Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "xlgunner8",
+      "name": "XLGunner-8",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "xm25",
+      "name": "XM25",
+      "kind": "equipment",
+      "yardValue": 40050
+    },
+    {
+      "itemId": "xm4",
+      "name": "X-M4",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "xm79",
+      "name": "X-M79",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "xm79blueprints",
+      "name": "X-M79 Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "xm79hg",
+      "name": "X-M79 HG",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "xm79parts",
+      "name": "X-M79 Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "xm8",
+      "name": "XM8",
+      "kind": "equipment",
+      "yardValue": 10850
+    },
+    {
+      "itemId": "xmaimingmaws",
+      "name": "X-Maiming Maws",
+      "kind": "equipment",
+      "yardValue": 36500
+    },
+    {
+      "itemId": "xmannberg",
+      "name": "X-Mannberg",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "xmannberg10g",
+      "name": "X-Mannberg 10G",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "xmannbergblueprints",
+      "name": "X-Mannberg Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "xmannbergparts",
+      "name": "X-Mannberg Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "xmassnowmanhead",
+      "name": "Xmas Snowman Head",
+      "kind": "equipment",
+      "yardValue": 8500
+    },
+    {
+      "itemId": "xmeshblueprints",
+      "name": "X-Mesh Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "xmeshparts",
+      "name": "X-Mesh Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "xmg5200",
+      "name": "XMG 5200",
+      "kind": "equipment",
+      "yardValue": 100000
+    },
+    {
+      "itemId": "xmp5",
+      "name": "X-MP5",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "xmp555",
+      "name": "X-MP5 55",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "xmp5blueprints",
+      "name": "X-MP5 Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "xmp5parts",
+      "name": "X-MP5 Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "xperceptionimplant",
+      "name": "X-Perception Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "xpython",
+      "name": "X-Python",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "xpython55",
+      "name": "X-Python 55",
+      "kind": "equipment",
+      "yardValue": 57650
+    },
+    {
+      "itemId": "xpythonblueprints",
+      "name": "X-Python Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "xpythonparts",
+      "name": "X-Python Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "xr0splitcore",
+      "name": "XR-0 Splitcore",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "xr1pulserifle",
+      "name": "XR-1 Pulse Rifle",
+      "kind": "equipment",
+      "yardValue": 1
+    },
+    {
+      "itemId": "xr2magstorm",
+      "name": "XR-2 Magstorm",
+      "kind": "equipment",
+      "yardValue": 200000
+    },
+    {
+      "itemId": "xreactiveblueprints",
+      "name": "X-Reactive Blueprints",
+      "kind": "item"
+    },
+    {
+      "itemId": "xreactiveparts",
+      "name": "X-Reactive Parts",
+      "kind": "item"
+    },
+    {
+      "itemId": "xsalvageimplant",
+      "name": "X-Salvage Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "xshattergun10g",
+      "name": "X-Shattergun 10g",
+      "kind": "equipment",
+      "yardValue": 72950
+    },
+    {
+      "itemId": "xterminatorhelmet",
+      "name": "X-Terminator Helmet",
+      "kind": "equipment",
+      "yardValue": 7012
+    },
+    {
+      "itemId": "xterminatormesh",
+      "name": "X-Terminator Mesh",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "xterminatorreactive",
+      "name": "X-Terminator Reactive",
+      "kind": "equipment",
+      "yardValue": 128250
+    },
+    {
+      "itemId": "xviolenceimplant",
+      "name": "X-Violence Implant",
+      "kind": "equipment",
+      "yardValue": 62612
+    },
+    {
+      "itemId": "xxlsecuritybox",
+      "name": "XXL Security Box",
+      "kind": "item"
+    },
+    {
+      "itemId": "zylonvest",
+      "name": "Zylon Vest",
+      "kind": "equipment",
+      "yardValue": 3450
+    }
+  ]
+}

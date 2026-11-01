@@ -10,6 +10,7 @@ import {DesktopTracker} from './tracker.mjs';
 import {LootFlow} from './ui/loot-model.mjs';
 import {selectGameWindow,sourceForWindow,validRegion,csvOfSessions} from './selection.mjs';
 import {PriceBridge} from './price-bridge.mjs';
+import {MarketClient,MARKET_OPTIONS,validMarket} from './market-client.mjs';
 import {valueLoot,valueSessions,itemKey,PRICE_TTL} from '../market-prices.js';
 
 const directory=path.dirname(fileURLToPath(import.meta.url));
@@ -31,14 +32,14 @@ const uiURL='dfov://app/desktop/ui/index.html';
 const overlayURL='dfov://app/desktop/ui/overlay.html';
 const captureURL='dfov://app/desktop/ui/capture.html';
 const csp="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self' data: blob:; img-src 'self' data: blob:; style-src 'self'; object-src 'none'; frame-src 'none'";
-let store,tracker,lootFlow,priceBridge,priceCache,mainWindow,overlayWindow,captureWindow,tray,probe,fixtureWindow;
+let store,tracker,lootFlow,priceBridge,marketClient,priceCache,mainWindow,overlayWindow,captureWindow,tray,probe,fixtureWindow;
 const nativeLootInputs=new Map();
 let lootCaptureWarningAt=0;
 let clearHistoryRequested=process.argv.includes('--clear-history');
 let quitting=false,windows=[],target=null,source=null,token=null,preview=null,retryAt=0,phase='waiting',detail='',captureStartedAt=0,lastCaptureMessage=0,probeBusy=false,selecting=false,selectionEpoch=0,armedHandle='',watchedHandle='';
 const ownRenderer=(event,url)=>event.senderFrame?.url===url;
 function priceState(){
-  const selected=tracker.settings.priceMarket??'',now=Date.now();
+  const selected=tracker.settings.priceMarket??'21',now=Date.now();
   if(!priceCache||priceCache.revision!==store.priceRevision||priceCache.selected!==selected||now>=priceCache.until){
     const markets=store.markets(),market=selected||markets[0]?.market||'21',quotes=store.prices(market),aliases=store.get('priceAliases',{}),catalog=store.itemCatalog();
     const valued=valueSessions(store.valuationLoot(),quotes,{now,aliases,catalog,requireCatalog:true});
@@ -47,7 +48,7 @@ function priceState(){
   }
   const catalog=new Map(priceCache.catalog.map(item=>[item.itemId,{...item,unitPrice:item.yardValue,source:item.kind==='equipment'?'yard':null}]));
   for(const quote of priceCache.quotes)if(catalog.get(quote.itemId)?.kind!=='equipment')catalog.set(quote.itemId,{...quote,source:'market'});
-  return{market:priceCache.market,markets:priceCache.markets,catalog:[...catalog.values()],sessions:priceCache.sessions,bridge:priceBridge?.status(),aliases:priceCache.aliases};
+  return{direct:marketClient?.status(),marketOptions:MARKET_OPTIONS,market:priceCache.market,markets:priceCache.markets,catalog:[...catalog.values()],sessions:priceCache.sessions,bridge:priceBridge?.status(),aliases:priceCache.aliases};
 }
 function publicState(){const pricing=priceState();return{...tracker.snapshot(),pricing,loot:store.lootHistory().map(e=>({...e,valuation:valueLoot(e,priceCache.quotes,{aliases:priceCache.aliases,catalog:priceCache.catalog,requireCatalog:true})})),lootCounts:store.lootCounts(),lootSearching:Date.now()-(lootFlow?.searchingAt??0)<12000,lootProcessing:[...nativeLootInputs.values()].some(e=>Date.now()-e.input.at<10000),lootCaptureWarning:Date.now()-lootCaptureWarningAt<15000,pendingLoot:lootFlow?.pending?{item:lootFlow.pending.item,foundAt:lootFlow.pending.foundAt}:null,phase,detail,game:target?{title:target.title,processName:target.processName,minimized:target.minimized}:null,
   windows:windows.map(window=>({handle:window.handle,title:window.title,processName:window.processName})),demo:localTest,preview};}
@@ -211,9 +212,13 @@ else {
     const dataDirectory=app.getPath('userData');
     store=new DesktopStore(path.join(dataDirectory,'overview.sqlite'));
     if(clearHistoryRequested){store.clearHistory();clearHistoryRequested=false;}
+    const seed=JSON.parse(await fs.readFile(path.join(directory,'data','item-catalog.json'),'utf8'));
+    for(let i=0;i<seed.items.length;i+=500)store.saveCatalog({version:1,observedAt:seed.observedAt,items:seed.items.slice(i,i+500)},seed.observedAt);
     tracker=new DesktopTracker(store);
+    if(!validMarket(tracker.settings.priceMarket)){tracker.settings.priceMarket='21';tracker.persist();}
     lootFlow=new LootFlow(store);
-    priceBridge=new PriceBridge({store,onPrices:market=>{if(market&&tracker.settings.priceMarketMode!=='manual'){tracker.settings.priceMarket=market.zone;tracker.persist();}broadcast();}});
+    marketClient=new MarketClient({store,getZone:()=>tracker.settings.priceMarket,getPending:()=>lootFlow.pending,onChange:broadcast});
+    priceBridge=new PriceBridge({store,directPricing:true,onPrices:broadcast});
     if(!localTest&&priceBridge.clients.length)priceBridge.start().catch(()=>{priceBridge.error='priceBridgeUnavailable';broadcast();});
     mainWindow=new BrowserWindow({title:'DeadFrontier Overview',width:1120,height:830,minWidth:860,minHeight:660,backgroundColor:'#17110f',icon:path.join(root,'icon.png'),webPreferences:{preload:path.join(directory,'preload.cjs'),sandbox:true,contextIsolation:true,nodeIntegration:false}});
     secureWindow(mainWindow,uiURL);
@@ -234,7 +239,9 @@ else {
       else if(type==='multiplier')tracker.setMultiplier(value);
       else if(type==='pricePair')await priceBridge.pairCode();
       else if(type==='priceDisconnect'){priceBridge.revoke();await priceBridge.close();}
-      else if(type==='priceMarket'&&typeof value==='string'&&(value==='auto'||/^\d{1,6}$/.test(value))){preferences({priceMarket:value==='auto'?null:value,priceMarketMode:value==='auto'?'auto':'manual'});}
+      else if(type==='priceMarket'&&validMarket(value)){preferences({priceMarket:value,priceMarketMode:'manual'});if(!localTest)void marketClient.tick();}
+      else if(type==='priceQuery'&&typeof value?.name==='string'&&value.name.length<=120){try{await marketClient.query(value.name.trim(),{custom:value.custom===true,force:true});}catch{/* Localized query status is returned below. */}}
+      else if(type==='priceRefresh'&&!localTest){void marketClient.tick();}
       else if(type==='priceAlias'&&typeof value?.from==='string'&&typeof value?.itemId==='string'){
         const aliases=store.get('priceAliases',{}),key=itemKey(value.from);
         if(!key||key.length>120||!priceState().catalog.some(q=>q.itemId===value.itemId))throw Error('priceAliasInvalid');
@@ -328,6 +335,7 @@ else {
       if(quitting||!tracker)return;
       for(const [id,entry]of nativeLootInputs)if(Date.now()-entry.input.at>10000){if(entry.sawDialog)lootCaptureWarningAt=Date.now();nativeLootInputs.delete(id);}
       armLoot(lootFlow.armed());
+      if(!localTest)void marketClient.tick();
       positionOverlay();
       if(diagnosticFile&&overlayWindow&&!overlayWindow.isDestroyed())try{fsSync.writeFileSync(diagnosticFile+'.overlay.json',JSON.stringify({phase,enabled:tracker.settings.overlay,game:!!target,foreground:target?.foreground,minimized:target?.minimized,source:!!source,visible:overlayWindow.isVisible(),alwaysOnTop:overlayWindow.isAlwaysOnTop(),bounds:overlayWindow.getBounds()}));}catch{}
       if(captureWindow&&Date.now()-Math.max(captureStartedAt,lastCaptureMessage)>45000){finishCapture('captureFailed');phase='error';detail='O leitor não respondeu. Nova tentativa em alguns segundos.';retryAt=Date.now()+10000;broadcast();}

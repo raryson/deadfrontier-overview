@@ -71,17 +71,20 @@ function render(){
 async function act(type,value){try{state=await api.action(type,value);if(state){if(['lootConfirm','lootUndoConfirm'].includes(type))document.activeElement?.blur();render();}}catch(error){$('error').hidden=false;$('error').textContent=language?.t(error.message)??error.message;setTimeout(()=>$('error').hidden=true,7000);}}
 function renderPrices(){
   const pricing=state.pricing;if(!pricing)return;const bridge=pricing.bridge;
+  $('price-direct-state').textContent=language.t('priceNative_'+(pricing.direct?.phase??'idle'));
+  $('price-query-status').textContent=pricing.direct?.error?language.t(pricing.direct.error):pricing.direct?.name?pricing.direct.name+' · '+language.t('priceNative_'+pricing.direct.phase):'';
+  if(!$('price-item-names').childElementCount)$('price-item-names').replaceChildren(...pricing.catalog.map(item=>new Option(item.name)));
   $('price-bridge-state').textContent=language.t(bridge?.error??(bridge?.clients&&bridge.listening?'pricePaired':bridge?.listening?'priceReady':'priceOff'));
   $('price-disconnect').disabled=!bridge?.clients&&!bridge?.listening;
   $('price-code').hidden=!bridge?.pairCode;$('price-code').textContent=bridge?.pairCode??'';$('price-code-hint').hidden=!bridge?.pairCode;
   $('price-last-sync').textContent=language.t('priceMarketCurrent',{zone:pricing.market})+' · '+(pricing.markets.find(m=>m.market===pricing.market)?.observedAt?new Date(pricing.markets.find(m=>m.market===pricing.market).observedAt).toLocaleString(language.locale):language.t('priceNoQuotes'));
-  options('price-market',[['auto',language.t('priceFollowExtension')],...pricing.markets.map(m=>[m.market,m.label])],state.settings.priceMarketMode==='manual'?pricing.market:'auto');
+  options('price-market',pricing.marketOptions,pricing.market);
   options('price-alias-from',[...new Set((state.loot??[]).filter(e=>!e.cash).map(e=>e.item))].map(name=>[name,name]));
   options('price-alias-target',pricing.catalog.map(q=>[q.itemId,`${q.name} · ${q.itemId}`]));
   $('price-alias-submit').disabled=!$('price-alias-from').value||!$('price-alias-target').value;
   $('price-catalog').replaceChildren();
-  for(const quote of pricing.catalog.filter(q=>q.unitPrice!=null).slice(0,50)){
-    const row=document.createElement('tr');for(const text of [quote.name,money(quote.unitPrice),quote.source==='yard'?'Yard / NPC':language.t('priceMarketSource'),quote.observedAt?new Date(quote.observedAt).toLocaleString(language.locale):'—']){const cell=document.createElement('td');cell.textContent=text;row.append(cell);}$('price-catalog').append(row);
+  for(const quote of pricing.catalog.filter(q=>q.unitPrice!=null).sort((a,b)=>(b.source==='market')-(a.source==='market')).slice(0,50)){
+    const row=document.createElement('tr');for(const text of [quote.name,money(quote.unitPrice)+(quote.unitKind==='ml'?' / ml':''),quote.source==='yard'?'Yard / NPC':language.t('priceMarketSource'),quote.observedAt?new Date(quote.observedAt).toLocaleString(language.locale):'—']){const cell=document.createElement('td');cell.textContent=text;row.append(cell);}$('price-catalog').append(row);
   }
 }
 function drawPreview(){if(!previewImage)return;const canvas=$('preview');canvas.hidden=false;canvas.width=previewImage.naturalWidth;canvas.height=previewImage.naturalHeight;const ctx=canvas.getContext('2d');ctx.drawImage(previewImage,0,0);const region=drag?{x:Math.min(drag.a.x,drag.b.x),y:Math.min(drag.a.y,drag.b.y),width:Math.abs(drag.a.x-drag.b.x),height:Math.abs(drag.a.y-drag.b.y)}:state.preview.region;ctx.strokeStyle='#ff9c4f';ctx.lineWidth=2;ctx.strokeRect(region.x*canvas.width,region.y*canvas.height,region.width*canvas.width,region.height*canvas.height);}
@@ -106,3 +109,6 @@ setInterval(()=>{if(state?.experience?.session?.running){const stats=experienceS
 
 for(const button of document.querySelectorAll('.nav-button'))button.onclick=()=>{const target=document.getElementById(button.dataset.section);if(target?.tagName==='DETAILS')target.open=true;target?.scrollIntoView({behavior:'smooth',block:'start'});for(const item of document.querySelectorAll('.nav-button'))item.classList.toggle('active',item===button);};
 $('clear-history').onclick=()=>act('clearHistory');
+
+$('price-query-form').onsubmit=event=>{event.preventDefault();act('priceQuery',{name:$('price-query-name').value,custom:$('price-query-custom').checked});};
+$('price-refresh').onclick=()=>act('priceRefresh');

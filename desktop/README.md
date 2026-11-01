@@ -1,8 +1,8 @@
 # DeadFrontier Overview — Windows
 
-Prévia **0.4.0** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
+Prévia **0.5.0** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
 
-[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.4.0/deadfrontier-overview-windows-0.4.0.zip)
+[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.5.0/deadfrontier-overview-windows-0.5.0.zip)
 
 ## Usar a versão portátil
 
@@ -16,6 +16,10 @@ Fechar o painel mantém o app na bandeja. Para encerrar completamente, use **Sai
 
 Atalhos: **Alt+Shift+D** abre/oculta o painel; **Alt+Shift+O** liga/desliga o overlay.
 
+## Preços e loot
+
+Em **Preços do mercado**, Secronom Bunker / Outposts é o padrão. Escolha outra região no próprio app. Não precisa de código, login ou navegador para consultar. Equipamentos comuns usam Yard/NPC; consumíveis e munição usam anúncios públicos. Gasoline usa ml. Para testar, consulte **Gasoline** manualmente e abra as referências. O app prepara cotações ao reconhecer os loots e soma apenas coletas aceitas com quantidade conhecida. Veja o [guia de preços](../docs/prices.md).
+
 ## Sessões e histórico
 
 - A sessão inicia automaticamente na primeira referência estável; XP anterior não é contada como ganho.
@@ -25,7 +29,7 @@ Atalhos: **Alt+Shift+D** abre/oculta o painel; **Alt+Shift+O** liga/desliga o ov
 - O histórico usa SQLite no computador, preserva sessões ao fechar/reabrir o app e mostra os 100 registros mais recentes. Não há exclusão automática dos demais registros; o CSV permite consultar todos.
 - XP base e base/h são estimadas pelo multiplicador efetivo informado. Períodos sem fator são marcados como base parcial. A precisão continua limitada pelo HUD: valores em K têm passos de aproximadamente 1.000 XP.
 
-Dados normais ficam em `%APPDATA%\DeadFrontier Overview\overview.sqlite`. Para backup, encerre o app antes de copiar o banco. As sessões não são sincronizadas com outros navegadores/computadores. O histórico existente no addon permanece nele. A conexão opcional com a extensão sincroniza catálogo e cotações; o histórico de sessões permanece local.
+Dados normais ficam em `%APPDATA%\DeadFrontier Overview\overview.sqlite`. Para backup, encerre o app antes de copiar o banco. As sessões não são sincronizadas com outros navegadores/computadores. O histórico existente no addon permanece nele. O app consulta anúncios públicos diretamente; a conexão opcional com a extensão atualiza o catálogo; o histórico de sessões permanece local.
 
 ## Reconhecimento e calibração
 
@@ -37,7 +41,7 @@ Se a linha de XP não for reconhecida, abra **Ajustar a área de XP**, atualize 
 
 O jogo precisa continuar renderizando a janela. Minimizar pode interromper os frames; o tempo da sessão inclui esse intervalo. O comportamento sobre tela cheia exclusiva depende do client e precisa ser validado nele. Prefira inicialmente modo janela ou sem bordas.
 
-Esta prévia usa um perfil local de XP; não faz login no jogo nem identifica automaticamente troca de personagem. Ao trocar de personagem na mesma janela, use **Salvar e zerar sessão**. O loot é experimental. Preços e Yard são sincronizados opcionalmente pela extensão. Buffs vindos do addon e compra/banco ainda não estão implementados neste app.
+Esta prévia usa um perfil local de XP; não faz login no jogo nem identifica automaticamente troca de personagem. Ao trocar de personagem na mesma janela, use **Salvar e zerar sessão**. O loot é experimental. O catálogo Yard acompanha o app e os anúncios são consultados diretamente, sem navegador. Buffs vindos do addon e compra/banco ainda não estão implementados neste app.
 
 ## Privacidade
 
@@ -90,11 +94,11 @@ Sessions stay locally in SQLite under the app's user-data folder. Stop freezes t
 
 Veja [o guia de conexão com a extensão](../docs/prices.md). Equipamentos comuns usam a referência Yard/NPC do jogo; somente uma escolha explícita de variante customizada/GC/NGC usa anúncios. Nomes originais são preservados. Estimativas aparecem por loot, por sessão, no overlay e no CSV.
 
-## Leitura de loot na versão 0.4.0
+## Leitura de loot na versão 0.5.0
 
 O leitor separa nome e quantidade (Gasoline em ml), confirma números em leituras concordantes e mantém ajuste manual para pilhas. Registros antigos como GASOLINE (812 são normalizados preservando o texto original, a sessão e o estado de coleta. A detecção do título antecipa a observação de Yes/No/Use; nome e botões vêm de um único quadro. Uma falha de OCR não comprova fechamento do diálogo. O inventário final sozinho não permite reconstruir com certeza os itens perdidos de uma run passada, pois pode conter itens anteriores, consumidos ou vendidos.
 
-## Captura antecipada e visual (0.4.0)
+## Captura antecipada e visual (0.5.0)
 
 Segurar E ou F por pelo menos um segundo prepara a leitura por até 12 segundos. O gesto de busca não cria um item. O atalho ou clique é associado a um quadro do próprio diálogo capturado até 500 ms antes da escolha, evitando depender de a tela continuar parada. O pequeno histórico de quadros fica somente na memória e é limitado a 12 recortes; não há gravação ou upload. Falhas detectadas são indicadas no painel e ainda podem exigir correção manual.
 

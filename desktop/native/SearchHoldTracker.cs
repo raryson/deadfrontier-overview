@@ -28,3 +28,20 @@ public sealed class SearchHoldTracker {
     Console.WriteLine("{\"holdTiming\":true,\"release\":true,\"focusReset\":true}");
   }
 }
+// A rising edge, scoped to one foreground game window. It never consumes keys.
+public sealed class LootCaptureHotkey {
+  private string handle="";private bool down=false;private long last=-1000;
+  public bool Observe(string current,bool chord,long now){
+    if(current!=handle){handle=current;down=chord;return false;}
+    if(current.Length==0){down=false;return false;}
+    bool fire=chord&&!down&&now-last>=400;down=chord;if(fire)last=now;return fire;
+  }
+  public static void SelfTest(){
+    var h=new LootCaptureHotkey();
+    if(h.Observe("game",false,0)||!h.Observe("game",true,20)||h.Observe("game",true,500))throw new Exception("Hotkey edge");
+    h.Observe("game",false,600);if(!h.Observe("game",true,650))throw new Exception("Hotkey rearm");
+    h.Observe("",false,700);if(h.Observe("other",true,800)||h.Observe("other",true,1200))throw new Exception("Hotkey focus");
+    h.Observe("other",false,1300);if(!h.Observe("other",true,1400))throw new Exception("Hotkey release");
+    h.Observe("other",false,1450);if(h.Observe("other",true,1500))throw new Exception("Hotkey cooldown");
+  }
+}

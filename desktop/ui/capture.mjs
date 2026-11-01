@@ -1,9 +1,10 @@
 import Tesseract from '../../vendor/ocr/tesseract.esm.min.js';
 import {parseHudXp,createOcrGate,defaultHudRegion} from '../../ocr-parser.js';
 import {lootRegion} from './loot-model.mjs';
+import {LootFrames} from './loot-frames.mjs';
 import {parseLootPrompt} from './loot-journal.mjs';
 import {LootSnapshotQueue,frameIsBlack,looksLikeLoot} from './loot-snapshots.mjs';
-const bridge=window.captureBridge,video=document.getElementById('game'),gate=createOcrGate(),queue=new LootSnapshotQueue();
+const bridge=window.captureBridge,video=document.getElementById('game'),gate=createOcrGate(),queue=new LootSnapshotQueue(),recent=new LootFrames(30);
 let config,region,worker,lootWorker,stream,frameTimer,frameWidth=0,frameHeight=0,epoch=0,previewRequested=false,lootBusy=false,lootWake,firstRead=false,missingSince=0,lastSample=null;
 const sendStatus=(phase,detail='')=>bridge.status({token:config?.token,phase,detail:String(detail).slice(0,200)});
 function prepare(area,threshold=null){
@@ -21,13 +22,19 @@ function crop(canvas,x,y,w,h){const out=document.createElement('canvas');out.wid
 function captureLoot(){
  if(!video.videoWidth)return;
  const area=lootRegion(video.videoWidth,video.videoHeight),canvas=document.createElement('canvas');canvas.width=350;canvas.height=310;const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(video,area.x*video.videoWidth,area.y*video.videoHeight,area.width*video.videoWidth,area.height*video.videoHeight,0,0,350,310);
- const pixels=ctx.getImageData(0,0,350,310).data;queue.offer(canvas,Date.now(),looksLikeLoot(pixels,350,310));if(queue.size)lootWake?.();
+ const pixels=ctx.getImageData(0,0,350,310).data;const at=Date.now(),frame=recent.push(canvas,at);frame.eventId=queue.offer(canvas,at,looksLikeLoot(pixels,350,310));if(queue.size)lootWake?.();
 }
 bridge.subscribe(update=>{
  if(!['reset','region','clear'].includes(update.type)&&update.token!==config?.token)return;
+ if(update.type==='lootCapture'){
+  const at=update.at,frames=recent.frames.filter(f=>f.at<=at&&at-f.at<=200);
+  const eventId=frames.findLast(f=>f.eventId)?.eventId;
+  const eligible=frames.filter(f=>f.eventId===eventId&&eventId),selected=eligible.length?eligible.slice(-3):[frames[0],frames[Math.floor(frames.length/2)],frames.at(-1)].filter(Boolean);
+  if(queue.capture(selected,eventId))lootWake?.();return;
+ }
  if(update.type==='lootSearch'){captureLoot();return;}
  if(update.type==='preview'){previewRequested=true;return;}
- if(update.type==='clear'){queue.clear();if(update.token)config.token=update.token;gate.reset();lastSample=null;epoch++;return;}
+ if(update.type==='clear'){queue.clear();recent.clear();if(update.token)config.token=update.token;gate.reset();lastSample=null;epoch++;return;}
  if(update.type==='reset'){if(update.token)config.token=update.token;gate.reset();lastSample=null;epoch++;return;}
  if(update.type==='region'){config.region=update.region;region=update.region;gate.reset();lastSample=null;epoch++;}
 });
@@ -46,7 +53,7 @@ async function readLoot(){
     if(result.data.confidence>=85&&!parsed.quantity)break;
    }
    if(job.generation!==queue.generation)continue;
-   if(best){const parsed=parseLootPrompt(best.text);bridge.loot({token:config.token,reading:{kind:'snapshot',eventId:job.eventId,capturedAt:job.capturedAt,frameAt:job.at,...best,quantityConfidence:parsed?.quantity&&quantities.filter(q=>q===parsed.quantity).length>=2?95:0}});}
+   if(best){const parsed=parseLootPrompt(best.text);bridge.loot({token:config.token,reading:{kind:'snapshot',manual:job.manual,eventId:job.eventId,capturedAt:job.capturedAt,frameAt:job.at,...best,quantityConfidence:parsed?.quantity&&quantities.filter(q=>q===parsed.quantity).length>=2?95:0}});}
    bridge.loot({token:config.token,reading:{kind:'queue',pending:queue.size,dropped:queue.dropped}});
   }
  }catch{/* A failed crop never stops XP. Later saved crops remain queued. */}
@@ -88,4 +95,4 @@ window.startCapture=async()=>{
   await loop();
  }catch(error){sendStatus('error',error.message);throw error;}
 };
-window.addEventListener('pagehide',()=>{clearInterval(frameTimer);queue.clear();stream?.getTracks().forEach(track=>track.stop());worker?.terminate();lootWorker?.terminate();});
+window.addEventListener('pagehide',()=>{clearInterval(frameTimer);queue.clear();recent.clear();stream?.getTracks().forEach(track=>track.stop());worker?.terminate();lootWorker?.terminate();});

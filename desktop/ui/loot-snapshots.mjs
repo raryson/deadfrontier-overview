@@ -23,7 +23,16 @@ export class LootSnapshotQueue{
     }
     return event.id;
   }
-  next(){const event=this.events.find(e=>e.frames.length);if(!event)return null;const frame=event.frames.shift();if(!event.frames.length)this.events.splice(this.events.indexOf(event),1);return{...frame,generation:this.generation,eventId:event.id,capturedAt:event.capturedAt};}
+  capture(frames,eventId){
+    if(!frames.length)return false;
+    let event=this.events.find(e=>e.id===eventId)??(this.active?.id===eventId?this.active:null);
+    if(!event){if(this.events.length>=this.limit){this.dropped++;return false;}event={id:eventId??this.id(),capturedAt:frames[0].at,lastSeenAt:frames.at(-1).at,frames:[],taken:3};}
+    event.manual=true;event.taken=3;
+    if(!this.active||this.active.id===event.id)this.active=event;
+    for(const frame of frames.slice(-3))if(!event.frames.some(f=>f.at===frame.at)){event.frames.push(frame);while(event.frames.length>3)event.frames.shift();}
+    if(!this.events.includes(event))this.events.push(event);return true;
+  }
+  next(){const event=this.events.find(e=>e.frames.length);if(!event)return null;const frame=event.frames.shift();if(!event.frames.length)this.events.splice(this.events.indexOf(event),1);return{...frame,generation:this.generation,manual:event.manual===true,eventId:event.id,capturedAt:event.capturedAt};}
   get size(){return this.events.reduce((n,e)=>n+e.frames.length,0);}
   clear(){this.events=[];this.active=null;this.generation++;}
 }

@@ -50,3 +50,16 @@ test('real-game dark grey title remains eligible while the brighter prompt is re
  for(let y=14;y<28;y+=2)for(let x=120;x<225;x+=6)dot(x,y,50);
  assert.equal(looksLikeLoot(pixels,width,height),false);
 });
+
+test('manual capture bypasses the visual gate and shares the automatic encounter to avoid duplicates',()=>{
+ let n=0;const queue=new LootSnapshotQueue({id:()=>String(++n)});
+ const id=queue.offer({automatic:true},1000,true);const first=queue.next();
+ assert.equal(queue.capture([{canvas:{manual:true},at:1100}],id),true);
+ const manual=queue.next();assert.equal(manual.eventId,first.eventId);assert.equal(manual.manual,true);
+ assert.equal(queue.capture([{canvas:{dark:true},at:2000}]),true);assert.equal(queue.next().manual,true);
+});
+test('repeated manual snapshots update one record instead of adding another loot row',t=>{
+ const {store,journal}=setup(t),reading={eventId:'one-dialog',capturedAt:1000,frameAt:1000,text:'YOU HAVE FOUND SOME WHISKEY. WILL YOU TAKE IT?',confidence:90};
+ journal.observe(reading,null,2000);journal.observe({...reading,manual:true,frameAt:1100},null,2100);
+ assert.equal(store.lootHistory().length,1);assert.equal(store.lootHistory()[0].captureMode,'shortcut');
+});

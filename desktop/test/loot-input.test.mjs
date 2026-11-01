@@ -53,7 +53,7 @@ test('clearing old history preserves preferences, pairing, catalog and market da
 test('native E/F hold timing requires a second, rearms after release and resets on focus changes',{skip:process.platform!=='win32'},()=>{
  const folder=fs.mkdtempSync(path.join(os.tmpdir(),'dfov-hold-')),exe=path.join(folder,'probe.exe'),compiler=path.join(process.env.WINDIR,'Microsoft.NET','Framework64','v4.0.30319','csc.exe');
  execFileSync(compiler,['/nologo','/target:exe','/r:System.Web.Extensions.dll','/out:'+exe,path.resolve('native/WindowProbe.cs'),path.resolve('native/SearchHoldTracker.cs')],{windowsHide:true});
- assert.deepEqual(JSON.parse(execFileSync(exe,['--test-search-hold'],{encoding:'utf8',windowsHide:true}).trim()),{holdTiming:true,release:true,focusReset:true});fs.unlinkSync(exe);
+ assert.deepEqual(JSON.parse(execFileSync(exe,['--test-search-hold'],{encoding:'utf8',windowsHide:true}).trim()),{holdTiming:true,release:true,focusReset:true});assert.deepEqual(JSON.parse(execFileSync(exe,['--test-loot-hotkey'],{encoding:'utf8',windowsHide:true}).trim()),{hotkey:true});fs.unlinkSync(exe);
 });
 
 test('a damaged shortcut label does not hide an otherwise complete item-found dialog',()=>{const {flow,rows}=fixture();assert.equal(flow.observeInput({...reading,text:text.replace('NO (T)','NOM')},key(),'run',2000),true);assert.equal([...rows.values()][0].status,'accepted');});

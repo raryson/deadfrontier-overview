@@ -39,7 +39,7 @@ function render(){
   }
   const accepted=state.lootCounts?.find(row=>row.sessionId===(xp?.session?.id??null))?.identified??0;
   $('loot-count').textContent=language.t(xp?.session?.id?'lootAccepted':'lootUnassignedAccepted',{count:number(accepted)});
-  $('loot-pending').textContent=state.lootQueueDropped?language.t('lootQueueDropped',{count:state.lootQueueDropped}):state.pendingLoot?language.t('lootPending',{item:state.pendingLoot.item}):state.lootProcessing?language.t('lootQueue',{count:state.lootQueueSize??0}):state.lootCaptureWarning?language.t('lootReadMissed'):state.lootSearching?language.t('lootAnticipating'):'';
+  $('loot-pending').textContent=state.lootQueueDropped?language.t('lootQueueDropped',{count:state.lootQueueDropped}):Date.now()-(state.lootManualAt??0)<4000?language.t('lootManualQueued'):state.pendingLoot?language.t('lootPending',{item:state.pendingLoot.item}):state.lootProcessing?language.t('lootQueue',{count:state.lootQueueSize??0}):state.lootCaptureWarning?language.t('lootReadMissed'):state.lootSearching?language.t('lootAnticipating'):'';
   const summary=state.pricing?.sessions?.[xp?.session?.id??'unassigned'];
   $('loot-cash').textContent=money(summary?.cash??0);$('loot-estimate').textContent=money(summary?.estimated??0);$('loot-unpriced').textContent=number(summary?.unpriced??0);
   $('loot-empty').hidden=!!state.loot?.length;

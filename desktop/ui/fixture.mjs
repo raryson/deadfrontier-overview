@@ -17,3 +17,9 @@ if(new URL(location.href).searchParams.has('snapshots')){
  flash('WHISKEY',7000);flash('12.7MM RIFLE BULLETS (880)',10000);flash('GASOLINE (812)',13000);flash('WHISKEY',16000);
  setTimeout(()=>black(true),19000);setTimeout(()=>black(false),21000);
 }
+
+if(new URL(location.href).searchParams.has('manual')){
+ // Deliberately no title: automatic visual detection cannot select this card.
+ loot.querySelector('div').textContent='';
+ document.addEventListener('keydown',event=>{if(event.key.toLowerCase()==='f')loot.hidden=true;});
+}

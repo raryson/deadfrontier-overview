@@ -1,11 +1,7 @@
-## Windows 0.6.1
+## Windows 0.6.2
 
-- Captura de recortes a até 30 fps e fila de OCR independente: diálogos podem fechar imediatamente, inclusive usando F. Não aguarda cliques ou confirmação de aceite.
-- Histórico e valores passam a indicar itens identificados e seu valor potencial. Dados anteriores são preservados.
-- Corrige nomes de munição usando calibre e correspondência única do catálogo; mantém o texto original para conferência.
-- XP exata sem K no início do nível; telas pretas tratadas como carregamento, preservando a sessão.
-- Fila limitada em memória e indicação de recortes pendentes/overflow. Imagens não são gravadas nem enviadas.
+Shift + F faz uma captura manual extra do loot quando o client está em primeiro plano. Usa os pequenos recortes dos 200 ms anteriores ao comando, para que o OCR continue mesmo se F fechar o diálogo imediatamente. Não bloqueia teclas do jogo e não atua em outros aplicativos. A captura automática permanece ativa e compartilha o registro para evitar duplicação.
 
-Validação: quatro diálogos fictícios de 180 ms, reconhecidos após fecharem, incluindo dois Whiskey, 880 unidades de munição 12.7mm e 812 ml de Gasoline. Testes de deduplicação, filas, nomes, XP, quantidades e associação da sessão pelo instante de captura. O client real ainda precisa validar a cobertura dos diálogos rápidos. Extraia o ZIP inteiro.
+O overlay confirma o envio do recorte para a fila. Pressione uma vez com o diálogo visível e siga jogando; não é preciso esperar pelo OCR.
 
-O filtro de captura também foi conferido em um recorte real do jogo: o título cinza escuro de Item Found é detectado sem exigir o branco mais claro da janela fictícia.
+Validação: teste completo em janela fictícia sem título detectável automaticamente. Shift + F fechou o diálogo e o item foi reconhecido depois, uma única vez, como captura por atalho. Testes nativos cobrem foco, repetição, cooldown, captura manual e deduplicação. Histórico preservado.

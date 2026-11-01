@@ -27,7 +27,7 @@ export class LootJournal{
   if(seen.size<2&&reading.confidence<(known?75:85))return false;
   if(event.saved&&key(event.saved.item)!==signature)return false;
   const verifiedQuantity=parsed.quantity&&(event.quantities.get(parsed.quantity).size>=2||reading.quantityConfidence>=90)?parsed.quantity:event.saved?.quantity;
-  const entry={...event.saved,id:event.id,sessionId:event.sessionId??null,item:parsed.item,rawItem:original,foundAt:event.foundAt,readAt:now,status:'observed',captureMode:'snapshot',...(parsed.cash?{cash:parsed.cash}:{}),...(parsed.unit?{unit:parsed.unit}:{}),...(verifiedQuantity?{quantity:verifiedQuantity,quantityUncertain:false}:parsed.quantity||parsed.quantityUncertain?{quantityUncertain:true}:{})};
+  const entry={...event.saved,id:event.id,sessionId:event.sessionId??null,item:parsed.item,rawItem:original,foundAt:event.foundAt,readAt:now,status:'observed',captureMode:reading.manual?'shortcut':'snapshot',...(parsed.cash?{cash:parsed.cash}:{}),...(parsed.unit?{unit:parsed.unit}:{}),...(verifiedQuantity?{quantity:verifiedQuantity,quantityUncertain:false}:parsed.quantity||parsed.quantityUncertain?{quantityUncertain:true}:{})};
   event.saved=entry;this.store.saveLoot(entry);return true;
  }
 }

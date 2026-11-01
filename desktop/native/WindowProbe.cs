@@ -29,6 +29,7 @@ public static class WindowProbe {
   private static volatile int armGeneration=0,armInitialMask=0;
   public static void Main(string[] args) {
     if(Array.IndexOf(args,"--test-search-hold")>=0){SearchHoldTracker.SelfTest();return;}
+    if(Array.IndexOf(args,"--test-loot-hotkey")>=0){LootCaptureHotkey.SelfTest();Console.WriteLine("{\"hotkey\":true}");return;}
     int parent=0,fixture=0;string custom="";bool once=false;
     for(int i=0;i<args.Length;i++) {
       if(args[i]=="--parent"&&i+1<args.Length)int.TryParse(args[++i],out parent);
@@ -45,7 +46,7 @@ public static class WindowProbe {
       if(handle.Length>0&&watchHandle==handle&&GetForegroundWindow().ToInt64().ToString()==handle)for(int k=0;k<5;k++)if((GetAsyncKeyState(keys[k])&0x8000)!=0)mask|=1<<k;
       armInitialMask=mask;lootHandle=handle;armGeneration++;
     }}catch{}});commands.IsBackground=true;commands.Start();}
-    bool[] previous=null;string priorHandle="";int priorGeneration=-1;var searchHold=new SearchHoldTracker();
+    bool[] previous=null;string priorHandle="";int priorGeneration=-1;var searchHold=new SearchHoldTracker();var captureHotkey=new LootCaptureHotkey();
     do {
       if(parent>0)try{if(Process.GetProcessById(parent).HasExited)return;}catch{return;}
       var windows=new List<object>();var gameHandles=new HashSet<long>();
@@ -86,6 +87,12 @@ public static class WindowProbe {
         short eState=0,fState=0;
         if(gameFocused){eState=GetAsyncKeyState(0x45);fState=GetAsyncKeyState(0x46);}
         long at=(long)(DateTime.UtcNow-new DateTime(1970,1,1,0,0,0,DateTimeKind.Utc)).TotalMilliseconds;
+        // Consume modifier edges on each game-focused poll, so a quick tap
+        // between polls is retained without carrying stale edges from earlier.
+        short shiftState=0,ctrlState=0,altState=0;
+        if(gameFocused){shiftState=GetAsyncKeyState(0x10);ctrlState=GetAsyncKeyState(0x11);altState=GetAsyncKeyState(0x12);}
+        bool chord=gameFocused&&(fState&0x8001)!=0&&(shiftState&0x8001)!=0&&(ctrlState&0x8000)==0&&(altState&0x8000)==0;
+        if(captureHotkey.Observe(gameFocused?foreground.ToInt64().ToString():"",chord,at))Console.WriteLine(serializer.Serialize(new {lootCapture=new {handle=foreground.ToInt64().ToString(),at=at}}));
         long holdAt=(long)(Stopwatch.GetTimestamp()*1000.0/Stopwatch.Frequency);
         string held=searchHold.Observe(gameFocused?foreground.ToInt64().ToString():"",(eState&0x8000)!=0,(fState&0x8000)!=0,holdAt);
         if(held!=null)Console.WriteLine(serializer.Serialize(new {lootSearch=new {handle=foreground.ToInt64().ToString(),key=held,heldMs=1000,at=at}}));

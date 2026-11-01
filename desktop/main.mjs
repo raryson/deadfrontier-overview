@@ -35,7 +35,7 @@ const captureURL='dfov://app/desktop/ui/capture.html';
 const csp="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self' data: blob:; img-src 'self' data: blob:; style-src 'self'; object-src 'none'; frame-src 'none'";
 let store,tracker,lootFlow,lootJournal,priceBridge,marketClient,priceCache,mainWindow,overlayWindow,captureWindow,tray,probe,fixtureWindow;
 const nativeLootInputs=new Map();
-let lootCaptureWarningAt=0,lootQueueSize=0,lootQueueDropped=0;
+let lootCaptureWarningAt=0,lootQueueSize=0,lootQueueDropped=0,lootManualAt=0;
 let clearHistoryRequested=process.argv.includes('--clear-history');
 let quitting=false,windows=[],target=null,source=null,token=null,preview=null,retryAt=0,phase='waiting',detail='',captureStartedAt=0,lastCaptureMessage=0,probeBusy=false,selecting=false,selectionEpoch=0,armedHandle='',watchedHandle='';
 const ownRenderer=(event,url)=>event.senderFrame?.url===url;
@@ -51,7 +51,7 @@ function priceState(){
   for(const quote of priceCache.quotes)if(catalog.get(quote.itemId)?.kind!=='equipment')catalog.set(quote.itemId,{...quote,source:'market'});
   return{direct:marketClient?.status(),marketOptions:MARKET_OPTIONS,market:priceCache.market,markets:priceCache.markets,catalog:[...catalog.values()],sessions:priceCache.sessions,bridge:priceBridge?.status(),aliases:priceCache.aliases};
 }
-function publicState(){const pricing=priceState();return{...tracker.snapshot(),pricing,loot:store.lootHistory().map(e=>({...e,valuation:valueLoot(e,priceCache.quotes,{aliases:priceCache.aliases,catalog:priceCache.catalog,requireCatalog:true})})),lootCounts:store.lootCounts(),lootSearching:Date.now()-(lootFlow?.searchingAt??0)<12000,lootQueueSize,lootQueueDropped,lootProcessing:lootQueueSize>0,lootCaptureWarning:Date.now()-lootCaptureWarningAt<15000,pendingLoot:lootFlow?.pending?{item:lootFlow.pending.item,foundAt:lootFlow.pending.foundAt}:null,phase,detail,game:target?{title:target.title,processName:target.processName,minimized:target.minimized}:null,
+function publicState(){const pricing=priceState();return{...tracker.snapshot(),pricing,loot:store.lootHistory().map(e=>({...e,valuation:valueLoot(e,priceCache.quotes,{aliases:priceCache.aliases,catalog:priceCache.catalog,requireCatalog:true})})),lootCounts:store.lootCounts(),lootSearching:Date.now()-(lootFlow?.searchingAt??0)<12000,lootManualAt,lootQueueSize,lootQueueDropped,lootProcessing:lootQueueSize>0,lootCaptureWarning:Date.now()-lootCaptureWarningAt<15000,pendingLoot:lootFlow?.pending?{item:lootFlow.pending.item,foundAt:lootFlow.pending.foundAt}:null,phase,detail,game:target?{title:target.title,processName:target.processName,minimized:target.minimized}:null,
   windows:windows.map(window=>({handle:window.handle,title:window.title,processName:window.processName})),demo:localTest,preview};}
 function broadcast(){
   if(!tracker)return;const state=publicState();
@@ -166,6 +166,9 @@ function startProbe(){
   readline.createInterface({input:child.stdout}).on('line',line=>{try{
     const packet=JSON.parse(line);if(child!==probe)return;
     if(Array.isArray(packet.windows))updateWindows(packet.windows);
+    if(packet.lootCapture?.handle===target?.handle&&source&&!target.minimized&&Number.isFinite(packet.lootCapture.at)&&Math.abs(Date.now()-packet.lootCapture.at)<1000){
+      lootManualAt=Date.now();captureWindow?.webContents.send('capture:update',{type:'lootCapture',token,at:packet.lootCapture.at});broadcast();
+    }
     if(packet.lootSearch?.handle===target?.handle&&packet.lootSearch.heldMs>=1000&&source){
       if(!lootFlow.pending)lootFlow.anticipate();
       captureWindow?.webContents.send('capture:update',{type:'lootSearch',token});armLoot(false);broadcast();
@@ -185,7 +188,7 @@ function startProbe(){
 }
 async function createFixture(){
   fixtureWindow=new BrowserWindow({show:false,title:'DF Overview Capture Fixture',width:1920,height:1080,x:0,y:0,frame:false,webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false,backgroundThrottling:false}});
-  await fixtureWindow.loadURL('dfov://app/desktop/ui/fixture.html'+(process.argv.includes('--snapshot-test')?'?snapshots=1':''));fixtureWindow.showInactive();
+  await fixtureWindow.loadURL('dfov://app/desktop/ui/fixture.html'+(process.argv.includes('--snapshot-test')?'?snapshots=1':process.argv.includes('--manual-capture-test')?'?manual=1':''));fixtureWindow.showInactive();
 }
 
 if(!app.requestSingleInstanceLock()){app.quit();}
@@ -348,7 +351,7 @@ else {
       positionOverlay();
       if(diagnosticFile&&overlayWindow&&!overlayWindow.isDestroyed())try{fsSync.writeFileSync(diagnosticFile+'.overlay.json',JSON.stringify({phase,enabled:tracker.settings.overlay,game:!!target,foreground:target?.foreground,minimized:target?.minimized,source:!!source,visible:overlayWindow.isVisible(),alwaysOnTop:overlayWindow.isAlwaysOnTop(),bounds:overlayWindow.getBounds()}));}catch{}
       if(captureWindow&&Date.now()-Math.max(captureStartedAt,lastCaptureMessage)>45000){finishCapture('captureFailed');phase='error';detail='O leitor não respondeu. Nova tentativa em alguns segundos.';retryAt=Date.now()+10000;broadcast();}
-      if(selfTest){fsSync.writeFileSync(path.join(dataDirectory,'test-status.json'),JSON.stringify({phase,game:!!target,stats:tracker.snapshot().stats,sessionCount:store.count(),session:tracker.experience?.session,history:store.history(5),loot:store.lootHistory(),pendingLoot:lootFlow.pending}));}
+      if(selfTest){fsSync.writeFileSync(path.join(dataDirectory,'test-status.json'),JSON.stringify({phase,game:!!target,lootManualAt,lootQueueSize,stats:tracker.snapshot().stats,sessionCount:store.count(),session:tracker.experience?.session,history:store.history(5),loot:store.lootHistory(),pendingLoot:lootFlow.pending}));}
     },1000);
     if(process.argv.includes('--inspect-ui'))mainWindow.webContents.openDevTools({mode:'detach'});
   }).catch(error=>{console.error(error);app.exit(1);});

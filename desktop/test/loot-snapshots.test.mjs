@@ -39,3 +39,14 @@ test('black loading frames and blank cards do not masquerade as an item dialog',
  const black=new Uint8ClampedArray(48*27*4);assert.equal(frameIsBlack(black),true);for(let i=0;i<black.length;i+=4)black[i]=black[i+1]=black[i+2]=200;assert.equal(frameIsBlack(black),false);
  assert.equal(looksLikeLoot(new Uint8ClampedArray(350*310*4),350,310),false);
 });
+
+test('real-game dark grey title remains eligible while the brighter prompt is required',()=>{
+ const width=350,height=310,pixels=new Uint8ClampedArray(width*height*4);
+ // The real title has neutral grey strokes around 80–110, below white text.
+ const dot=(x,y,value)=>{const i=(y*width+x)*4;pixels[i]=pixels[i+1]=pixels[i+2]=value;pixels[i+3]=255;};
+ for(let y=14;y<28;y+=2)for(let x=120;x<225;x+=6)dot(x,y,100);
+ for(let y=36;y<62;y+=2)for(let x=45;x<300;x+=8)dot(x,y,190);
+ assert.equal(looksLikeLoot(pixels,width,height),true);
+ for(let y=14;y<28;y+=2)for(let x=120;x<225;x+=6)dot(x,y,50);
+ assert.equal(looksLikeLoot(pixels,width,height),false);
+});

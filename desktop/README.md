@@ -1,8 +1,8 @@
 # DeadFrontier Overview — Windows
 
-Prévia **0.6.0** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
+Prévia **0.6.1** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
 
-[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.6.0/deadfrontier-overview-windows-0.6.0.zip)
+[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.6.1/deadfrontier-overview-windows-0.6.1.zip)
 
 ## Usar a versão portátil
 
@@ -43,7 +43,7 @@ O jogo precisa continuar renderizando a janela. Minimizar pode interromper os fr
 
 Esta prévia usa um perfil local de XP; não faz login no jogo nem identifica automaticamente troca de personagem. Ao trocar de personagem na mesma janela, use **Salvar e zerar sessão**. O loot é experimental. O catálogo Yard acompanha o app e os anúncios são consultados diretamente, sem navegador. Buffs vindos do addon e compra/banco ainda não estão implementados neste app.
 
-## Loot em segundo plano (0.6.0)
+## Loot em segundo plano (0.6.1)
 
 A captura roda a até 30 quadros por segundo e seleciona pequenos recortes do diálogo para uma fila em memória. O OCR trabalha separado da leitura de XP: pode aceitar o item imediatamente ou segurar F. Não é preciso aguardar a leitura.
 

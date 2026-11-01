@@ -46,6 +46,11 @@ export class DesktopStore {
   }
   history(limit=100){return this.db.prepare('SELECT payload FROM sessions ORDER BY started_at DESC LIMIT ?').all(limit).map(row=>JSON.parse(row.payload));}
   count(){return this.db.prepare('SELECT COUNT(*) AS count FROM sessions').get().count;}
+  clearHistory(){
+    this.db.exec('BEGIN IMMEDIATE');
+    try{this.db.exec("DELETE FROM loot;DELETE FROM sessions;DELETE FROM state WHERE key='experience';");this.set('historyClearedAt',Date.now());this.db.exec('COMMIT');this.priceRevision++;}
+    catch(error){this.db.exec('ROLLBACK');throw error;}
+  }
   saveLoot(entry){const {buttons,key,...saved}=entry;this.db.prepare(`INSERT INTO loot(id,session_id,found_at,status,payload) VALUES(?,?,?,?,?)
     ON CONFLICT(id) DO UPDATE SET session_id=excluded.session_id,status=excluded.status,payload=excluded.payload`).run(entry.id,entry.sessionId,entry.foundAt,entry.status,JSON.stringify(saved));this.priceRevision++;}
   lootHistory(){return this.db.prepare('SELECT payload FROM loot ORDER BY found_at DESC LIMIT 200').all().map(row=>JSON.parse(row.payload));}

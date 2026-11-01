@@ -1,8 +1,8 @@
 # DeadFrontier Overview — Windows
 
-Prévia **0.3.4** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
+Prévia **0.4.0** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
 
-[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.3.4/deadfrontier-overview-windows-0.3.4.zip)
+[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.4.0/deadfrontier-overview-windows-0.4.0.zip)
 
 ## Usar a versão portátil
 
@@ -25,7 +25,7 @@ Atalhos: **Alt+Shift+D** abre/oculta o painel; **Alt+Shift+O** liga/desliga o ov
 - O histórico usa SQLite no computador, preserva sessões ao fechar/reabrir o app e mostra os 100 registros mais recentes. Não há exclusão automática dos demais registros; o CSV permite consultar todos.
 - XP base e base/h são estimadas pelo multiplicador efetivo informado. Períodos sem fator são marcados como base parcial. A precisão continua limitada pelo HUD: valores em K têm passos de aproximadamente 1.000 XP.
 
-Dados normais ficam em `%APPDATA%\DeadFrontier Overview\overview.sqlite`. Para backup, encerre o app antes de copiar o banco. As sessões não são sincronizadas com outros navegadores/computadores. O histórico existente no addon permanece nele; a importação automática e a conexão entre addon/app ainda não fazem parte desta prévia.
+Dados normais ficam em `%APPDATA%\DeadFrontier Overview\overview.sqlite`. Para backup, encerre o app antes de copiar o banco. As sessões não são sincronizadas com outros navegadores/computadores. O histórico existente no addon permanece nele. A conexão opcional com a extensão sincroniza catálogo e cotações; o histórico de sessões permanece local.
 
 ## Reconhecimento e calibração
 
@@ -74,9 +74,9 @@ Para diagnosticar o OCR localmente, inicie o executável com `--diagnostic-file 
 
 ## Loot experimental (0.2)
 
-O app lê separadamente o diálogo central de item encontrado e registra nome, horário, sessão de XP e escolha. Dinheiro encontrado também é identificado. O leitor funciona mesmo se o app for aberto com o diálogo já visível; a mensagem SEARCHING/LOOTING na parte inferior acelera o OCR por 15 segundos e serve como indicação antecipada, sem criar um item nem exigir que a barra tenha sido observada.
+O app lê separadamente o diálogo central de item encontrado e registra nome, horário, sessão de XP e escolha. Dinheiro encontrado também é identificado. O leitor funciona mesmo se o app for aberto com o diálogo já visível; a antecipação principal vem de E/F mantido por um segundo. SEARCHING/LOOTING continua sendo uma indicação auxiliar de busca, sem criar um item e sem exigir que a barra tenha sido observada.
 
-Depois de duas leituras coerentes, o helper observa somente E (Yes), T (No), C (Use) e o clique esquerdo enquanto esse diálogo estiver ativo e a janela exata do jogo estiver em primeiro plano. Não envia teclas, não clica pelo jogador, não instala hooks e não observa outras teclas ou aplicativos. A escolha só é finalizada após o diálogo desaparecer. Fechar o app, perder a captura ou não observar a escolha deixa o resultado não confirmado.
+Com o acompanhamento ligado e a janela exata do jogo em primeiro plano, o helper observa E/F mantido por um segundo para antecipar a busca. Durante essa antecipação ou um diálogo reconhecido, observa os atalhos E/F/T/C e o clique esquerdo. F só confirma Yes se esse atalho estiver indicado no diálogo. O quadro anterior à escolha fica temporariamente em memória para que o OCR possa terminar depois do fechamento. Não envia teclas, não clica pelo jogador, não instala hooks e não observa outras teclas ou aplicativos. A escolha só é finalizada após o diálogo desaparecer. Fechar o app, perder a captura ou não observar a escolha deixa o resultado não confirmado.
 
 “Aceito (Yes)” indica a escolha observada na interface; não é uma confirmação de inventário vinda do servidor. Preços são referências estimadas; pilhas de quantidade desconhecida precisam de ajuste manual para entrar no total. Nomes dependem do OCR e podem conter erros. Use o recurso como histórico auxiliar. Cliques muito rápidos, teclas mantidas pressionadas, escalas de UI diferentes e diálogos breves podem não ser identificados. A tabela mostra os últimos 200 eventos; o banco mantém todos. A validação real inicial reconheceu dinheiro; o primeiro clique real ficou não confirmado. O caminho de clique completo foi validado com um item fictício no próprio app.
 
@@ -90,6 +90,14 @@ Sessions stay locally in SQLite under the app's user-data folder. Stop freezes t
 
 Veja [o guia de conexão com a extensão](../docs/prices.md). Equipamentos comuns usam a referência Yard/NPC do jogo; somente uma escolha explícita de variante customizada/GC/NGC usa anúncios. Nomes originais são preservados. Estimativas aparecem por loot, por sessão, no overlay e no CSV.
 
-## Leitura de loot na versão 0.3.4
+## Leitura de loot na versão 0.4.0
 
 O leitor separa nome e quantidade (Gasoline em ml), confirma números em leituras concordantes e mantém ajuste manual para pilhas. Registros antigos como GASOLINE (812 são normalizados preservando o texto original, a sessão e o estado de coleta. A detecção do título antecipa a observação de Yes/No/Use; nome e botões vêm de um único quadro. Uma falha de OCR não comprova fechamento do diálogo. O inventário final sozinho não permite reconstruir com certeza os itens perdidos de uma run passada, pois pode conter itens anteriores, consumidos ou vendidos.
+
+## Captura antecipada e visual (0.4.0)
+
+Segurar E ou F por pelo menos um segundo prepara a leitura por até 12 segundos. O gesto de busca não cria um item. O atalho ou clique é associado a um quadro do próprio diálogo capturado até 500 ms antes da escolha, evitando depender de a tela continuar parada. O pequeno histórico de quadros fica somente na memória e é limitado a 12 recortes; não há gravação ou upload. Falhas detectadas são indicadas no painel e ainda podem exigir correção manual.
+
+O painel tem navegação lateral, XP em destaque e loot antes do histórico. As cores permanecem em carvão, cobre/laranja e vermelho escuro. O overlay continua no canto inferior direito.
+
+Para começar do zero, use Preferências → Limpar histórico. O app solicita confirmação e apaga sessões de XP e registros de loot, preservando preferências, pareamento, catálogo e preços. Também existe a opção local de manutenção --clear-history, que limpa esse histórico ao iniciar. Não há rota HTTP para apagar dados.

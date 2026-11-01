@@ -1,13 +1,13 @@
-# Windows preview 0.3.4 — Yes em diálogos abertos por mais tempo
+# Windows preview 0.4.0 — captura antecipada e novo painel
 
-Corrige o descarte do clique quando o nome do loot foi reconhecido há mais de quatro segundos, embora o mesmo diálogo continuasse aberto. Uma comparação local dos pixels do nome mantém a leitura válida; o título sozinho ou uma falha de OCR não renovam o contexto. Nenhuma escolha é inferida sem Yes/No/Use observado.
+- E/F mantido por um segundo antecipa a leitura, somente na janela escolhida e com acompanhamento ligado. O gesto de busca não conta como coleta.
+- Atalhos e cliques são ligados ao quadro anterior à escolha. O OCR pode concluir depois que o diálogo fechar. E/T/C são reconhecidos; F só confirma Yes quando indicado no diálogo.
+- Histórico temporário de até 12 recortes somente em memória; sem gravação ou upload.
+- Navegação lateral, XP em destaque, loot antes das sessões e overlay mais compacto no canto inferior direito.
+- Limpeza do histórico preserva preferências, conexão, catálogo e preços. A opção na interface solicita confirmação.
 
-Inclui as melhorias de quantidades e captura: Gasoline em ml, nomes separados das pilhas, normalização de registros antigos, recortes do mesmo quadro, observação antecipada de escolhas e prevenção de eventos duplicados por variações de grafia.
-
-Validation: 79 shared/extension tests and 24 desktop tests. The actual-client Yes reached the previous build but was rejected by the freshness guard. The corrected long-open path and rejection of stale/changed contexts pass regression tests; a second automatic live pickup has not yet been validated. The user's confirmed 880-round test pickup was restored locally with explicit user-confirmed evidence. No user history, diagnostic images or account data is included in the package.
+Validation: 79 shared/extension tests and 37 desktop tests, including compiled native hold-timing checks, stale/future-frame rejection, keyboard choices, duplicate suppression and history clearing. A complete native E-key pickup passed in an isolated fictional Electron client; the actual Dead Frontier client was not open for live validation. Loot OCR remains experimental.
 
 ## English
 
-Keeps a recognized loot item fresh while a local pixel comparison confirms that the same name remains visible. Fixes rejected clicks on long-open dialogs without inferring pickups from title-only or missing OCR. Includes stack quantity parsing, Gasoline ml pricing and duplicate-event protection. Automatic live validation of the new path remains pending; the previous failed test pickup was restored using the user's explicit confirmation.
-
-Recuperação manual: confirme uma coleta incerta e ajuste a quantidade na própria linha. O estado mostra Confirmado pelo usuário e permite desfazer. Essa ação só corrige o histórico local; não envia comandos ao jogo.
+Holding E/F for one second primes loot recognition in the selected foreground game window. Search intent alone never creates a pickup. Keyboard/mouse choices are linked to a bounded memory-only frame captured before the choice, so OCR may finish after dismissal. Includes a redesigned sidebar dashboard and lower-right overlay. Clear history removes XP sessions and loot while preserving preferences and pricing configuration. Tested end-to-end using E in a fictional native client; real-client validation remains outstanding.

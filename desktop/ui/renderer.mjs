@@ -39,7 +39,7 @@ function render(){
   }
   const accepted=state.lootCounts?.find(row=>row.sessionId===(xp?.session?.id??null))?.accepted??0;
   $('loot-count').textContent=language.t(xp?.session?.id?'lootAccepted':'lootUnassignedAccepted',{count:number(accepted)});
-  $('loot-pending').textContent=state.pendingLoot?language.t('lootPending',{item:state.pendingLoot.item}):state.lootSearching?language.t('lootSearching'):'';
+  $('loot-pending').textContent=state.pendingLoot?language.t('lootPending',{item:state.pendingLoot.item}):state.lootProcessing?language.t('lootProcessing'):state.lootCaptureWarning?language.t('lootReadMissed'):state.lootSearching?language.t('lootAnticipating'):'';
   const summary=state.pricing?.sessions?.[xp?.session?.id??'unassigned'];
   $('loot-cash').textContent=money(summary?.cash??0);$('loot-estimate').textContent=money(summary?.estimated??0);$('loot-unpriced').textContent=number(summary?.unpriced??0);
   $('loot-empty').hidden=!!state.loot?.length;
@@ -103,3 +103,6 @@ $('price-market').onchange=()=>act('priceMarket',$('price-market').value);
 $('price-alias-form').onsubmit=event=>{event.preventDefault();act('priceAlias',{from:$('price-alias-from').value,itemId:$('price-alias-target').value});};
 api.subscribe(value=>{state=value;render();});state=await api.read();render();
 setInterval(()=>{if(state?.experience?.session?.running){const stats=experienceStats(state.experience);$('elapsed').textContent=duration(stats.elapsed);$('rate').textContent=number(stats.perHour);if(state.experience.multiplier||stats.baseGained>0)$('base-rate').textContent=number(stats.basePerHour);}},1000);
+
+for(const button of document.querySelectorAll('.nav-button'))button.onclick=()=>{const target=document.getElementById(button.dataset.section);if(target?.tagName==='DETAILS')target.open=true;target?.scrollIntoView({behavior:'smooth',block:'start'});for(const item of document.querySelectorAll('.nav-button'))item.classList.toggle('active',item===button);};
+$('clear-history').onclick=()=>act('clearHistory');

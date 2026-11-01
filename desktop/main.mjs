@@ -32,7 +32,10 @@ const overlayURL='dfov://app/desktop/ui/overlay.html';
 const captureURL='dfov://app/desktop/ui/capture.html';
 const csp="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self' data: blob:; img-src 'self' data: blob:; style-src 'self'; object-src 'none'; frame-src 'none'";
 let store,tracker,lootFlow,priceBridge,priceCache,mainWindow,overlayWindow,captureWindow,tray,probe,fixtureWindow;
-let quitting=false,windows=[],target=null,source=null,token=null,preview=null,retryAt=0,phase='waiting',detail='',captureStartedAt=0,lastCaptureMessage=0,probeBusy=false,selecting=false,selectionEpoch=0,armedHandle='';
+const nativeLootInputs=new Map();
+let lootCaptureWarningAt=0;
+let clearHistoryRequested=process.argv.includes('--clear-history');
+let quitting=false,windows=[],target=null,source=null,token=null,preview=null,retryAt=0,phase='waiting',detail='',captureStartedAt=0,lastCaptureMessage=0,probeBusy=false,selecting=false,selectionEpoch=0,armedHandle='',watchedHandle='';
 const ownRenderer=(event,url)=>event.senderFrame?.url===url;
 function priceState(){
   const selected=tracker.settings.priceMarket??'',now=Date.now();
@@ -46,7 +49,7 @@ function priceState(){
   for(const quote of priceCache.quotes)if(catalog.get(quote.itemId)?.kind!=='equipment')catalog.set(quote.itemId,{...quote,source:'market'});
   return{market:priceCache.market,markets:priceCache.markets,catalog:[...catalog.values()],sessions:priceCache.sessions,bridge:priceBridge?.status(),aliases:priceCache.aliases};
 }
-function publicState(){const pricing=priceState();return{...tracker.snapshot(),pricing,loot:store.lootHistory().map(e=>({...e,valuation:valueLoot(e,priceCache.quotes,{aliases:priceCache.aliases,catalog:priceCache.catalog,requireCatalog:true})})),lootCounts:store.lootCounts(),lootSearching:Date.now()-(lootFlow?.searchingAt??0)<4000,pendingLoot:lootFlow?.pending?{item:lootFlow.pending.item,foundAt:lootFlow.pending.foundAt}:null,phase,detail,game:target?{title:target.title,processName:target.processName,minimized:target.minimized}:null,
+function publicState(){const pricing=priceState();return{...tracker.snapshot(),pricing,loot:store.lootHistory().map(e=>({...e,valuation:valueLoot(e,priceCache.quotes,{aliases:priceCache.aliases,catalog:priceCache.catalog,requireCatalog:true})})),lootCounts:store.lootCounts(),lootSearching:Date.now()-(lootFlow?.searchingAt??0)<12000,lootProcessing:[...nativeLootInputs.values()].some(e=>Date.now()-e.input.at<10000),lootCaptureWarning:Date.now()-lootCaptureWarningAt<15000,pendingLoot:lootFlow?.pending?{item:lootFlow.pending.item,foundAt:lootFlow.pending.foundAt}:null,phase,detail,game:target?{title:target.title,processName:target.processName,minimized:target.minimized}:null,
   windows:windows.map(window=>({handle:window.handle,title:window.title,processName:window.processName})),demo:localTest,preview};}
 function broadcast(){
   if(!tracker)return;const state=publicState();
@@ -54,7 +57,9 @@ function broadcast(){
 }
 function preferences(extra){Object.assign(tracker.settings,extra);tracker.persist();updateTray();broadcast();}
 function finishCapture(reason='gameClosed'){
+  nativeLootInputs.clear();
   lootFlow?.finish();armLoot(false);
+  watchLoot('');
   selectionEpoch++;
   tracker?.finish(reason);
   token=null;source=null;target=null;preview=null;
@@ -63,12 +68,19 @@ function finishCapture(reason='gameClosed'){
   overlayWindow?.hide();phase=tracker?.settings.autoTrack?'waiting':'disabled';detail='';broadcast();
 }
 function armLoot(armed){const handle=armed&&target?target.handle:'';if(probe?.stdin.writable&&handle!==armedHandle){probe.stdin.write(handle?'ARM '+handle+'\n':'DISARM\n');armedHandle=handle;}}
+function watchLoot(handle){if(probe?.stdin.writable&&handle!==watchedHandle){probe.stdin.write(handle?'WATCH '+handle+'\n':'WATCH\n');watchedHandle=handle;}}
 function secureWindow(window,url){
   window.webContents.setWindowOpenHandler(()=>({action:'deny'}));
   window.webContents.on('will-navigate',(event,destination)=>{if(destination!==url)event.preventDefault();});
   window.webContents.on('will-attach-webview',event=>event.preventDefault());
 }
 function showMain(){mainWindow.show();mainWindow.focus();broadcast();}
+function clearHistory(){
+  lootFlow?.finish();nativeLootInputs.clear();lootCaptureWarningAt=0;store.clearHistory();priceCache=null;
+  tracker.experience=null;tracker.pendingStart=true;tracker.persist();
+  token=crypto.randomUUID();captureWindow?.webContents.send('capture:update',{type:'reset',token});
+  clearHistoryRequested=false;broadcast();
+}
 function updateTray(){
   if(!tray||!tracker)return;
   tray.setContextMenu(Menu.buildFromTemplate([
@@ -87,6 +99,7 @@ async function startCapture(window){
   const matched=sourceForWindow(sources,window);
   if(!matched){phase='sourceMissing';broadcast();return;}
   target=window;source=matched;token=crypto.randomUUID();preview=null;
+  watchLoot(window.handle);
   tracker.attach();phase='loading';detail='';captureStartedAt=lastCaptureMessage=Date.now();
   captureWindow=new BrowserWindow({show:false,width:320,height:180,skipTaskbar:true,webPreferences:{preload:path.join(directory,'capture-preload.cjs'),sandbox:true,contextIsolation:true,nodeIntegration:false,backgroundThrottling:false}});
   const created=captureWindow;secureWindow(created,captureURL);
@@ -139,6 +152,7 @@ async function updateWindows(next){
 function startProbe(){
   probe?.kill();
   armedHandle='';
+  watchedHandle='';
   const helper=path.join(directory,'bin','DFWindowProbe.exe');
   if(!fsSync.existsSync(helper)){phase='error';detail='Helper de detecção ausente. Gere o app com npm run package.';broadcast();return;}
   const args=['--parent',String(process.pid)];
@@ -150,10 +164,18 @@ function startProbe(){
   readline.createInterface({input:child.stdout}).on('line',line=>{try{
     const packet=JSON.parse(line);if(child!==probe)return;
     if(Array.isArray(packet.windows))updateWindows(packet.windows);
+    if(packet.lootSearch?.handle===target?.handle&&packet.lootSearch.heldMs>=1000&&source){
+      if(!lootFlow.pending)lootFlow.anticipate();
+      captureWindow?.webContents.send('capture:update',{type:'lootSearch',token});armLoot(lootFlow.armed());broadcast();
+    }
     if(packet.lootInput&&packet.lootInput.handle===target?.handle){
-      const accepted=lootFlow?.choose(packet.lootInput);
-      if(diagnosticFile)try{fsSync.writeFileSync(diagnosticFile+'.input.json',JSON.stringify({input:packet.lootInput,accepted}));}catch{}
-      if(accepted)broadcast();
+      const now=Date.now(),input={...packet.lootInput,id:crypto.randomUUID(),at:Number.isFinite(packet.lootInput.at)&&Math.abs(packet.lootInput.at-now)<2000?packet.lootInput.at:now};
+      for(const [id,entry]of nativeLootInputs)if(now-entry.input.at>10000)nativeLootInputs.delete(id);
+      if(nativeLootInputs.size>=32)nativeLootInputs.delete(nativeLootInputs.keys().next().value);
+      lootCaptureWarningAt=0;nativeLootInputs.set(input.id,{input,token,sessionId:tracker.experience?.session?.running?tracker.experience.session.id:null});
+      captureWindow?.webContents.send('capture:update',{type:'lootInput',token,input:{id:input.id,at:input.at}});
+      if(diagnosticFile)try{fsSync.writeFileSync(diagnosticFile+'.input.json',JSON.stringify({input:packet.lootInput,queued:true}));}catch{}
+      broadcast();
     }
   }catch{}});
   child.on('error',()=>{phase='error';detail='Não foi possível iniciar a detecção da janela.';broadcast();});
@@ -166,7 +188,7 @@ async function createFixture(){
 
 if(!app.requestSingleInstanceLock()){app.quit();}
 else {
-  app.on('second-instance',()=>{if(mainWindow)showMain();});
+  app.on('second-instance',(_event,args)=>{if(args.includes('--clear-history')){clearHistoryRequested=true;if(store&&tracker)clearHistory();}if(mainWindow)showMain();});
   app.whenReady().then(async()=>{
     if(process.platform!=='win32'){dialog.showErrorBox('DeadFrontier Overview','Esta prévia é para Windows.');app.quit();return;}
     Menu.setApplicationMenu(null);
@@ -188,6 +210,7 @@ else {
     });
     const dataDirectory=app.getPath('userData');
     store=new DesktopStore(path.join(dataDirectory,'overview.sqlite'));
+    if(clearHistoryRequested){store.clearHistory();clearHistoryRequested=false;}
     tracker=new DesktopTracker(store);
     lootFlow=new LootFlow(store);
     priceBridge=new PriceBridge({store,onPrices:market=>{if(market&&tracker.settings.priceMarketMode!=='manual'){tracker.settings.priceMarket=market.zone;tracker.persist();}broadcast();}});
@@ -222,6 +245,11 @@ else {
       }
       else if(type==='lootConfirm'&&typeof value?.id==='string'){store.confirmLoot(value.id,value.quantity);}
       else if(type==='lootUndoConfirm'&&typeof value?.id==='string'){store.undoLootConfirmation(value.id);}
+      else if(type==='clearHistory'){
+        const pt=(tracker.settings.language==='pt'||tracker.settings.language!=='en'&&app.getLocale().startsWith('pt'));
+        const answer=await dialog.showMessageBox(mainWindow,{type:'warning',title:'DeadFrontier Overview',message:pt?'Apagar o histórico de XP e loot?':'Delete XP and loot history?',detail:pt?'As preferências, conexão e cotações serão mantidas.':'Preferences, pairing and quotes will be kept.',buttons:pt?['Cancelar','Apagar histórico']:['Cancel','Delete history'],defaultId:0,cancelId:0});
+        if(answer.response===1)clearHistory();
+      }
       else if(type==='priceEquipmentVariant'&&typeof value?.id==='string'&&(value.itemId===null||typeof value.itemId==='string')){
         const entry=store.lootById(value.id);if(!entry)throw Error('priceAliasInvalid');
         const equipment=valueLoot({...entry,status:'accepted',priceMode:'yard'},priceCache?.quotes??[],{aliases:store.get('priceAliases',{}),catalog:store.itemCatalog()}).equipment;
@@ -276,7 +304,12 @@ else {
       if(!['visible','hint','found','absent','unknown','searching'].includes(reading?.kind)||String(reading.text??'').length>1200)return;
       if(diagnosticFile&&!['hint','visible'].includes(reading.kind))try{fsSync.writeFileSync(diagnosticFile+'.loot.json',JSON.stringify(reading));}catch{}
       if(reading.buttons&&Object.values(reading.buttons).some(value=>!validRegion(value)))return;
-      lootFlow.observe(reading,tracker.experience?.session?.running?tracker.experience.session.id:null);
+      if(reading.inputId){
+        const evidence=nativeLootInputs.get(reading.inputId);
+        if(evidence?.token!==token)return;
+        if(reading.dialogVisible===true)evidence.sawDialog=true;
+        if(reading.kind==='found'&&lootFlow.observeInput({...reading,inputDismissed:reading.inputDismissed===true&&target.foreground===true},evidence.input,evidence.sessionId)){nativeLootInputs.delete(reading.inputId);lootCaptureWarningAt=0;}
+      }else lootFlow.observe(reading,tracker.experience?.session?.running?tracker.experience.session.id:null);
       armLoot(lootFlow.armed());broadcast();
     });
     await Promise.all([mainWindow.loadURL(uiURL),overlayWindow.loadURL(overlayURL)]);
@@ -293,6 +326,8 @@ else {
     }else startProbe();
     setInterval(()=>{
       if(quitting||!tracker)return;
+      for(const [id,entry]of nativeLootInputs)if(Date.now()-entry.input.at>10000){if(entry.sawDialog)lootCaptureWarningAt=Date.now();nativeLootInputs.delete(id);}
+      armLoot(lootFlow.armed());
       positionOverlay();
       if(diagnosticFile&&overlayWindow&&!overlayWindow.isDestroyed())try{fsSync.writeFileSync(diagnosticFile+'.overlay.json',JSON.stringify({phase,enabled:tracker.settings.overlay,game:!!target,foreground:target?.foreground,minimized:target?.minimized,source:!!source,visible:overlayWindow.isVisible(),alwaysOnTop:overlayWindow.isAlwaysOnTop(),bounds:overlayWindow.getBounds()}));}catch{}
       if(captureWindow&&Date.now()-Math.max(captureStartedAt,lastCaptureMessage)>45000){finishCapture('captureFailed');phase='error';detail='O leitor não respondeu. Nova tentativa em alguns segundos.';retryAt=Date.now()+10000;broadcast();}

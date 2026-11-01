@@ -9,7 +9,7 @@ export async function buildProbe(){
   if(process.platform!=='win32')throw Error('Build the Windows helper on Windows.');
   await fs.mkdir(path.join(directory,'bin'),{recursive:true});
   const compiler=path.join(process.env.WINDIR??'C:\\Windows','Microsoft.NET','Framework64','v4.0.30319','csc.exe');
-  await exec(compiler,['/nologo','/target:exe','/optimize+','/r:System.Web.Extensions.dll','/out:'+path.join(directory,'bin','DFWindowProbe.exe'),path.join(directory,'native','WindowProbe.cs')],{windowsHide:true});
+  await exec(compiler,['/nologo','/target:exe','/optimize+','/r:System.Web.Extensions.dll','/out:'+path.join(directory,'bin','DFWindowProbe.exe'),path.join(directory,'native','WindowProbe.cs'),path.join(directory,'native','SearchHoldTracker.cs')],{windowsHide:true});
 }
 await buildProbe();
 if(process.argv.includes('--probe-only')){console.log('Compiled native window detector.');process.exit(0);}

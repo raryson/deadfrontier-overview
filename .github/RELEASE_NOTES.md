@@ -1,9 +1,11 @@
-# DeadFrontier Overview 0.9.1
+# DeadFrontier Overview 0.9.2 — correção da conexão com o app
 
-Corrige a unidade de Gasoline nas cotações: ml, com preço proporcional à quantidade da pilha. Atualize também o app Windows para 0.3.2 para receber essa unidade.
+Corrige o erro Failed to execute 'fetch' on 'WorkerGlobalScope': Illegal invocation ao conectar a extensão ao app Windows. A função fetch mantém o contexto global correto no service worker, tanto no pareamento quanto nas consultas do mercado.
 
-Chrome: extraia o ZIP do Chrome na pasta instalada e recarregue em chrome://extensions. Firefox: recarregue o pacote temporário ou envie para assinatura. O pareamento existente é mantido.
+Chrome: extraia o novo ZIP para a pasta da extensão instalada, abra chrome://extensions e clique em Recarregar. Reabra o painel, gere um novo código no app e conecte novamente. Firefox: recarregue o novo pacote temporário ou atualize o pacote assinado.
 
-A versão também inclui a correção compartilhada de leitura de XP exata contra alvo abreviado. Guia de conexão: docs/prices.md.
+O app Windows 0.4.0 continua compatível. Nenhuma permissão nova.
 
-English: Gasoline quotes now use ml. Update the Windows app to 0.3.2, reload the extension, and keep the existing pairing. Also includes the shared exact-XP parsing correction. No new permissions.
+Validation: 81 extension/shared tests, authenticated local extension/app integration, and an isolated Chromium Worker reproducing the exact old error and passing with the bound fetch.
+
+English: fixes Illegal invocation from WorkerGlobalScope.fetch during local-app pairing and market requests. Update/reload the browser addon, reopen its panel and use a new pairing code. Windows app 0.4.0 remains compatible. No new permissions.

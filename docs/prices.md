@@ -52,3 +52,7 @@ The app receives filtered price/catalog data over authenticated loopback only. N
 Gasoline usa ml no histórico e nas cotações. Nome e quantidade são separados antes da busca. A leitura precisa de concordância numérica; uma quantidade ambígua fica fora da estimativa até ser confirmada ou ajustada na linha do loot. O ajuste permanece disponível para corrigir números reconhecidos incorretamente. A atualização normaliza sufixos numéricos antigos sem converter resultados não confirmados em aceitos.
 
 Gasoline is measured in ml. Stack names and quantities are stored separately; uncertain quantities stay excluded and editable. Legacy normalization preserves the original text and pickup outcome.
+
+## Erro WorkerGlobalScope / Illegal invocation
+
+Corrigido na extensão 0.9.2. Atualize o ZIP da extensão, recarregue-a no navegador e reabra o painel. Gere um novo código no app Windows para repetir o pareamento. O app 0.4.0 continua compatível.

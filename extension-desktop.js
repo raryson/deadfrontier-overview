@@ -5,7 +5,7 @@ export const PRICE_ALARM='overview-price-sync';
 export const LOCAL_ORIGIN='http://127.0.0.1:17373';
 export const PRICE_PERMISSIONS=['http://127.0.0.1/*','https://fairview.deadfrontier.com/*'];
 export class ExtensionDesktop{
-  constructor(api,fetcher=globalThis.fetch){this.api=api;this.fetcher=fetcher;this.queue=Promise.resolve();}
+  constructor(api,fetcher=globalThis.fetch){this.api=api;this.fetcher=fetcher.bind(globalThis);this.queue=Promise.resolve();}
   run(task){const result=this.queue.then(task);this.queue=result.catch(()=>{});return result;}
   async state(){return(await this.api.storage.local.get('desktopSync')).desktopSync??{zone:'21',enabled:false};}
   async save(state){await this.api.storage.local.set({desktopSync:state});}

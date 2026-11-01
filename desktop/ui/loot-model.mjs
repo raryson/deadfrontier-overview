@@ -75,6 +75,13 @@ export class LootFlow {
     if(dismissed)this.finish(reading.inputAfterAt,true);
     return true;
   }
+  observeInputAbsence(reading,input,now=Date.now()){
+    // Combat clicks can fill the input queue after a valid choice. Their
+    // recent frames still prove dismissal, but never create a choice.
+    const at=reading?.capturedAt;
+    if(!this.pending?.choice||reading.kind!=='absent'||reading.dialogVisible!==false||!input?.id||!Number.isFinite(input.at)||!Number.isFinite(at)||at<this.pending.choiceAt||at>input.at||input.at-at>500||now-at<0||now-at>2000||at<=(this.lastInputAbsenceAt??-Infinity))return false;
+    this.lastInputAbsenceAt=at;this.observe({kind:'absent'},null,now);return true;
+  }
   observe(reading,sessionId,now=Date.now()){
     if(reading.kind==='visible'){
       if(this.pending&&!this.boundary&&reading.nameVisible===true)this.pending.lastSeenAt=now;
@@ -129,6 +136,6 @@ export class LootFlow {
   }
   finish(now=Date.now(),disappeared=false){
     if(this.pending){const status=disappeared&&this.pending.choice&&now-this.pending.choiceAt<=10000?this.pending.choice:'unconfirmed';this.store.saveLoot({...this.pending,status,endedAt:now});if(status!=='unconfirmed')this.lastCompleted={key:this.pending.key,item:this.pending.item,endedAt:now};}
-    this.pending=null;this.candidate=null;this.absent=0;this.hintAt=null;this.earlyInputs=[];this.quantityCandidate=null;this.boundary=false;
+    this.pending=null;this.candidate=null;this.absent=0;this.hintAt=null;this.earlyInputs=[];this.quantityCandidate=null;this.boundary=false;this.lastInputAbsenceAt=null;
   }
 }

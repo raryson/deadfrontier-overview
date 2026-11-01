@@ -315,6 +315,7 @@ else {
         const evidence=nativeLootInputs.get(reading.inputId);
         if(evidence?.token!==token)return;
         if(reading.dialogVisible===true)evidence.sawDialog=true;
+        if(reading.kind==='absent'&&target.foreground===true)lootFlow.observeInputAbsence(reading,evidence.input);
         if(reading.kind==='found'&&lootFlow.observeInput({...reading,inputDismissed:reading.inputDismissed===true&&target.foreground===true},evidence.input,evidence.sessionId)){nativeLootInputs.delete(reading.inputId);lootCaptureWarningAt=0;}
       }else lootFlow.observe(reading,tracker.experience?.session?.running?tracker.experience.session.id:null);
       armLoot(lootFlow.armed());broadcast();

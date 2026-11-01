@@ -157,7 +157,7 @@ window.startCapture=async()=>{
               }
               if(revision!==epoch)return;
               const partial=titlePresent||titleVisible!==false&&!!lastTitle||/ITEM\s*FOUND|YOU\s+HAVE\s+FOUND|WILL\s+YOU\s+TAKE|INVENTORY\s+SLOTS\s+FREE/i.test(lastText);
-              bridge.loot({token:config.token,reading:best?{kind:'found',...best,verifiedHeader,dialogVisible:true,capturedAt:frame.at,...(job?{inputId:job.inputId}:{}),headerText:header.data.text.slice(0,100)}:{kind:partial?'unknown':'absent',dialogVisible:partial,...(job?{inputId:job.inputId}:{}),text:lastText.slice(0,1200),headerText:header.data.text.slice(0,100)}});
+              bridge.loot({token:config.token,reading:best?{kind:'found',...best,verifiedHeader,dialogVisible:true,capturedAt:frame.at,...(job?{inputId:job.inputId}:{}),headerText:header.data.text.slice(0,100)}:{kind:partial?'unknown':'absent',dialogVisible:partial,capturedAt:frame.at,...(job?{inputId:job.inputId}:{}),text:lastText.slice(0,1200),headerText:header.data.text.slice(0,100)}});
             }
             if(!job&&!verifiedHeader&&Date.now()>=lootBurstUntil&&Date.now()-lastSearch>=3000){
               lastSearch=Date.now();const progress=prepare({x:.25,y:.75,width:.5,height:.25},160,true);

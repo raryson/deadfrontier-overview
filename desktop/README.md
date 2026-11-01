@@ -1,8 +1,8 @@
 # DeadFrontier Overview — Windows
 
-Prévia **0.5.1** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
+Prévia **0.5.2** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
 
-[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.5.1/deadfrontier-overview-windows-0.5.1.zip)
+[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.5.2/deadfrontier-overview-windows-0.5.2.zip)
 
 ## Usar a versão portátil
 
@@ -94,11 +94,11 @@ Sessions stay locally in SQLite under the app's user-data folder. Stop freezes t
 
 Veja [o guia de conexão com a extensão](../docs/prices.md). Equipamentos comuns usam a referência Yard/NPC do jogo; somente uma escolha explícita de variante customizada/GC/NGC usa anúncios. Nomes originais são preservados. Estimativas aparecem por loot, por sessão, no overlay e no CSV.
 
-## Leitura de loot na versão 0.5.1
+## Leitura de loot na versão 0.5.2
 
 O leitor separa nome e quantidade (Gasoline em ml), confirma números em leituras concordantes e mantém ajuste manual para pilhas. Registros antigos como GASOLINE (812 são normalizados preservando o texto original, a sessão e o estado de coleta. A detecção do título antecipa a observação de Yes/No/Use; nome e botões vêm de um único quadro. Uma falha de OCR não comprova fechamento do diálogo. O inventário final sozinho não permite reconstruir com certeza os itens perdidos de uma run passada, pois pode conter itens anteriores, consumidos ou vendidos.
 
-## Captura antecipada e visual (0.5.1)
+## Captura antecipada e visual (0.5.2)
 
 Segurar E ou F por pelo menos um segundo prepara a leitura por até 12 segundos. O gesto de busca não cria um item. O atalho ou clique é associado a um quadro do próprio diálogo capturado até 500 ms antes da escolha, evitando depender de a tela continuar parada. O pequeno histórico de quadros fica somente na memória e é limitado a 12 recortes; não há gravação ou upload. Falhas detectadas são indicadas no painel e ainda podem exigir correção manual.
 

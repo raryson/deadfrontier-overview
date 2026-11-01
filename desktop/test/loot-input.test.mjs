@@ -59,3 +59,26 @@ test('native E/F hold timing requires a second, rearms after release and resets 
 test('a damaged shortcut label does not hide an otherwise complete item-found dialog',()=>{const {flow,rows}=fixture();assert.equal(flow.observeInput({...reading,text:text.replace('NO (T)','NOM')},key(),'run',2000),true);assert.equal([...rows.values()][0].status,'accepted');});
 
 test('fixed-label OCR errors and unreadable stack numbers keep the item without inventing a quantity',()=>{const {flow,rows}=fixture();const damaged=text.replace('FOUND SOME','FOND SORE').replace('(880)','(BBO)');assert.equal(flow.observeInput({...reading,text:damaged,quantityVerified:false},key(),'run',2000),true);const entry=[...rows.values()][0];assert.equal(entry.item,'12.7MM RIFLE BULLETS');assert.equal(entry.quantity,undefined);assert.equal(entry.status,'accepted');});
+
+test('recent distinct absent input frames finish a prior verified choice even during continuous combat clicks',()=>{
+ const {flow,rows}=fixture();flow.observeInput({...reading,inputDismissed:false},key(),'run',1600);
+ const absent=at=>({kind:'absent',dialogVisible:false,capturedAt:at});
+ assert.equal(flow.observeInputAbsence(absent(1900),{id:'combat1',at:1950},2000),true);
+ assert.equal(flow.observeInputAbsence(absent(1900),{id:'duplicate',at:1950},2050),false);
+ assert.equal(flow.observeInputAbsence(absent(2100),{id:'combat2',at:2150},2200),true);
+ assert.equal([...rows.values()][0].status,'found');
+ assert.equal(flow.observeInputAbsence(absent(2500),{id:'combat3',at:2550},2600),true);
+ assert.equal([...rows.values()][0].status,'accepted');assert.equal(flow.pending,null);
+});
+test('absent input frames cannot create pickups, confirm stale frames or cross a choice boundary',()=>{
+ const {flow,rows}=fixture();flow.observe(reading,'run',1000);flow.observe(reading,'run',1100);
+ assert.equal(flow.observeInputAbsence({kind:'absent',dialogVisible:false,capturedAt:1200},{id:'no-choice',at:1250},1300),false);
+ flow.choose({...key(),at:1500},1500);
+ for(const [reading,input,now] of [
+ [{kind:'absent',dialogVisible:false,capturedAt:1400},{id:'before',at:1450},1600],
+ [{kind:'absent',dialogVisible:false,capturedAt:1700},{id:'future',at:1600},1800],
+ [{kind:'absent',dialogVisible:false,capturedAt:1600},{id:'stale',at:1650},4000],
+ [{kind:'unknown',dialogVisible:true,capturedAt:1600},{id:'visible',at:1650},1800]
+ ])assert.equal(flow.observeInputAbsence(reading,input,now),false);
+ assert.equal([...rows.values()][0].status,'found');
+});

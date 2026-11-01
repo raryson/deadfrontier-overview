@@ -22,7 +22,7 @@ export function aggregateQuotes(batch){
   return[...grouped.values()];
 }
 export function valueLoot(entry,quotes,{now=Date.now(),aliases={},catalog=[],requireCatalog=false}={}){
-  if(entry.status!=='accepted')return{value:null,reason:'notAccepted'};
+  if(!['accepted','observed'].includes(entry.status))return{value:null,reason:'notAccepted'};
   if(Number.isSafeInteger(entry.cash)&&entry.cash>0)return{value:entry.cash,reason:'cash',quantity:1};
   const key=itemKey(entry.item),alias=Object.hasOwn(aliases,key)?aliases[key]:null;
   const definitions=catalog.filter(item=>alias?item.itemId===alias||item.itemId===alias.split('_')[0]:itemKey(item.name)===key);
@@ -46,7 +46,7 @@ export function valueSessions(loot,quotes,options){
   const sessions=Object.create(null);
   const rows=loot.map(entry=>{
     const valuation=valueLoot(entry,quotes,options);
-    if(entry.status==='accepted'){
+    if(['accepted','observed'].includes(entry.status)){
       const key=entry.sessionId??'unassigned',summary=sessions[key]??={cash:0,estimated:0,priced:0,unpriced:0};
       if(valuation.value===null)summary.unpriced++;
       else{summary.priced++;if(valuation.reason==='cash')summary.cash+=valuation.value;else summary.estimated+=valuation.value;}

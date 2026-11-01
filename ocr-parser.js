@@ -15,7 +15,7 @@ function hudNumber(text) {
   const decimals=(digits.split('.')[1]??'').length;
   return {value,precision:Math.max(1,unit/(10**decimals))};
 }
-export function parseHudXp(text) {
+export function parseHudXp(text,{previous=null}={}) {
   const normalized=String(text).toUpperCase().replace(/[|]/g,'/').replace(/[：]/g,':')
     // The HUD's narrow slash is sometimes recognized as an isolated 7.
     // Restrict the repair to a separator after an explicit XP unit.
@@ -35,12 +35,17 @@ export function parseHudXp(text) {
     if(repaired<=100&&Math.abs(current.value/target.value*100-repaired)<=1.1)shown=repaired;
   }
   if(targetUnit&&!currentUnit&&current.value!==0){
-    // Below one million the game can show exact XP against an abbreviated
-    // target. Require the visible percentage to distinguish this from a lost
-    // suffix; reject readings where both interpretations would fit.
+    // Exact XP can appear against an abbreviated target. Use the percentage,
+    // an impossible scaled interpretation, or a close prior exact read.
+    // Tiny zero-percent values cover the start of a level.
     const multiplier=({K:1000,M:1000000,B:1000000000})[targetUnit[0].trim()];
     const ratio=current.value/target.value*100;
-    if(current.value>=1000000||!Number.isFinite(shown)||shown>100||Math.abs(ratio-shown)>1.1||Math.abs(ratio*multiplier-shown)<=1.1)return null;
+    const visible=Number.isFinite(shown)&&shown<=100;
+    const tinyExact=visible&&shown===0&&current.value<1000;
+    const contextExact=previous?.level===level&&previous.precision===1&&current.value>=previous.xp&&current.value-previous.xp<=10000;
+    const unambiguous=current.value<=target.value&&current.value*multiplier>target.value;
+    if(visible){if(Math.abs(ratio-shown)>1.1||!tinyExact&&Math.abs(ratio*multiplier-shown)<=1.1)return null;}
+    else if(percent||!unambiguous&&!contextExact)return null;
   }
   // OCR often reads the closing parenthesis as a 7 (40% -> 407%). Such an
   // impossible percentage is not evidence against otherwise valid XP tokens.

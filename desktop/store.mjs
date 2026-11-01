@@ -60,7 +60,7 @@ export class DesktopStore {
     this.saveLoot({...entry,status:'accepted',pickupEvidence:'user-confirmed',confirmedAt:Date.now(),...(quantity!==undefined?{quantity,quantityUncertain:false,quantitySource:'user-confirmed'}:{})});
   }
   undoLootConfirmation(id){const entry=this.lootById(id);if(!entry||entry.pickupEvidence!=='user-confirmed')throw Error('Invalid loot confirmation.');const {pickupEvidence,confirmedAt,...rest}=entry;this.saveLoot({...rest,status:'unconfirmed'});}
-  lootCounts(){return this.db.prepare("SELECT session_id AS sessionId,COUNT(*) AS found,SUM(status='accepted') AS accepted FROM loot GROUP BY session_id").all();}
+  lootCounts(){return this.db.prepare("SELECT session_id AS sessionId,COUNT(*) AS found,SUM(status='accepted') AS accepted,SUM(status IN ('accepted','observed')) AS identified FROM loot GROUP BY session_id").all();}
   savePrices(batch){
     const put=this.db.prepare(`INSERT INTO prices(market,item_id,unit_kind,observed_at,payload) VALUES(?,?,?,?,?)
       ON CONFLICT(market,item_id,unit_kind) DO UPDATE SET observed_at=excluded.observed_at,payload=excluded.payload WHERE excluded.observed_at>=prices.observed_at`);
@@ -68,7 +68,8 @@ export class DesktopStore {
   }
   prices(market){return this.db.prepare('SELECT payload FROM prices WHERE market=?').all(market??'').map(row=>JSON.parse(row.payload));}
   markets(){return this.db.prepare('SELECT market,MAX(observed_at) AS observedAt,COUNT(*) AS count,MAX(json_extract(payload,\'$.market.label\')) AS label FROM prices GROUP BY market ORDER BY observedAt DESC').all();}
-  valuationLoot(){return this.db.prepare("SELECT payload FROM loot WHERE status='accepted' ORDER BY found_at DESC").all().map(row=>JSON.parse(row.payload));}
+  sessionAt(at){if(!Number.isFinite(at))return null;return this.db.prepare("SELECT id FROM sessions WHERE started_at<=? AND (running=1 OR json_extract(payload,'$.endedAt')>=?) ORDER BY started_at DESC LIMIT 1").get(at,at)?.id??null;}
+  valuationLoot(){return this.db.prepare("SELECT payload FROM loot WHERE status IN ('accepted','observed') ORDER BY found_at DESC").all().map(row=>JSON.parse(row.payload));}
   lootById(id){const row=this.db.prepare('SELECT payload FROM loot WHERE id=?').get(id);return row?JSON.parse(row.payload):null;}
   quoteName(id){if(typeof id!=='string')return null;const row=this.db.prepare('SELECT json_extract(payload,\'$.name\') AS name FROM prices WHERE item_id=? ORDER BY observed_at DESC LIMIT 1').get(id);return row?.name;}
   saveCatalog(input,referenceTime=Date.now()){const batch=sanitizeItemCatalog(input,referenceTime),put=this.db.prepare('INSERT INTO item_catalog(item_id,observed_at,payload) VALUES(?,?,?) ON CONFLICT(item_id) DO UPDATE SET observed_at=excluded.observed_at,payload=excluded.payload WHERE excluded.observed_at>=item_catalog.observed_at');this.db.exec('BEGIN IMMEDIATE');try{for(const item of batch.items)put.run(item.itemId,batch.observedAt,JSON.stringify(item));this.db.exec('COMMIT');this.priceRevision++;}catch(error){this.db.exec('ROLLBACK');throw error;}}

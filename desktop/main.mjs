@@ -8,6 +8,7 @@ import readline from 'node:readline';
 import {DesktopStore} from './store.mjs';
 import {DesktopTracker} from './tracker.mjs';
 import {LootFlow} from './ui/loot-model.mjs';
+import {LootJournal,canonicalLootName} from './ui/loot-journal.mjs';
 import {selectGameWindow,sourceForWindow,validRegion,csvOfSessions} from './selection.mjs';
 import {PriceBridge} from './price-bridge.mjs';
 import {MarketClient,MARKET_OPTIONS,validMarket} from './market-client.mjs';
@@ -32,9 +33,9 @@ const uiURL='dfov://app/desktop/ui/index.html';
 const overlayURL='dfov://app/desktop/ui/overlay.html';
 const captureURL='dfov://app/desktop/ui/capture.html';
 const csp="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self' data: blob:; img-src 'self' data: blob:; style-src 'self'; object-src 'none'; frame-src 'none'";
-let store,tracker,lootFlow,priceBridge,marketClient,priceCache,mainWindow,overlayWindow,captureWindow,tray,probe,fixtureWindow;
+let store,tracker,lootFlow,lootJournal,priceBridge,marketClient,priceCache,mainWindow,overlayWindow,captureWindow,tray,probe,fixtureWindow;
 const nativeLootInputs=new Map();
-let lootCaptureWarningAt=0;
+let lootCaptureWarningAt=0,lootQueueSize=0,lootQueueDropped=0;
 let clearHistoryRequested=process.argv.includes('--clear-history');
 let quitting=false,windows=[],target=null,source=null,token=null,preview=null,retryAt=0,phase='waiting',detail='',captureStartedAt=0,lastCaptureMessage=0,probeBusy=false,selecting=false,selectionEpoch=0,armedHandle='',watchedHandle='';
 const ownRenderer=(event,url)=>event.senderFrame?.url===url;
@@ -50,7 +51,7 @@ function priceState(){
   for(const quote of priceCache.quotes)if(catalog.get(quote.itemId)?.kind!=='equipment')catalog.set(quote.itemId,{...quote,source:'market'});
   return{direct:marketClient?.status(),marketOptions:MARKET_OPTIONS,market:priceCache.market,markets:priceCache.markets,catalog:[...catalog.values()],sessions:priceCache.sessions,bridge:priceBridge?.status(),aliases:priceCache.aliases};
 }
-function publicState(){const pricing=priceState();return{...tracker.snapshot(),pricing,loot:store.lootHistory().map(e=>({...e,valuation:valueLoot(e,priceCache.quotes,{aliases:priceCache.aliases,catalog:priceCache.catalog,requireCatalog:true})})),lootCounts:store.lootCounts(),lootSearching:Date.now()-(lootFlow?.searchingAt??0)<12000,lootProcessing:[...nativeLootInputs.values()].some(e=>Date.now()-e.input.at<10000),lootCaptureWarning:Date.now()-lootCaptureWarningAt<15000,pendingLoot:lootFlow?.pending?{item:lootFlow.pending.item,foundAt:lootFlow.pending.foundAt}:null,phase,detail,game:target?{title:target.title,processName:target.processName,minimized:target.minimized}:null,
+function publicState(){const pricing=priceState();return{...tracker.snapshot(),pricing,loot:store.lootHistory().map(e=>({...e,valuation:valueLoot(e,priceCache.quotes,{aliases:priceCache.aliases,catalog:priceCache.catalog,requireCatalog:true})})),lootCounts:store.lootCounts(),lootSearching:Date.now()-(lootFlow?.searchingAt??0)<12000,lootQueueSize,lootQueueDropped,lootProcessing:lootQueueSize>0,lootCaptureWarning:Date.now()-lootCaptureWarningAt<15000,pendingLoot:lootFlow?.pending?{item:lootFlow.pending.item,foundAt:lootFlow.pending.foundAt}:null,phase,detail,game:target?{title:target.title,processName:target.processName,minimized:target.minimized}:null,
   windows:windows.map(window=>({handle:window.handle,title:window.title,processName:window.processName})),demo:localTest,preview};}
 function broadcast(){
   if(!tracker)return;const state=publicState();
@@ -58,7 +59,7 @@ function broadcast(){
 }
 function preferences(extra){Object.assign(tracker.settings,extra);tracker.persist();updateTray();broadcast();}
 function finishCapture(reason='gameClosed'){
-  nativeLootInputs.clear();
+  nativeLootInputs.clear();lootQueueSize=0;
   lootFlow?.finish();armLoot(false);
   watchLoot('');
   selectionEpoch++;
@@ -77,9 +78,9 @@ function secureWindow(window,url){
 }
 function showMain(){mainWindow.show();mainWindow.focus();broadcast();}
 function clearHistory(){
-  lootFlow?.finish();nativeLootInputs.clear();lootCaptureWarningAt=0;store.clearHistory();priceCache=null;
+  lootFlow?.finish();nativeLootInputs.clear();lootCaptureWarningAt=0;lootQueueSize=0;lootQueueDropped=0;store.clearHistory();lootJournal=new LootJournal(store);priceCache=null;
   tracker.experience=null;tracker.pendingStart=true;tracker.persist();
-  token=crypto.randomUUID();captureWindow?.webContents.send('capture:update',{type:'reset',token});
+  token=crypto.randomUUID();captureWindow?.webContents.send('capture:update',{type:'clear',token});
   clearHistoryRequested=false;broadcast();
 }
 function updateTray(){
@@ -167,7 +168,7 @@ function startProbe(){
     if(Array.isArray(packet.windows))updateWindows(packet.windows);
     if(packet.lootSearch?.handle===target?.handle&&packet.lootSearch.heldMs>=1000&&source){
       if(!lootFlow.pending)lootFlow.anticipate();
-      captureWindow?.webContents.send('capture:update',{type:'lootSearch',token});armLoot(lootFlow.armed());broadcast();
+      captureWindow?.webContents.send('capture:update',{type:'lootSearch',token});armLoot(false);broadcast();
     }
     if(packet.lootInput&&packet.lootInput.handle===target?.handle){
       const now=Date.now(),input={...packet.lootInput,id:crypto.randomUUID(),at:Number.isFinite(packet.lootInput.at)&&Math.abs(packet.lootInput.at-now)<2000?packet.lootInput.at:now};
@@ -183,8 +184,8 @@ function startProbe(){
   child.on('exit',()=>{if(child===probe&&!quitting){phase='error';detail='A detecção da janela foi encerrada. Reabra o app.';broadcast();}});
 }
 async function createFixture(){
-  fixtureWindow=new BrowserWindow({title:'DF Overview Capture Fixture',width:1920,height:1080,x:0,y:0,frame:false,webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false,backgroundThrottling:false}});
-  await fixtureWindow.loadURL('dfov://app/desktop/ui/fixture.html');
+  fixtureWindow=new BrowserWindow({show:false,title:'DF Overview Capture Fixture',width:1920,height:1080,x:0,y:0,frame:false,webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false,backgroundThrottling:false}});
+  await fixtureWindow.loadURL('dfov://app/desktop/ui/fixture.html'+(process.argv.includes('--snapshot-test')?'?snapshots=1':''));fixtureWindow.showInactive();
 }
 
 if(!app.requestSingleInstanceLock()){app.quit();}
@@ -216,7 +217,8 @@ else {
     for(let i=0;i<seed.items.length;i+=500)store.saveCatalog({version:1,observedAt:seed.observedAt,items:seed.items.slice(i,i+500)},seed.observedAt);
     tracker=new DesktopTracker(store);
     if(!validMarket(tracker.settings.priceMarket)){tracker.settings.priceMarket='21';tracker.persist();}
-    lootFlow=new LootFlow(store);
+    lootFlow=new LootFlow(store);lootJournal=new LootJournal(store);
+    for(const entry of store.lootHistory()){const name=canonicalLootName(entry.item,store.itemCatalog());if(name!==entry.item)store.saveLoot({...entry,rawItem:entry.rawItem??entry.item,item:name});}
     marketClient=new MarketClient({store,getZone:()=>tracker.settings.priceMarket,getPending:()=>lootFlow.pending,onChange:broadcast});
     priceBridge=new PriceBridge({store,directPricing:true,onPrices:broadcast});
     if(!localTest&&priceBridge.clients.length)priceBridge.start().catch(()=>{priceBridge.error='priceBridgeUnavailable';broadcast();});
@@ -306,9 +308,15 @@ else {
       preview={image:message.image,width:message.width,height:message.height,region:message.region};broadcast();
     });
     ipcMain.on('capture:loot',(event,message)=>{
-      if(!ownRenderer(event,captureURL)||event.sender!==captureWindow?.webContents||message?.token!==token||!source||target?.minimized)return;
+      if(!ownRenderer(event,captureURL)||event.sender!==captureWindow?.webContents||message?.token!==token||!source)return;
       const reading=message.reading;
-      if(!['visible','hint','found','absent','unknown','searching'].includes(reading?.kind)||String(reading.text??'').length>1200)return;
+      if(!['snapshot','queue','visible','hint','found','absent','unknown','searching'].includes(reading?.kind)||String(reading.text??'').length>1200)return;
+      if(reading.kind==='queue'){
+        if(Number.isSafeInteger(reading.pending)&&reading.pending>=0&&reading.pending<=72)lootQueueSize=reading.pending;
+        if(Number.isSafeInteger(reading.dropped)&&reading.dropped>=0)lootQueueDropped=reading.dropped;
+        broadcast();return;
+      }
+      if(reading.kind==='snapshot'){if(diagnosticFile)try{fsSync.writeFileSync(diagnosticFile+'.loot.json',JSON.stringify(reading));}catch{}lootJournal.observe(reading,store.sessionAt(reading.capturedAt));broadcast();return;}
       if(diagnosticFile&&!['hint','visible'].includes(reading.kind))try{fsSync.writeFileSync(diagnosticFile+'.loot.json',JSON.stringify(reading));}catch{}
       if(reading.buttons&&Object.values(reading.buttons).some(value=>!validRegion(value)))return;
       if(reading.inputId){
@@ -318,7 +326,7 @@ else {
         if(reading.kind==='absent'&&target.foreground===true)lootFlow.observeInputAbsence(reading,evidence.input);
         if(reading.kind==='found'&&lootFlow.observeInput({...reading,inputDismissed:reading.inputDismissed===true&&target.foreground===true},evidence.input,evidence.sessionId)){nativeLootInputs.delete(reading.inputId);lootCaptureWarningAt=0;}
       }else lootFlow.observe(reading,tracker.experience?.session?.running?tracker.experience.session.id:null);
-      armLoot(lootFlow.armed());broadcast();
+      armLoot(false);broadcast();
     });
     await Promise.all([mainWindow.loadURL(uiURL),overlayWindow.loadURL(overlayURL)]);
     globalShortcut.register('Alt+Shift+D',()=>mainWindow.isVisible()?mainWindow.hide():showMain());
@@ -335,7 +343,7 @@ else {
     setInterval(()=>{
       if(quitting||!tracker)return;
       for(const [id,entry]of nativeLootInputs)if(Date.now()-entry.input.at>10000){if(entry.sawDialog)lootCaptureWarningAt=Date.now();nativeLootInputs.delete(id);}
-      armLoot(lootFlow.armed());
+      armLoot(false);
       if(!localTest)void marketClient.tick();
       positionOverlay();
       if(diagnosticFile&&overlayWindow&&!overlayWindow.isDestroyed())try{fsSync.writeFileSync(diagnosticFile+'.overlay.json',JSON.stringify({phase,enabled:tracker.settings.overlay,game:!!target,foreground:target?.foreground,minimized:target?.minimized,source:!!source,visible:overlayWindow.isVisible(),alwaysOnTop:overlayWindow.isAlwaysOnTop(),bounds:overlayWindow.getBounds()}));}catch{}

@@ -24,7 +24,7 @@ export class MarketClient{
     this.cache[key]={at:this.now(),failed};this.cache=Object.fromEntries(Object.entries(this.cache).sort((a,b)=>b[1].at-a[1].at).slice(0,500));this.store.set('nativeMarketCache',this.cache);
   }
   needs(){
-    const pending=this.getPending(),rows=[...(pending?[{...pending,status:'found'}]:[]),...this.store.lootHistory().filter(e=>e.status==='accepted')],aliases=this.store.get('priceAliases',{}),catalog=this.store.itemCatalog(),names=new Map();
+    const pending=this.getPending(),rows=[...(pending?[{...pending,status:'found'}]:[]),...this.store.lootHistory().filter(e=>['accepted','observed'].includes(e.status))],aliases=this.store.get('priceAliases',{}),catalog=this.store.itemCatalog(),names=new Map();
     for(const entry of rows){
       if(entry.cash)continue;const alias=aliases[itemKey(entry.item)]?.split('_')[0],definition=resolveCatalog(entry.item,catalog,alias);
       if(!definition||definition.kind==='equipment'&&entry.priceMode!=='market')continue;

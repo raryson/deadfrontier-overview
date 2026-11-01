@@ -1,0 +1,33 @@
+import {parseLootItem} from './loot-model.mjs';
+const key=value=>String(value).toUpperCase().replace(/[^A-Z0-9]/g,'');
+const distance=(a,b)=>{const row=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){let prev=row[0];row[0]=i;for(let j=1;j<=b.length;j++){const old=row[j];row[j]=Math.min(row[j]+1,row[j-1]+1,prev+(a[i-1]===b[j-1]?0:1));prev=old;}}return row[b.length];};
+export function canonicalLootName(name,catalog){
+  const exact=catalog.filter(item=>key(item.name)===key(name));if(exact.length===1)return exact[0].name;
+  // Calibres must match exactly; only one spelling edit in ammunition words.
+  const numbers=String(name).replace(/[.,]/g,'').match(/\d+/g)?.join(':');
+  if(!numbers||!/(?:BULLETS|SHELLS|AMMO|GRENADES)$/i.test(name))return name;
+  const candidates=catalog.filter(item=>item.kind==='round'&&item.name.replace(/[.,]/g,'').match(/\d+/g)?.join(':')===numbers&&distance(key(item.name),key(name))<=1);
+  return candidates.length===1?candidates[0].name:name;
+}
+export function parseLootPrompt(text){
+ const normalized=String(text).replace(/\s+/g,' ').trim();
+ const match=/YOU\s+HAVE\s+(?:FOU[MN]D|FOND|FORE)\s+(?:(?:AN?)\s+|S[O0][MR]E(?:\s+|\??(?=\d)))?(.{2,100}?)\s*[.!?,]?\s*WIL{1,2}\s+YOU\s+TAKE/i.exec(normalized);
+ return match?parseLootItem(match[1]):null;
+}
+export class LootJournal{
+ constructor(store){this.store=store;this.events=new Map();}
+ observe(reading,sessionId,now=Date.now()){
+  if(!/^[a-zA-Z0-9-]{1,80}$/.test(reading.eventId??'')||!Number.isFinite(reading.capturedAt)||reading.capturedAt>now+100||now-reading.capturedAt>600000||!Number.isFinite(reading.confidence)||reading.confidence<65||reading.frameAt!=null&&(!Number.isFinite(reading.frameAt)||reading.frameAt<reading.capturedAt||reading.frameAt>now+100))return false;
+  const parsed=parseLootPrompt(reading.text);if(!parsed)return false;
+  const original=parsed.item;parsed.item=canonicalLootName(original,this.store.itemCatalog());
+  let event=this.events.get(reading.eventId);if(!event){event={id:reading.eventId,sessionId,foundAt:reading.capturedAt,votes:new Map(),quantities:new Map()};this.events.set(reading.eventId,event);while(this.events.size>200)this.events.delete(this.events.keys().next().value);}
+  const signature=key(parsed.item),old=event.votes.get(signature),seen=new Set(old?.frames??[]);seen.add(reading.frameAt??reading.capturedAt);event.votes.set(signature,{frames:[...seen]});
+  if(parsed.quantity){const votes=event.quantities.get(parsed.quantity)??new Set();votes.add(reading.frameAt??reading.capturedAt);event.quantities.set(parsed.quantity,votes);}
+  const known=this.store.itemCatalog().some(item=>key(item.name)===signature);
+  if(seen.size<2&&reading.confidence<(known?75:85))return false;
+  if(event.saved&&key(event.saved.item)!==signature)return false;
+  const verifiedQuantity=parsed.quantity&&(event.quantities.get(parsed.quantity).size>=2||reading.quantityConfidence>=90)?parsed.quantity:event.saved?.quantity;
+  const entry={...event.saved,id:event.id,sessionId:event.sessionId??null,item:parsed.item,rawItem:original,foundAt:event.foundAt,readAt:now,status:'observed',captureMode:'snapshot',...(parsed.cash?{cash:parsed.cash}:{}),...(parsed.unit?{unit:parsed.unit}:{}),...(verifiedQuantity?{quantity:verifiedQuantity,quantityUncertain:false}:parsed.quantity||parsed.quantityUncertain?{quantityUncertain:true}:{})};
+  event.saved=entry;this.store.saveLoot(entry);return true;
+ }
+}

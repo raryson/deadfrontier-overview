@@ -1,12 +1,12 @@
 # Preços no app / Prices in the app
 
-App Windows **0.5.0** ou superior. Nomes de itens permanecem no idioma original.
+App Windows **0.6.0** ou superior. Nomes de itens permanecem no idioma original.
 
 ## Usar sem código ou extensão
 
 1. Extraia o ZIP Windows completo e abra `DeadFrontier Overview.exe`.
 2. Em **Preços do mercado**, mantenha **Secronom Bunker / Outposts** ou selecione outra região. A escolha fica salva no app, sem seguir a localização do navegador.
-3. Jogue normalmente. Quando o OCR reconhecer um loot do catálogo, o app prepara uma consulta pública. Uma coleta aceita com quantidade conhecida entra no total assim que houver referência disponível.
+3. Jogue normalmente. Quando o OCR reconhecer um loot do catálogo, o app prepara uma consulta pública. Um item identificado no diálogo com quantidade conhecida entra no total potencial assim que houver referência disponível.
 4. Para testar sem coletar, informe **Gasoline** em **Nome original do item** e clique em **Consultar preço**. Abra **Referências Yard e cotações** para conferir preço unitário e horário.
 
 O catálogo público acompanha o app: 1.308 definições e 857 valores-base Yard nesta versão. O snapshot está em `desktop/data/item-catalog.json`; contém apenas identificador, nome, categoria e valor-base público, com data e origem. Novas definições podem ser incorporadas em atualizações ou pela integração opcional abaixo.
@@ -16,7 +16,7 @@ O catálogo público acompanha o app: 1.308 definições e 857 valores-base Yard
 - **Equipamentos comuns**: valor-base de venda no **Yard/NPC**. Não geram buscas automáticas no mercado.
 - **Equipamento customizado / GC / NGC**: marque a exceção na consulta manual do app. No loot, selecione a variante exata com os atributos correspondentes. O padrão continua sendo Yard; o OCR não identifica craft pelo nome.
 - **Consumíveis e munição**: menor preço por unidade dos anúncios retornados na região selecionada. **Gasoline usa ml**. É uma estimativa, sem garantia de venda ou desconto de taxas.
-- **Dinheiro**: valor nominal aceito, sem cotação.
+- **Dinheiro**: valor nominal identificado, sem cotação.
 
 Secronom e os demais outposts compartilham a região atual **21**. A seleção também inclui Camp Valcrest, Wastelands e regiões da cidade. Não usamos os IDs antigos dos outposts como mercados separados.
 
@@ -24,7 +24,7 @@ Anúncios vencem em **15 minutos**. O cache automático dura dez minutos, com at
 
 Sem anúncio, nome reconhecido ou quantidade, o item fica indicado como sem referência; o app não inventa um preço. Se o OCR errou, use **Associar um nome lido pelo OCR**. Nomes de equipamentos com cor ou variante que não coincidam com o catálogo também podem precisar dessa associação. Quantidades continuam editáveis na linha do loot. A durabilidade de uma armadura não é quantidade de unidades.
 
-O histórico e o CSV usam referências atuais, sem representar vendas realizadas no passado. Coletas incertas não são contabilizadas até confirmação explícita do usuário.
+O histórico e o CSV usam referências atuais, sem representar vendas realizadas no passado. O app 0.6.0 registra itens vistos, sem verificar aceite ou entrada na mochila. Registros antigos mantêm seus estados; resultados antigos incertos ficam fora do total até confirmação manual.
 
 ## Integração opcional com o navegador
 
@@ -46,7 +46,7 @@ A integração opcional mantém `127.0.0.1:17373` autenticado por pareamento. Co
 
 ## English
 
-Windows app **0.5.0** queries public listings directly; no extension or pairing code is needed. Keep **Secronom Bunker / Outposts** as the default or choose another region in **Market prices**. Enter **Gasoline** and click **Look up price** to test. Confirmed pickups with recognized names and known quantities are valued automatically as quotes become available.
+Windows app **0.6.0** queries public listings directly; no extension or pairing code is needed. Keep **Secronom Bunker / Outposts** as the default or choose another region in **Market prices**. Enter **Gasoline** and click **Look up price** to test. Identified dialog items with known quantities are valued automatically as quotes become available. These are potential values, without confirming acceptance or inventory entry.
 
 Ordinary equipment uses bundled **Yard/NPC values** without market searches. Custom equipment requires an explicit manual query and exact variant selection. Other items use the lowest observed unit listing; Gasoline uses ml. Quotes expire after 15 minutes; cache lasts ten minutes, with up to six queries per minute. Missing or uncertain values stay excluded and can be corrected manually.
 

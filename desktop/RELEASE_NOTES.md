@@ -1,13 +1,9 @@
-## Windows 0.5.2
+## Windows 0.6.0
 
-Corrige a confirmação de fechamento do loot durante sequências de cliques: quadros recentes ligados aos cliques agora também podem confirmar o desaparecimento, após uma escolha já reconhecida. Exige três quadros distintos e rejeita quadros antigos, futuros ou anteriores à escolha. Não transforma registros antigos incertos em coletas aceitas.
+- Captura de recortes a até 30 fps e fila de OCR independente: diálogos podem fechar imediatamente, inclusive usando F. Não aguarda cliques ou confirmação de aceite.
+- Histórico e valores passam a indicar itens identificados e seu valor potencial. Dados anteriores são preservados.
+- Corrige nomes de munição usando calibre e correspondência única do catálogo; mantém o texto original para conferência.
+- XP exata sem K no início do nível; telas pretas tratadas como carregamento, preservando a sessão.
+- Fila limitada em memória e indicação de recortes pendentes/overflow. Imagens não são gravadas nem enviadas.
 
-Inclui a correção de percentual do HUD da 0.5.1. Sessões e dados são preservados.
-
-## Windows 0.5.1
-
-Correção identificada em partida real: o OCR pode ler 16% como 167%, confundindo o parêntese do HUD. XP exata abaixo de um milhão agora aceita essa correção somente quando o percentual reparado concorda com XP/limiar. Leituras incompatíveis continuam rejeitadas.
-
-A leitura evita testar a posição alternativa de barra de título quando já encontrou um HUD legível, reduzindo trabalho redundante. Sessões, loot e referências de preço são preservados.
-
-Loot continua experimental: escolhas sem confirmação visual permanecem incertas.
+Validação: quatro diálogos fictícios de 180 ms, reconhecidos após fecharem, incluindo dois Whiskey, 880 unidades de munição 12.7mm e 812 ml de Gasoline. Testes de deduplicação, filas, nomes, XP, quantidades e associação da sessão pelo instante de captura. O client real ainda precisa validar a cobertura dos diálogos rápidos. Extraia o ZIP inteiro.

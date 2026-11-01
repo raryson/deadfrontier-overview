@@ -1,8 +1,8 @@
 # DeadFrontier Overview — Windows
 
-Prévia **0.5.2** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
+Prévia **0.6.0** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
 
-[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.5.2/deadfrontier-overview-windows-0.5.2.zip)
+[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.6.0/deadfrontier-overview-windows-0.6.0.zip)
 
 ## Usar a versão portátil
 
@@ -18,7 +18,7 @@ Atalhos: **Alt+Shift+D** abre/oculta o painel; **Alt+Shift+O** liga/desliga o ov
 
 ## Preços e loot
 
-Em **Preços do mercado**, Secronom Bunker / Outposts é o padrão. Escolha outra região no próprio app. Não precisa de código, login ou navegador para consultar. Equipamentos comuns usam Yard/NPC; consumíveis e munição usam anúncios públicos. Gasoline usa ml. Para testar, consulte **Gasoline** manualmente e abra as referências. O app prepara cotações ao reconhecer os loots e soma apenas coletas aceitas com quantidade conhecida. Veja o [guia de preços](../docs/prices.md).
+Em **Preços do mercado**, Secronom Bunker / Outposts é o padrão. Escolha outra região no próprio app. Não precisa de código, login ou navegador para consultar. Equipamentos comuns usam Yard/NPC; consumíveis e munição usam anúncios públicos. Gasoline usa ml. Para testar, consulte **Gasoline** manualmente e abra as referências. O app prepara cotações ao reconhecer os loots e soma o valor potencial dos itens identificados com quantidade conhecida. Veja o [guia de preços](../docs/prices.md).
 
 ## Sessões e histórico
 
@@ -42,6 +42,16 @@ Se a linha de XP não for reconhecida, abra **Ajustar a área de XP**, atualize 
 O jogo precisa continuar renderizando a janela. Minimizar pode interromper os frames; o tempo da sessão inclui esse intervalo. O comportamento sobre tela cheia exclusiva depende do client e precisa ser validado nele. Prefira inicialmente modo janela ou sem bordas.
 
 Esta prévia usa um perfil local de XP; não faz login no jogo nem identifica automaticamente troca de personagem. Ao trocar de personagem na mesma janela, use **Salvar e zerar sessão**. O loot é experimental. O catálogo Yard acompanha o app e os anúncios são consultados diretamente, sem navegador. Buffs vindos do addon e compra/banco ainda não estão implementados neste app.
+
+## Loot em segundo plano (0.6.0)
+
+A captura roda a até 30 quadros por segundo e seleciona pequenos recortes do diálogo para uma fila em memória. O OCR trabalha separado da leitura de XP: pode aceitar o item imediatamente ou segurar F. Não é preciso aguardar a leitura.
+
+O histórico registra **itens identificados no diálogo**, sem verificar aceite ou entrada na mochila. O total é o valor potencial desses itens. Recortes repetidos do mesmo diálogo não criam novas linhas; dois diálogos separados do mesmo item contam separadamente. Quantidades duvidosas ficam editáveis e fora da estimativa. O catálogo corrige grafias próximas de munição apenas quando o calibre coincide e há uma única correspondência.
+
+São até 24 diálogos pendentes, com no máximo três recortes de 350 × 310 por diálogo. A fila cheia aparece no painel; não há gravação de imagens em disco. Encerrar o app descarta recortes ainda não processados. Fechar só o painel mantém o processamento na bandeja.
+
+Telas pretas de carregamento mostram “Aguardando o HUD” ou “Carregando mapa”. Não iniciam uma sessão nem geram XP. A sessão começa na primeira leitura estável, aceitando XP exata sem K no início do nível.
 
 ## Privacidade
 
@@ -74,33 +84,17 @@ Resultado: `../dist/windows/DeadFrontier Overview-win32-x64/`. Todos os arquivos
 
 O teste completo comprovou captura sem seletor, OCR, início automático, ganho contínuo, parar, zerar e salvamento ao fechar a janela fictícia. No client real do usuário, o processo `DeadFrontier` foi reconhecido, a leitura do HUD iniciou a sessão automaticamente e o usuário confirmou o overlay sobre o jogo. Outras resoluções, escalas de tela e comportamentos de tela cheia ainda precisam ser conferidos nas respectivas configurações.
 
-Para diagnosticar o OCR localmente, inicie o executável com `--diagnostic-file CAMINHO_ABSOLUTO.json`. Esse modo opcional grava a última tentativa de texto do HUD, o diálogo de loot, confiança, estado e a categoria de clique/tecla da escolha dentro do jogo; não grava imagens e não envia dados. O arquivo é atualizado no caminho escolhido e não é necessário no uso normal.
-
-## Loot experimental (0.2)
-
-O app lê separadamente o diálogo central de item encontrado e registra nome, horário, sessão de XP e escolha. Dinheiro encontrado também é identificado. O leitor funciona mesmo se o app for aberto com o diálogo já visível; a antecipação principal vem de E/F mantido por um segundo. SEARCHING/LOOTING continua sendo uma indicação auxiliar de busca, sem criar um item e sem exigir que a barra tenha sido observada.
-
-Com o acompanhamento ligado e a janela exata do jogo em primeiro plano, o helper observa E/F mantido por um segundo para antecipar a busca. Durante essa antecipação ou um diálogo reconhecido, observa os atalhos E/F/T/C e o clique esquerdo. F só confirma Yes se esse atalho estiver indicado no diálogo. O quadro anterior à escolha fica temporariamente em memória para que o OCR possa terminar depois do fechamento. Não envia teclas, não clica pelo jogador, não instala hooks e não observa outras teclas ou aplicativos. A escolha só é finalizada após o diálogo desaparecer. Fechar o app, perder a captura ou não observar a escolha deixa o resultado não confirmado.
-
-“Aceito (Yes)” indica a escolha observada na interface; não é uma confirmação de inventário vinda do servidor. Preços são referências estimadas; pilhas de quantidade desconhecida precisam de ajuste manual para entrar no total. Nomes dependem do OCR e podem conter erros. Use o recurso como histórico auxiliar. Cliques muito rápidos, teclas mantidas pressionadas, escalas de UI diferentes e diálogos breves podem não ser identificados. A tabela mostra os últimos 200 eventos; o banco mantém todos. A validação real inicial reconheceu dinheiro; o primeiro clique real ficou não confirmado. O caminho de clique completo foi validado com um item fictício no próprio app.
+Para diagnosticar o OCR localmente, inicie o executável com `--diagnostic-file CAMINHO_ABSOLUTO.json`. Esse modo opcional grava a última tentativa de texto do HUD, o texto reconhecido no diálogo de loot, confiança e estado da leitura; não grava imagens e não envia dados. O arquivo é atualizado no caminho escolhido e não é necessário no uso normal.
 
 ## English quick start
 
 Extract the entire portable ZIP and run **DeadFrontier Overview.exe**. Leave automatic tracking enabled and open the game client. The app detects its window and starts a session on the first stable readout, without a browser sharing picker. Close minimizes to the tray; Quit exits. Alt+Shift+D toggles the dashboard and Alt+Shift+O toggles the overlay. Portuguese/English follow the selected language or system preferences.
 
-Sessions stay locally in SQLite under the app's user-data folder. Stop freezes the session; Save and reset preserves it and starts another. Closing the game ends and saves the session. Base XP is an estimate; K values have about 1,000 XP precision. Windowed/borderless mode is recommended for initial validation. Loot tracking is experimental; accepted means an observed Yes choice followed by dialog dismissal, without server inventory confirmation. See the [price integration guide](../docs/prices.md) to pair the browser addon, synchronize market estimates and read the game's Yard references for ordinary equipment.
+Sessions stay locally in SQLite under the app's user-data folder. Stop freezes the session; Save and reset preserves it and starts another. Closing the game ends and saves the session. Base XP is an estimate; K values have about 1,000 XP precision. Windowed/borderless mode is recommended for initial validation. Loot OCR runs on a bounded queue of frozen dialog crops at up to 30 fps. Accept immediately or hold F: the app identifies items seen without waiting for acceptance. Totals show potential value, not confirmed inventory. Black loading screens wait for the HUD; exact XP without K is supported. Public prices and Yard references work without a browser or code; see the [price guide](../docs/prices.md).
 
 ## Preços e Yard
 
 Veja [o guia de conexão com a extensão](../docs/prices.md). Equipamentos comuns usam a referência Yard/NPC do jogo; somente uma escolha explícita de variante customizada/GC/NGC usa anúncios. Nomes originais são preservados. Estimativas aparecem por loot, por sessão, no overlay e no CSV.
-
-## Leitura de loot na versão 0.5.2
-
-O leitor separa nome e quantidade (Gasoline em ml), confirma números em leituras concordantes e mantém ajuste manual para pilhas. Registros antigos como GASOLINE (812 são normalizados preservando o texto original, a sessão e o estado de coleta. A detecção do título antecipa a observação de Yes/No/Use; nome e botões vêm de um único quadro. Uma falha de OCR não comprova fechamento do diálogo. O inventário final sozinho não permite reconstruir com certeza os itens perdidos de uma run passada, pois pode conter itens anteriores, consumidos ou vendidos.
-
-## Captura antecipada e visual (0.5.2)
-
-Segurar E ou F por pelo menos um segundo prepara a leitura por até 12 segundos. O gesto de busca não cria um item. O atalho ou clique é associado a um quadro do próprio diálogo capturado até 500 ms antes da escolha, evitando depender de a tela continuar parada. O pequeno histórico de quadros fica somente na memória e é limitado a 12 recortes; não há gravação ou upload. Falhas detectadas são indicadas no painel e ainda podem exigir correção manual.
 
 O painel tem navegação lateral, XP em destaque e loot antes do histórico. As cores permanecem em carvão, cobre/laranja e vermelho escuro. O overlay continua no canto inferior direito.
 

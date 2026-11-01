@@ -21,7 +21,7 @@ test('XP exata abaixo de um milhão aceita alvo com K somente quando o percentua
     assert.equal(result.xp,669855);assert.equal(result.nextLevelXp,6100000);assert.equal(result.precision,1);
   }
   assert.equal(parseHudXp('LV 100: 1,000 / 6,100K (0%)').xp,1000);
-  for(const text of ['LV 100: 669,855 / 6,100K','LV 100: 669,855 / 6,100K (407%)','LV 100: 12 / 6,100K (0%)','LV 100: 2,113 / 6,100K (35%)'])assert.equal(parseHudXp(text),null);
+  for(const text of ['LV 100: 669,855 / 6,100K (407%)','LV 100: 2,113 / 6,100K (35%)'])assert.equal(parseHudXp(text),null);
 });
 const reading=xp=>({xp,level:12,nextLevelXp:2000000,precision:1000});
 test('primeira leitura exige confirmação e duas leituras coerentes podem acompanhar ganho contínuo',()=>{
@@ -80,4 +80,12 @@ test('percentual com parêntese confundido com 7 permite XP exata somente com ra
     const sample=parseHudXp(`LV 100: ${xp} / 6100K (${percent}%)`);assert.equal(sample.xp,xp);assert.equal(sample.nextLevelXp,6100000);
   }
   for(const text of ['LV 100: 933291 / 6100K (407%)','LV 100: 933291 / 6100K (168%)','LV 100: 933 / 6100K (157%)','LV 100: 933291 / 6100K (997%)'])assert.equal(parseHudXp(text),null);
+});
+
+test('XP sem K funciona no início do nível e em valores exatos grandes sem aceitar um K perdido',()=>{
+ for(const xp of [1,12,999,1000,12345,933291,1001234]){const result=parseHudXp('LV 100: '+xp+' / 6100K ('+Math.floor(xp/6100000*100)+'%)');assert.equal(result.xp,xp);assert.equal(result.precision,1);}
+ assert.equal(parseHudXp('LV 100: 933291 / 6100K').xp,933291);
+ assert.equal(parseHudXp('LV 100: 2,113 / 6100K (35%)'),null);
+ assert.equal(parseHudXp('LV 100: 2,113 / 6100K'),null);
+ assert.equal(parseHudXp('LV 100: 150 / 6100K',{previous:{level:100,xp:100,precision:1}}).xp,150);
 });

@@ -1,5 +1,3 @@
-## Extensão 0.9.4
+## Extensão 0.9.5
 
-Correção do parser compartilhado de XP: reconhece o caso de parêntese confundido com 7 no percentual (16% → 167%) somente se a razão XP/limiar confirmar o valor reparado. Mantém rejeição de sufixos perdidos e números incompatíveis.
-
-Banco, buffs e integração opcional com o app permanecem disponíveis.
+Melhora o parser compartilhado de XP sem K no início do nível, mantendo verificações contra sufixos perdidos e números incoerentes. O app Windows 0.6.0 traz a nova captura de loot em segundo plano.

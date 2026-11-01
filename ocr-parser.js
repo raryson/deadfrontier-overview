@@ -27,18 +27,24 @@ export function parseHudXp(text) {
   // A dropped K/M suffix turns millions into thousands and creates false deaths.
   const currentUnit=/[KMB]\s*$/.exec(match[2]),targetUnit=/[KMB]\s*$/.exec(match[3]);
   const percent=/^\s*\(\s*(\d{1,3})\s*%\s*\)/.exec(normalized.slice(match.index+match[0].length));
+  let shown=percent?Number(percent[1]):NaN;
+  // The closing HUD parenthesis can be appended as 7 before %. Repair only
+  // an impossible percentage with that exact suffix, checked against XP/target.
+  if(shown>100&&percent[1].endsWith('7')){
+    const repaired=Number(percent[1].slice(0,-1));
+    if(repaired<=100&&Math.abs(current.value/target.value*100-repaired)<=1.1)shown=repaired;
+  }
   if(targetUnit&&!currentUnit&&current.value!==0){
     // Below one million the game can show exact XP against an abbreviated
     // target. Require the visible percentage to distinguish this from a lost
     // suffix; reject readings where both interpretations would fit.
-    const shown=percent?Number(percent[1]):NaN;
     const multiplier=({K:1000,M:1000000,B:1000000000})[targetUnit[0].trim()];
     const ratio=current.value/target.value*100;
     if(current.value>=1000000||!Number.isFinite(shown)||shown>100||Math.abs(ratio-shown)>1.1||Math.abs(ratio*multiplier-shown)<=1.1)return null;
   }
   // OCR often reads the closing parenthesis as a 7 (40% -> 407%). Such an
   // impossible percentage is not evidence against otherwise valid XP tokens.
-  if(percent&&Number(percent[1])<=100&&Math.abs(current.value/target.value*100-Number(percent[1]))>2)return null;
+  if(Number.isFinite(shown)&&shown<=100&&Math.abs(current.value/target.value*100-shown)>2)return null;
   return {xp:current.value,level,nextLevelXp:target.value,precision:current.precision,source:'ocr',totalXp:null,serverTime:null};
 }
 export function createOcrGate() {

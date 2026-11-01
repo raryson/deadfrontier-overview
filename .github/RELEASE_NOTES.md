@@ -1,5 +1,5 @@
-## Extensão 0.9.3
+## Extensão 0.9.4
 
-O app Windows 0.5.0 consulta o mercado diretamente e não precisa de código. O painel agora explica a integração opcional de catálogo; a extensão deixa as consultas automáticas para o app novo. Mantém compatibilidade com versões anteriores.
+Correção do parser compartilhado de XP: reconhece o caso de parêntese confundido com 7 no percentual (16% → 167%) somente se a razão XP/limiar confirmar o valor reparado. Mantém rejeição de sufixos perdidos e números incompatíveis.
 
-Baixe o ZIP específico para Chrome ou Firefox e recarregue a extensão e a página. Banco e buffs continuam funcionando. Nenhum dado de conta é incluído no pacote.
+Banco, buffs e integração opcional com o app permanecem disponíveis.

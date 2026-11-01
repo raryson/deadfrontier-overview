@@ -185,6 +185,7 @@ window.startCapture=async()=>{
         if(!config.region&&region.y*video.videoHeight<85)candidates.push({...region,y:Math.min((80+32)/video.videoHeight,1-region.height)});
         let best=null,diagnostic=[];
         for(const candidate of candidates){
+          if(best?.confidence>=75)break; // A readable HUD does not need the title-bar fallback.
           for(const [threshold,neutral] of [[160,false],[80,false],[110,true],[null,false]]){
             const image=prepare(candidate,threshold,neutral);const result=await worker.recognize(await canvasBytes(image));
             const sample=parseHudXp(result.data.text);

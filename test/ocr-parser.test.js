@@ -74,3 +74,10 @@ test('subida de nível aceita confirmação coerente sem exigir XP idêntica',()
   assert.equal(gate.accept(next(5000),90,4000),null);
   assert.equal(gate.accept(next(10000),90,6000).xp,10000);
 });
+
+test('percentual com parêntese confundido com 7 permite XP exata somente com razão compatível',()=>{
+  for(const [xp,percent]of [[933291,'157'],[951041,'167'],[966990,'167']]){
+    const sample=parseHudXp(`LV 100: ${xp} / 6100K (${percent}%)`);assert.equal(sample.xp,xp);assert.equal(sample.nextLevelXp,6100000);
+  }
+  for(const text of ['LV 100: 933291 / 6100K (407%)','LV 100: 933291 / 6100K (168%)','LV 100: 933 / 6100K (157%)','LV 100: 933291 / 6100K (997%)'])assert.equal(parseHudXp(text),null);
+});

@@ -1,9 +1,7 @@
-## Windows 0.5.0
+## Windows 0.5.1
 
-- Consulta pública de preços diretamente no app, sem extensão ou código.
-- Secronom Bunker / Outposts como padrão e seleção de região persistente.
-- Catálogo público incluído: 1.308 definições e 857 referências Yard/NPC. Equipamentos comuns não geram buscas automáticas.
-- Cotação antecipada para loot reconhecido; Gasoline calculada por ml. Cache, limite de consultas e falhas de rede não interrompem a captura.
-- Consulta manual, horário das referências e integração opcional de catálogo. Sessões e preferências preservadas.
+Correção identificada em partida real: o OCR pode ler 16% como 167%, confundindo o parêntese do HUD. XP exata abaixo de um milhão agora aceita essa correção somente quando o percentual reparado concorda com XP/limiar. Leituras incompatíveis continuam rejeitadas.
 
-Validação: testes de consulta, cache, regiões, Yard e cálculo de loot; consulta pública real de Gasoline. Loot por OCR continua experimental. Extraia o ZIP completo antes de executar.
+A leitura evita testar a posição alternativa de barra de título quando já encontrou um HUD legível, reduzindo trabalho redundante. Sessões, loot e referências de preço são preservados.
+
+Loot continua experimental: escolhas sem confirmação visual permanecem incertas.

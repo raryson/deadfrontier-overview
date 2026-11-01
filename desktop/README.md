@@ -1,8 +1,8 @@
 # DeadFrontier Overview — Windows
 
-Prévia **0.6.2** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
+Prévia **0.7.0** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
 
-[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.6.2/deadfrontier-overview-windows-0.6.2.zip)
+[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.7.0/deadfrontier-overview-windows-0.7.0.zip)
 
 ## Usar a versão portátil
 
@@ -19,6 +19,12 @@ Atalhos: **Alt+Shift+D** abre/oculta o painel; **Alt+Shift+O** liga/desliga o ov
 ## Preços e loot
 
 Em **Preços do mercado**, Secronom Bunker / Outposts é o padrão. Escolha outra região no próprio app. Não precisa de código, login ou navegador para consultar. Equipamentos comuns usam Yard/NPC; consumíveis e munição usam anúncios públicos. Gasoline usa ml. Para testar, consulte **Gasoline** manualmente e abra as referências. O app prepara cotações ao reconhecer os loots e soma o valor potencial dos itens identificados com quantidade conhecida. Veja o [guia de preços](../docs/prices.md).
+
+## Navegação
+
+O menu lateral abre uma tela por vez: **Visão geral**, **Loot ao vivo**, **Histórico de sessões**, **Preços do mercado**, **Associações** e **Preferências**. A visão geral reúne XP e atalhos para as outras telas. A página de associações lista os nomes já salvos; a integração opcional com a extensão fica em Preferências.
+
+A última tela usada fica lembrada neste computador. Trocar de tela mantém o acompanhamento e os formulários; não reinicia a captura nem a sessão. A indicação de leitura permanece no rodapé do menu.
 
 ## Sessões e histórico
 
@@ -43,7 +49,7 @@ O jogo precisa continuar renderizando a janela. Minimizar pode interromper os fr
 
 Esta prévia usa um perfil local de XP; não faz login no jogo nem identifica automaticamente troca de personagem. Ao trocar de personagem na mesma janela, use **Salvar e zerar sessão**. O loot é experimental. O catálogo Yard acompanha o app e os anúncios são consultados diretamente, sem navegador. Buffs vindos do addon e compra/banco ainda não estão implementados neste app.
 
-## Loot em segundo plano (0.6.2)
+## Loot em segundo plano (0.7.0)
 
 A captura roda a até 30 quadros por segundo e seleciona pequenos recortes do diálogo para uma fila em memória. O OCR trabalha separado da leitura de XP: pode aceitar o item imediatamente ou segurar F. Não é preciso aguardar a leitura.
 

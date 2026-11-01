@@ -1,7 +1,10 @@
-## Windows 0.6.2
+## Windows 0.7.0
 
-Shift + F faz uma captura manual extra do loot quando o client está em primeiro plano. Usa os pequenos recortes dos 200 ms anteriores ao comando, para que o OCR continue mesmo se F fechar o diálogo imediatamente. Não bloqueia teclas do jogo e não atua em outros aplicativos. A captura automática permanece ativa e compartilha o registro para evitar duplicação.
+Interface organizada em seis telas: Visão geral, Loot ao vivo, Histórico, Preços do mercado, Associações e Preferências. O menu alterna a tela exibida, sem recarregar o app ou interromper o acompanhamento.
 
-O overlay confirma o envio do recorte para a fila. Pressione uma vez com o diálogo visível e siga jogando; não é preciso esperar pelo OCR.
+- Visão geral com XP em destaque e atalhos para loot, histórico e associações.
+- Página de associações com lista das correções salvas. Integração opcional com a extensão movida para Preferências.
+- Navegação ativa, título e descrição por tela, estado de leitura no menu e última tela lembrada.
+- Visual em carvão, cobre/laranja e vermelho escuro, com tabelas e formulários ajustados para cada página.
 
-Validação: teste completo em janela fictícia sem título detectável automaticamente. Shift + F fechou o diálogo e o item foi reconhecido depois, uma única vez, como captura por atalho. Testes nativos cobrem foco, repetição, cooldown, captura manual e deduplicação. Histórico preservado.
+Validado em uma instância de demonstração separada. Histórico, configurações e associações existentes são preservados. Extraia o ZIP completo.

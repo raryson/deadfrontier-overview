@@ -13,6 +13,7 @@ function render(){
   document.documentElement.lang=language.language;
   $('language').value=state.settings.language??'auto';$('auto').checked=state.settings.autoTrack;$('overlay').checked=state.settings.overlay;
   $('phase').textContent=language.t(state.phase);$('dot').className='status-dot '+state.phase;
+  $('rail-status').textContent=language.t(state.phase);$('rail-indicator').className='status-dot '+state.phase;
   $('game').textContent=state.game?`${state.game.title} · ${state.game.processName}`:'';$('detail').textContent=state.detail;
   $('test').hidden=!state.demo;
   const xp=state.experience,stats=experienceStats(xp);
@@ -41,6 +42,7 @@ function render(){
   $('loot-count').textContent=language.t(xp?.session?.id?'lootAccepted':'lootUnassignedAccepted',{count:number(accepted)});
   $('loot-pending').textContent=state.lootQueueDropped?language.t('lootQueueDropped',{count:state.lootQueueDropped}):Date.now()-(state.lootManualAt??0)<4000?language.t('lootManualQueued'):state.pendingLoot?language.t('lootPending',{item:state.pendingLoot.item}):state.lootProcessing?language.t('lootQueue',{count:state.lootQueueSize??0}):state.lootCaptureWarning?language.t('lootReadMissed'):state.lootSearching?language.t('lootAnticipating'):'';
   const summary=state.pricing?.sessions?.[xp?.session?.id??'unassigned'];
+  $('overview-loot-value').textContent=money((summary?.cash??0)+(summary?.estimated??0));$('overview-history-count').textContent=number(state.sessionCount);$('overview-unpriced').textContent=number(summary?.unpriced??0);
   $('loot-cash').textContent=money(summary?.cash??0);$('loot-estimate').textContent=money(summary?.estimated??0);$('loot-unpriced').textContent=number(summary?.unpriced??0);
   $('loot-empty').hidden=!!state.loot?.length;
   if(!$('loot-rows').contains(document.activeElement)){
@@ -82,6 +84,8 @@ function renderPrices(){
   options('price-market',pricing.marketOptions,pricing.market);
   options('price-alias-from',[...new Set((state.loot??[]).filter(e=>!e.cash).map(e=>e.item))].map(name=>[name,name]));
   options('price-alias-target',pricing.catalog.map(q=>[q.itemId,`${q.name} · ${q.itemId}`]));
+  const savedAliases=Object.entries(pricing.aliases??{});$('alias-count').textContent=number(savedAliases.length);$('alias-empty').hidden=savedAliases.length>0;$('alias-table').hidden=!savedAliases.length;
+  $('alias-rows').replaceChildren(...savedAliases.map(([from,id])=>{const row=document.createElement('tr');for(const text of [from,pricing.catalog.find(item=>item.itemId===id)?.name??id]){const cell=document.createElement('td');cell.textContent=text;row.append(cell);}return row;}));
   $('price-alias-submit').disabled=!$('price-alias-from').value||!$('price-alias-target').value;
   $('price-catalog').replaceChildren();
   for(const quote of pricing.catalog.filter(q=>q.unitPrice!=null).sort((a,b)=>(b.source==='market')-(a.source==='market')).slice(0,50)){
@@ -108,7 +112,18 @@ $('price-alias-form').onsubmit=event=>{event.preventDefault();act('priceAlias',{
 api.subscribe(value=>{state=value;render();});state=await api.read();render();
 setInterval(()=>{if(state?.experience?.session?.running){const stats=experienceStats(state.experience);$('elapsed').textContent=duration(stats.elapsed);$('rate').textContent=number(stats.perHour);if(state.experience.multiplier||stats.baseGained>0)$('base-rate').textContent=number(stats.basePerHour);}},1000);
 
-for(const button of document.querySelectorAll('.nav-button'))button.onclick=()=>{const target=document.getElementById(button.dataset.section);if(target?.tagName==='DETAILS')target.open=true;target?.scrollIntoView({behavior:'smooth',block:'start'});for(const item of document.querySelectorAll('.nav-button'))item.classList.toggle('active',item===button);};
+const pages={overview:['navOverview','pageOverviewHint'],loot:['navLoot','pageLootHint'],history:['history','pageHistoryHint'],market:['priceTitle','pageMarketHint'],aliases:['navAliases','pageAliasesHint'],settings:['navSettings','pageSettingsHint']};
+function navigate(page,focus=false){
+ if(!Object.hasOwn(pages,page))page='overview';
+ for(const view of document.querySelectorAll('[data-view]'))view.hidden=view.dataset.view!==page;
+ for(const button of document.querySelectorAll('.nav-button')){const active=button.dataset.page===page;button.classList.toggle('active',active);if(active)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');}
+ $('view-title').dataset.text=pages[page][0];$('view-description').dataset.text=pages[page][1];
+ $('view-title').textContent=language.t(pages[page][0]);$('view-description').textContent=language.t(pages[page][1]);$('view-number').textContent=String(Object.keys(pages).indexOf(page)+1).padStart(2,'0')+' / 06';
+ try{localStorage.setItem('overview.page',page);}catch{}
+ window.scrollTo({top:0,behavior:'instant'});if(focus)$('view-title').focus({preventScroll:true});
+}
+for(const button of document.querySelectorAll('[data-page],[data-page-link]'))button.onclick=()=>navigate(button.dataset.page??button.dataset.pageLink,true);
+let initialPage='overview';try{initialPage=localStorage.getItem('overview.page')??initialPage;}catch{}navigate(initialPage);
 $('clear-history').onclick=()=>act('clearHistory');
 
 $('price-query-form').onsubmit=event=>{event.preventDefault();act('priceQuery',{name:$('price-query-name').value,custom:$('price-query-custom').checked});};

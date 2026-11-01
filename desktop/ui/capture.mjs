@@ -5,7 +5,7 @@ import {LootFrames} from './loot-frames.mjs';
 import {parseLootPrompt} from './loot-journal.mjs';
 import {LootSnapshotQueue,frameIsBlack,looksLikeLoot} from './loot-snapshots.mjs';
 const bridge=window.captureBridge,video=document.getElementById('game'),gate=createOcrGate(),queue=new LootSnapshotQueue(),recent=new LootFrames(30);
-let config,region,worker,lootWorker,stream,frameTimer,frameWidth=0,frameHeight=0,epoch=0,previewRequested=false,lootBusy=false,lootWake,firstRead=false,missingSince=0,lastSample=null;
+let draining=false,config,region,worker,lootWorker,stream,frameTimer,frameWidth=0,frameHeight=0,epoch=0,previewRequested=false,lootBusy=false,lootWake,firstRead=false,missingSince=0,lastSample=null;
 const sendStatus=(phase,detail='')=>bridge.status({token:config?.token,phase,detail:String(detail).slice(0,200)});
 function prepare(area,threshold=null){
  const w=Math.max(1,Math.round(area.width*video.videoWidth)),h=Math.max(1,Math.round(area.height*video.videoHeight)),canvas=document.createElement('canvas'),scale=Math.min(4,4096/w,1400/h);
@@ -26,6 +26,7 @@ function captureLoot(){
 }
 bridge.subscribe(update=>{
  if(!['reset','region','clear'].includes(update.type)&&update.token!==config?.token)return;
+ if(update.type==='drain'){draining=true;clearInterval(frameTimer);recent.clear();stream?.getTracks().forEach(track=>track.stop());if(queue.size)void readLoot();else if(!lootBusy)bridge.loot({token:config.token,reading:{kind:'queue',pending:0,dropped:queue.dropped}});return;}
  if(update.type==='lootCapture'){
   const at=update.at,frames=recent.frames.filter(f=>f.at<=at&&at-f.at<=200);
   const eventId=frames.findLast(f=>f.eventId)?.eventId;
@@ -42,7 +43,7 @@ const workerOptions={workerPath:new URL('../../vendor/ocr/worker.min.js',import.
 async function readLoot(){
  if(lootBusy||!lootWorker)return;lootBusy=true;
  try{
-  let job;while(stream?.active&&(job=queue.next())){
+  let job;while(job=queue.next()){
    bridge.loot({token:config.token,reading:{kind:'queue',pending:queue.size+1,dropped:queue.dropped}});
    const prompt=crop(job.canvas,35,30,280,65),large=document.createElement('canvas');large.width=1120;large.height=260;const ctx=large.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.drawImage(prompt,0,0,large.width,large.height);
    let best=null;const quantities=[];
@@ -57,11 +58,11 @@ async function readLoot(){
    bridge.loot({token:config.token,reading:{kind:'queue',pending:queue.size,dropped:queue.dropped}});
   }
  }catch{/* A failed crop never stops XP. Later saved crops remain queued. */}
- finally{lootBusy=false;if(stream?.active&&queue.size)setTimeout(readLoot,50);}
+ finally{lootBusy=false;if(queue.size&&(stream?.active||draining))setTimeout(readLoot,50);else if(draining)bridge.loot({token:config.token,reading:{kind:'queue',pending:0,dropped:queue.dropped}});}
 }
 window.startCapture=async()=>{
  try{
-  config=await bridge.config();stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:{ideal:30,max:30}},audio:false});stream.getVideoTracks()[0].addEventListener('ended',()=>sendStatus('ended'));video.srcObject=stream;await video.play();
+  config=await bridge.config();stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:{ideal:30,max:30}},audio:false});stream.getVideoTracks()[0].addEventListener('ended',()=>{if(!draining)sendStatus('ended');});video.srcObject=stream;await video.play();
   frameWidth=video.videoWidth;frameHeight=video.videoHeight;const saved=config.region;region=saved&&saved.sourceWidth===frameWidth&&saved.sourceHeight===frameHeight?saved:defaultHudRegion(frameWidth,frameHeight);
   // Capture starts before WASM initialization. The FIFO owns frozen crops;
   // closing a dialog or holding F never cancels its asynchronous OCR.

@@ -12,10 +12,10 @@ export class DesktopTracker {
     const entry=rememberExperience([],this.experience,now,reason)[0];
     this.store.save(this.experience,entry,this.settings);
   }
-  attach(){this.finish('gameChanged');this.experience={multiplier:this.settings.multiplier,latest:null,session:null};this.pendingStart=true;this.persist();}
+  attach(client=null,now=Date.now()){this.finish('gameChanged',now);this.client=client;this.experience={multiplier:this.settings.multiplier,latest:null,session:null};this.pendingStart=true;this.persist();}
   sample(sample,now=Date.now()){
     this.experience=recordExperience(this.experience,{...sample,account:'1',source:'ocr',totalXp:null,serverTime:null},now);
-    if(this.pendingStart){this.experience=startExperience(this.experience,now);this.pendingStart=false;}
+    if(this.pendingStart){this.experience=startExperience(this.experience,now);if(this.client)this.experience.session.client={...this.client};this.pendingStart=false;}
     this.persist(undefined,now);
   }
   finish(reason='stopped',now=Date.now()){

@@ -7,6 +7,7 @@ import {spawn} from 'node:child_process';
 import readline from 'node:readline';
 import {DesktopStore} from './store.mjs';
 import {DesktopTracker} from './tracker.mjs';
+import {ClientSession} from './client-session.mjs';
 import {LootFlow} from './ui/loot-model.mjs';
 import {LootJournal,canonicalLootName} from './ui/loot-journal.mjs';
 import {selectGameWindow,sourceForWindow,validRegion,csvOfSessions} from './selection.mjs';
@@ -33,8 +34,8 @@ const uiURL='dfov://app/desktop/ui/index.html';
 const overlayURL='dfov://app/desktop/ui/overlay.html';
 const captureURL='dfov://app/desktop/ui/capture.html';
 const csp="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self' data: blob:; img-src 'self' data: blob:; style-src 'self'; object-src 'none'; frame-src 'none'";
-let store,tracker,lootFlow,lootJournal,priceBridge,marketClient,priceCache,mainWindow,overlayWindow,captureWindow,tray,probe,fixtureWindow;
-const nativeLootInputs=new Map();
+let store,tracker,clientSession,lootFlow,lootJournal,priceBridge,marketClient,priceCache,mainWindow,overlayWindow,captureWindow,tray,probe,fixtureWindow;
+const nativeLootInputs=new Map(),retiredReaders=new Map();
 let lootCaptureWarningAt=0,lootQueueSize=0,lootQueueDropped=0,lootManualAt=0;
 let clearHistoryRequested=process.argv.includes('--clear-history');
 let quitting=false,windows=[],target=null,source=null,token=null,preview=null,retryAt=0,phase='waiting',detail='',captureStartedAt=0,lastCaptureMessage=0,probeBusy=false,selecting=false,selectionEpoch=0,armedHandle='',watchedHandle='';
@@ -58,15 +59,20 @@ function broadcast(){
   for(const window of [mainWindow,overlayWindow])if(window&&!window.isDestroyed())window.webContents.send('overview:state',state);
 }
 function preferences(extra){Object.assign(tracker.settings,extra);tracker.persist();updateTray();broadcast();}
-function finishCapture(reason='gameClosed'){
+function disposeReader(id){const entry=retiredReaders.get(id);if(!entry)return;retiredReaders.delete(id);clearTimeout(entry.timer);if(!entry.window.isDestroyed())entry.window.destroy();}
+function finishCapture(reason='gameClosed',endSession=true){
   nativeLootInputs.clear();lootQueueSize=0;
-  lootFlow?.finish();armLoot(false);
-  watchLoot('');
-  selectionEpoch++;
-  tracker?.finish(reason);
+  lootFlow?.finish();armLoot(false);watchLoot('');selectionEpoch++;
+  if(endSession)clientSession?.finish(reason);
+  const old=captureWindow,oldToken=token;captureWindow=null;
   token=null;source=null;target=null;preview=null;
-  const old=captureWindow;captureWindow=null;
-  if(old&&!old.isDestroyed())old.destroy();
+  if(old&&!old.isDestroyed()){
+    if(['gameClosed','captureEnded','windowChanged'].includes(reason)){
+      const id=old.webContents.id,timer=setTimeout(()=>disposeReader(id),30000);timer.unref();
+      retiredReaders.set(id,{window:old,token:oldToken,closedAt:Date.now(),until:Date.now()+30000,timer});
+      old.webContents.send('capture:update',{type:'drain',token:oldToken});
+    }else old.destroy();
+  }
   overlayWindow?.hide();phase=tracker?.settings.autoTrack?'waiting':'disabled';detail='';broadcast();
 }
 function armLoot(armed){const handle=armed&&target?target.handle:'';if(probe?.stdin.writable&&handle!==armedHandle){probe.stdin.write(handle?'ARM '+handle+'\n':'DISARM\n');armedHandle=handle;}}
@@ -102,17 +108,17 @@ async function startCapture(window){
   if(!matched){phase='sourceMissing';broadcast();return;}
   target=window;source=matched;token=crypto.randomUUID();preview=null;
   watchLoot(window.handle);
-  tracker.attach();phase='loading';detail='';captureStartedAt=lastCaptureMessage=Date.now();
+  clientSession.attach(window);phase='loading';detail='';captureStartedAt=lastCaptureMessage=Date.now();
   captureWindow=new BrowserWindow({show:false,width:320,height:180,skipTaskbar:true,webPreferences:{preload:path.join(directory,'capture-preload.cjs'),sandbox:true,contextIsolation:true,nodeIntegration:false,backgroundThrottling:false}});
   const created=captureWindow;secureWindow(created,captureURL);
-  created.webContents.on('render-process-gone',()=>{if(created===captureWindow){finishCapture('captureFailed');phase='error';detail='O leitor foi reiniciado. Tentando novamente…';retryAt=Date.now()+10000;broadcast();}});
+  created.webContents.on('render-process-gone',()=>{if(created===captureWindow){finishCapture('captureFailed',false);phase='error';detail='O leitor foi reiniciado. Tentando novamente…';retryAt=Date.now()+10000;broadcast();}});
   await created.loadURL(captureURL);
   if(created!==captureWindow)return;
   // Fixed, local app code. Electron marks this app-controlled capture startup
   // as a user gesture; the source is restricted to the native game HWND above.
   created.webContents.executeJavaScript('window.startCapture()',true).catch(error=>{
     if(created!==captureWindow)return;
-    finishCapture('captureFailed');phase='error';detail=String(error.message).slice(0,180);retryAt=Date.now()+10000;broadcast();
+    finishCapture('captureFailed',false);phase='error';detail=String(error.message).slice(0,180);retryAt=Date.now()+10000;broadcast();
   });
   broadcast();
 }
@@ -131,21 +137,23 @@ function positionOverlay(){
   if(!overlayWindow.isVisible())overlayWindow.showInactive();
   overlayWindow.moveTop();
 }
-async function updateWindows(next){
+async function updateWindows(next,clients=next){
   if(quitting||!tracker)return;
   windows=next;
   if(probeBusy)return;
   probeBusy=true;
   try{
+    if(clientSession.observe(clients))finishCapture('gameClosed',false);
     if(source){
-      const active=windows.find(window=>window.handle===target?.handle);
-      if(!active){finishCapture('gameClosed');}
+      const active=windows.find(window=>window.handle===target?.handle&&clientSession.matches(window));
+      if(!active){finishCapture('windowChanged',false);}
       else {target=active;positionOverlay();}
     }
     if(!source&&tracker.settings.autoTrack){
-      const chosen=selectGameWindow(windows,tracker.settings.preferredTitle);
+      const candidates=clientSession.client?windows.filter(window=>clientSession.matches(window)):windows;
+      const chosen=selectGameWindow(candidates,tracker.settings.preferredTitle);
       if(chosen)await startCapture(chosen);
-      else phase=windows.filter(window=>!window.minimized).length>1?'ambiguous':'waiting';
+      else phase=clientSession.client?'waitingHud':windows.filter(window=>!window.minimized).length>1?'ambiguous':'waiting';
     }
     broadcast();
   }catch(error){phase='error';detail=String(error.message).slice(0,180);retryAt=Date.now()+10000;broadcast();}
@@ -165,7 +173,7 @@ function startProbe(){
   child.stdin.on('error',()=>{});
   readline.createInterface({input:child.stdout}).on('line',line=>{try{
     const packet=JSON.parse(line);if(child!==probe)return;
-    if(Array.isArray(packet.windows))updateWindows(packet.windows);
+    if(Array.isArray(packet.windows))updateWindows(packet.windows,packet.clients);
     if(packet.lootCapture?.handle===target?.handle&&source&&!target.minimized&&Number.isFinite(packet.lootCapture.at)&&Math.abs(Date.now()-packet.lootCapture.at)<1000){
       lootManualAt=Date.now();captureWindow?.webContents.send('capture:update',{type:'lootCapture',token,at:packet.lootCapture.at});broadcast();
     }
@@ -218,7 +226,7 @@ else {
     if(clearHistoryRequested){store.clearHistory();clearHistoryRequested=false;}
     const seed=JSON.parse(await fs.readFile(path.join(directory,'data','item-catalog.json'),'utf8'));
     for(let i=0;i<seed.items.length;i+=500)store.saveCatalog({version:1,observedAt:seed.observedAt,items:seed.items.slice(i,i+500)},seed.observedAt);
-    tracker=new DesktopTracker(store);
+    tracker=new DesktopTracker(store);clientSession=new ClientSession(tracker);
     if(!validMarket(tracker.settings.priceMarket)){tracker.settings.priceMarket='21';tracker.persist();}
     lootFlow=new LootFlow(store);lootJournal=new LootJournal(store);
     for(const entry of store.lootHistory()){const name=canonicalLootName(entry.item,store.itemCatalog());if(name!==entry.item)store.saveLoot({...entry,rawItem:entry.rawItem??entry.item,item:name});}
@@ -302,8 +310,8 @@ else {
       if(!ownRenderer(event,captureURL)||event.sender!==captureWindow?.webContents||message?.token!==token)return;
       lastCaptureMessage=Date.now();phase=String(message.phase);detail=String(message.detail??'').slice(0,200);
       if(diagnosticFile&&Array.isArray(message.diagnostic))try{fsSync.writeFileSync(diagnosticFile,JSON.stringify({phase,readAt:Date.now(),attempts:message.diagnostic.slice(0,4)}));}catch{}
-      if(phase==='ended')finishCapture('captureEnded');
-      else if(phase==='resolution'){tracker.reset();broadcast();}
+      if(phase==='ended')finishCapture('captureEnded',false);
+      else if(phase==='resolution'){broadcast();}
       else broadcast();
     });
     ipcMain.on('capture:preview',(event,message)=>{
@@ -311,8 +319,13 @@ else {
       preview={image:message.image,width:message.width,height:message.height,region:message.region};broadcast();
     });
     ipcMain.on('capture:loot',(event,message)=>{
-      if(!ownRenderer(event,captureURL)||event.sender!==captureWindow?.webContents||message?.token!==token||!source)return;
+      if(quitting||!ownRenderer(event,captureURL))return;
+      const retired=retiredReaders.get(event.sender.id),current=event.sender===captureWindow?.webContents&&message?.token===token&&!!source;
+      if(!current&&(!retired||message?.token!==retired.token||Date.now()>retired.until))return;
       const reading=message.reading;
+      if(retired&&reading?.kind!=='snapshot'&&reading?.kind!=='queue')return;
+      if(retired&&reading?.kind==='snapshot'&&(reading.capturedAt>retired.closedAt||(reading.frameAt??reading.capturedAt)>retired.closedAt))return;
+      if(retired&&reading?.kind==='queue'){if(reading.pending===0)disposeReader(event.sender.id);return;}
       if(!['snapshot','queue','visible','hint','found','absent','unknown','searching'].includes(reading?.kind)||String(reading.text??'').length>1200)return;
       if(reading.kind==='queue'){
         if(Number.isSafeInteger(reading.pending)&&reading.pending>=0&&reading.pending<=72)lootQueueSize=reading.pending;
@@ -356,5 +369,5 @@ else {
     if(process.argv.includes('--inspect-ui'))mainWindow.webContents.openDevTools({mode:'detach'});
   }).catch(error=>{console.error(error);app.exit(1);});
 }
-app.on('before-quit',()=>{quitting=true;globalShortcut.unregisterAll();priceBridge?.close();lootFlow?.finish();armLoot(false);if(tracker)tracker.finish('appClosed');const oldProbe=probe;probe=null;oldProbe?.kill();const old=captureWindow;captureWindow=null;old?.destroy();store?.close();store=null;tracker=null;});
+app.on('before-quit',()=>{quitting=true;for(const id of [...retiredReaders.keys()])disposeReader(id);globalShortcut.unregisterAll();priceBridge?.close();lootFlow?.finish();armLoot(false);if(tracker)tracker.finish('appClosed');const oldProbe=probe;probe=null;oldProbe?.kill();const old=captureWindow;captureWindow=null;old?.destroy();store?.close();store=null;tracker=null;});
 app.on('window-all-closed',()=>{});

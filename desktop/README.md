@@ -1,8 +1,8 @@
 # DeadFrontier Overview — Windows
 
-Prévia **0.7.0** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
+Prévia **0.7.1** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
 
-[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.7.0/deadfrontier-overview-windows-0.7.0.zip)
+[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.7.1/deadfrontier-overview-windows-0.7.1.zip)
 
 ## Usar a versão portátil
 
@@ -31,7 +31,9 @@ A última tela usada fica lembrada neste computador. Trocar de tela mantém o ac
 - A sessão inicia automaticamente na primeira referência estável; XP anterior não é contada como ganho.
 - **Parar sessão** congela os totais. Leituras futuras continuam atualizando a XP atual, mas não retomam a medição.
 - **Salvar e zerar sessão** preserva a anterior e abre outra na próxima referência estável.
-- Fechar o jogo salva e encerra a sessão. Reabrir o client inicia outra automaticamente.
+- Fechar o processo do jogo salva e encerra a sessão, com o motivo **Client fechado** no histórico. Reabrir o client inicia outra na primeira leitura estável de XP.
+- Minimizar, trocar de mapa, recriar a janela ou recuperar a captura dentro da mesma execução mantém a sessão. A identificação usa o processo e seu instante de criação, evitando misturar uma reabertura rápida.
+- Recortes já capturados podem terminar o OCR por até 30 segundos após o fechamento; continuam associados à sessão de origem, mesmo se uma nova partida já começou.
 - O histórico usa SQLite no computador, preserva sessões ao fechar/reabrir o app e mostra os 100 registros mais recentes. Não há exclusão automática dos demais registros; o CSV permite consultar todos.
 - XP base e base/h são estimadas pelo multiplicador efetivo informado. Períodos sem fator são marcados como base parcial. A precisão continua limitada pelo HUD: valores em K têm passos de aproximadamente 1.000 XP.
 
@@ -49,7 +51,7 @@ O jogo precisa continuar renderizando a janela. Minimizar pode interromper os fr
 
 Esta prévia usa um perfil local de XP; não faz login no jogo nem identifica automaticamente troca de personagem. Ao trocar de personagem na mesma janela, use **Salvar e zerar sessão**. O loot é experimental. O catálogo Yard acompanha o app e os anúncios são consultados diretamente, sem navegador. Buffs vindos do addon e compra/banco ainda não estão implementados neste app.
 
-## Loot em segundo plano (0.7.0)
+## Loot em segundo plano (0.7.1)
 
 A captura roda a até 30 quadros por segundo e seleciona pequenos recortes do diálogo para uma fila em memória. O OCR trabalha separado da leitura de XP: pode aceitar o item imediatamente ou segurar F. Não é preciso aguardar a leitura.
 

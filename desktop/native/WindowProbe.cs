@@ -27,6 +27,8 @@ public static class WindowProbe {
   private static volatile string lootHandle="";
   private static volatile string watchHandle="";
   private static volatile int armGeneration=0,armInitialMask=0;
+  private static bool Matches(string name,string custom,int fixture,int pid){return fixture>0?pid==fixture:
+    name.Equals("DeadFrontier",StringComparison.OrdinalIgnoreCase)||name.Equals("DeadFrontierClient",StringComparison.OrdinalIgnoreCase)||name.Equals("DFClient",StringComparison.OrdinalIgnoreCase)||System.Text.RegularExpressions.Regex.IsMatch(name,@"^DeadFrontierWin\d*$",System.Text.RegularExpressions.RegexOptions.IgnoreCase)||(custom.Length>0&&name.Equals(custom,StringComparison.OrdinalIgnoreCase));}
   public static void Main(string[] args) {
     if(Array.IndexOf(args,"--test-search-hold")>=0){SearchHoldTracker.SelfTest();return;}
     if(Array.IndexOf(args,"--test-loot-hotkey")>=0){LootCaptureHotkey.SelfTest();Console.WriteLine("{\"hotkey\":true}");return;}
@@ -49,18 +51,18 @@ public static class WindowProbe {
     bool[] previous=null;string priorHandle="";int priorGeneration=-1;var searchHold=new SearchHoldTracker();var captureHotkey=new LootCaptureHotkey();
     do {
       if(parent>0)try{if(Process.GetProcessById(parent).HasExited)return;}catch{return;}
-      var windows=new List<object>();var gameHandles=new HashSet<long>();
+      var windows=new List<object>();var gameHandles=new HashSet<long>();var clients=new List<object>();var executions=new Dictionary<uint,string>();
+      foreach(var process in Process.GetProcesses())using(process){try{
+        if(!Matches(process.ProcessName,custom,fixture,process.Id))continue;
+        string started=null;try{started=process.StartTime.ToUniversalTime().Ticks.ToString();}catch{}
+        executions[(uint)process.Id]=started;clients.Add(new {processId=process.Id,processStartedAt=started});
+      }catch{}}
       EnumWindows(delegate(IntPtr handle,IntPtr unused) {
         if(!IsWindowVisible(handle))return true;
         uint processId;GetWindowThreadProcessId(handle,out processId);
         string processName;
         try{using(var process=Process.GetProcessById((int)processId))processName=process.ProcessName;}catch{return true;}
-        bool match=fixture>0?(int)processId==fixture:
-          processName.Equals("DeadFrontier",StringComparison.OrdinalIgnoreCase)||
-          processName.Equals("DeadFrontierClient",StringComparison.OrdinalIgnoreCase)||
-          processName.Equals("DFClient",StringComparison.OrdinalIgnoreCase)||
-          System.Text.RegularExpressions.Regex.IsMatch(processName,@"^DeadFrontierWin\d*$",System.Text.RegularExpressions.RegexOptions.IgnoreCase)||
-          (custom.Length>0&&processName.Equals(custom,StringComparison.OrdinalIgnoreCase));
+        bool match=Matches(processName,custom,fixture,(int)processId);
         if(!match)return true;
         var title=new StringBuilder(512);GetWindowText(handle,title,title.Capacity);
         if(fixture>0&&title.ToString()!="DF Overview Capture Fixture")return true;
@@ -69,13 +71,17 @@ public static class WindowProbe {
         ClientToScreen(handle,ref origin);
         if(!IsIconic(handle)&&(client.Right<200||client.Bottom<120))return true;
         gameHandles.Add(handle.ToInt64());
-        windows.Add(new {handle=handle.ToInt64().ToString(),processId=processId,processName=processName,title=title.ToString(),
+        string processStartedAt;if(!executions.TryGetValue(processId,out processStartedAt)){
+          try{using(var process=Process.GetProcessById((int)processId))processStartedAt=process.StartTime.ToUniversalTime().Ticks.ToString();}catch{processStartedAt=null;}
+          executions[processId]=processStartedAt;clients.Add(new {processId=(int)processId,processStartedAt=processStartedAt});
+        }
+        windows.Add(new {handle=handle.ToInt64().ToString(),processId=processId,processStartedAt=processStartedAt,processName=processName,title=title.ToString(),
           x=rect.Left,y=rect.Top,width=rect.Right-rect.Left,height=rect.Bottom-rect.Top,
           clientX=origin.X,clientY=origin.Y,clientWidth=client.Right,clientHeight=client.Bottom,
           minimized=IsIconic(handle),foreground=GetForegroundWindow()==handle});
         return true;
       },IntPtr.Zero);
-      Console.WriteLine(serializer.Serialize(new {windows=windows}));
+      Console.WriteLine(serializer.Serialize(new {windows=windows,clients=clients}));
       if(once)return;
       // E/F hold timing is observed only in the game. Choice keys and mouse are
       // observed only while anticipation or a recognized loot dialog is

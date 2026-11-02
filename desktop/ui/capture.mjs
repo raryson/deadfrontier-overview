@@ -4,6 +4,7 @@ import {lootRegion} from './loot-model.mjs';
 import {LootFrames} from './loot-frames.mjs';
 import {parseLootPrompt} from './loot-journal.mjs';
 import {LootSnapshotQueue,frameIsBlack,looksLikeLoot,lootFingerprint} from './loot-snapshots.mjs';
+import {hudReadRegions} from './xp-regions.mjs';
 const bridge=window.captureBridge,video=document.getElementById('game'),gate=createOcrGate(),queue=new LootSnapshotQueue(),recent=new LootFrames(60),persisted=new Set();
 let lootWorkers=[];
 let draining=false,config,region,worker,lootWorker,stream,frameTimer,frameWidth=0,frameHeight=0,epoch=0,previewRequested=false,lootBusy=0,lootWake,firstRead=false,missingSince=0,lastSample=null;
@@ -85,9 +86,7 @@ window.startCapture=async()=>{
     if(frameWidth!==video.videoWidth||frameHeight!==video.videoHeight){frameWidth=video.videoWidth;frameHeight=video.videoHeight;config.region=null;region=defaultHudRegion(frameWidth,frameHeight);gate.reset();lastSample=null;epoch++;sendStatus('resolution');}
     checkCtx.drawImage(video,0,0,48,27);const black=frameIsBlack(checkCtx.getImageData(0,0,48,27).data);
     if(black){missingSince=0;sendStatus(firstRead?'transition':'waitingHud');return;}
-    const tight=area=>({...area,y:area.y+3/video.videoHeight,width:Math.min(area.width,280/video.videoWidth),height:Math.min(area.height,21/video.videoHeight)});
-    const base=config.region?region:defaultHudRegion(frameWidth,frameHeight);
-    const revision=epoch,candidates=config.region?[region]:[tight(base),base];if(!config.region&&base.y*video.videoHeight<85){const lower={...base,y:Math.min(112/video.videoHeight,1-base.height)};candidates.push(tight(lower),lower);}
+    const revision=epoch,candidates=hudReadRegions(frameWidth,frameHeight,config.region?region:null);
     let best=null,diagnostic=[];
     for(const candidate of candidates){if(best?.confidence>=75||best?.sample.precision===1&&best.confidence>=65)break;for(const threshold of [80,null,160,110]){
      const result=await worker.recognize(await bytes(prepare(candidate,threshold))),sample=parseHudXp(result.data.text,{previous:lastSample});diagnostic.push({text:result.data.text.slice(0,100),confidence:Math.round(result.data.confidence),threshold});if(sample&&(!best||result.data.confidence>best.confidence))best={sample,confidence:result.data.confidence,candidate};if(sample&&result.data.confidence>=85)break;

@@ -17,9 +17,9 @@ These are the published builds used in this guide:
 | --- | --- | --- |
 | [Chrome extension](https://github.com/raryson/deadfrontier-overview/releases/download/v0.9.6/deadfrontier-overview-chrome.zip) | 0.9.6 | `deadfrontier-overview-chrome.zip` |
 | [Firefox extension](https://github.com/raryson/deadfrontier-overview/releases/download/v0.9.6/deadfrontier-overview.zip) | 0.9.6 | `deadfrontier-overview.zip` |
-| [Windows app (x64)](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.8.1/deadfrontier-overview-windows-0.8.1.zip) | 0.8.1 | `deadfrontier-overview-windows-0.8.1.zip` |
+| [Windows app (x64)](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.8.2/deadfrontier-overview-windows-0.8.2.zip) | 0.8.2 | `deadfrontier-overview-windows-0.8.2.zip` |
 
-Check the [Releases page](https://github.com/raryson/deadfrontier-overview/releases) for newer builds. Extension releases use tags such as `v0.9.6`; Windows releases use tags such as `desktop-v0.8.1`. Each component has its own version number.
+Check the [Releases page](https://github.com/raryson/deadfrontier-overview/releases) for newer builds. Extension releases use tags such as `v0.9.6`; Windows releases use tags such as `desktop-v0.8.2`. Each component has its own version number.
 
 You do not need Node.js, npm or developer tools to run the downloaded Windows app or install the packaged extension.
 

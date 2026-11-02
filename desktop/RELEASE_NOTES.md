@@ -1,10 +1,7 @@
-## Windows 0.8.1
+## Windows 0.8.2
 
-- Exige a moldura do quadro de loot e os botões antes de guardar ou analisar uma imagem. A mesma validação vale para Shift+F.
-- Não inicia outro registro por uma oscilação breve do detector ou uma alteração rápida do fundo através do diálogo transparente.
-- Revisa amostras posteriores do mesmo quadro para melhorar texto inicialmente encoberto; um nome conhecido pode substituir uma leitura desconhecida sem duplicar o item.
-- Prioriza recorte de texto mais estreito e reconhece o prefixo Grey de armaduras presentes no catálogo.
-- Itens comuns ficam com quantidade 1, inclusive no histórico e na revisão. Munição e Gasoline mantêm validação da quantidade.
-- Capturas antigas sem quadro de loot, ainda pendentes ou ilegíveis, são ocultadas da lista. As imagens originais permanecem no banco local; capturas válidas ilegíveis continuam disponíveis para revisão.
+Prioriza um recorte justo da linha LV/XP antes das áreas amplas, reduzindo interferência do cenário na leitura de XP sem K. Mantém regiões alternativas para linhas longas, barra de título e calibrações manuais.
 
-Validação: regressões do detector, oscilações, refinamento de OCR, quantidades e migração; amostra privada de 19 capturas relatadas pelo usuário rejeitou 15 cenas sem diálogo e preservou as 4 imagens com o quadro realmente visível. Imagens do usuário não fazem parte do código nem dos pacotes publicados.
+O caso real informado — nível 105, 45.459 XP / 6.600K (1%) — foi reproduzido com OCR local na imagem enviada. A região ampla confundia nível e dígitos; o recorte ajustado identificou nível 105 e 45.459 XP. O reconhecimento continua exigindo leituras estáveis; proteções de nível, percentual e sufixos permanecem ativas. A imagem do usuário não está incluída no código nem nos pacotes.
+
+Validação: testes da região de leitura, fallbacks, calibração preservada e sequência de XP exata crescente com confiança moderada, além das regressões existentes.

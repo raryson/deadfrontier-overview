@@ -1,4 +1,5 @@
-import {app,BrowserWindow,desktopCapturer,ipcMain,protocol,session,Tray,Menu,globalShortcut,nativeImage,screen,dialog} from 'electron';
+import {app,BrowserWindow,desktopCapturer,ipcMain,protocol,session,Tray,Menu,globalShortcut,nativeImage,screen,dialog,systemPreferences} from 'electron';
+import {platformTarget} from './platform.mjs';
 import fs from 'node:fs/promises';
 import fsSync from 'node:fs';
 import path from 'node:path';
@@ -81,8 +82,8 @@ function finishCapture(reason='gameClosed',endSession=true){
   }
   overlayWindow?.hide();phase=tracker?.settings.autoTrack?'waiting':'disabled';detail='';broadcast();
 }
-function armLoot(armed){const handle=armed&&target?target.handle:'';if(probe?.stdin.writable&&handle!==armedHandle){probe.stdin.write(handle?'ARM '+handle+'\n':'DISARM\n');armedHandle=handle;}}
-function watchLoot(handle){if(probe?.stdin.writable&&handle!==watchedHandle){probe.stdin.write(handle?'WATCH '+handle+'\n':'WATCH\n');watchedHandle=handle;}}
+function armLoot(armed){if(process.platform!=='win32')return;const handle=armed&&target?target.handle:'';if(probe?.stdin.writable&&handle!==armedHandle){probe.stdin.write(handle?'ARM '+handle+'\n':'DISARM\n');armedHandle=handle;}}
+function watchLoot(handle){if(process.platform!=='win32')return;if(probe?.stdin.writable&&handle!==watchedHandle){probe.stdin.write(handle?'WATCH '+handle+'\n':'WATCH\n');watchedHandle=handle;}}
 function secureWindow(window,url){
   window.webContents.setWindowOpenHandler(()=>({action:'deny'}));
   window.webContents.on('will-navigate',(event,destination)=>{if(destination!==url)event.preventDefault();});
@@ -106,6 +107,7 @@ function updateTray(){
 }
 async function startCapture(window){
   if(captureWindow||selecting||Date.now()<retryAt||!tracker.settings.autoTrack)return;
+  if(process.platform==='darwin'&&['denied','restricted'].includes(systemPreferences.getMediaAccessStatus('screen'))){phase='screenPermission';broadcast();return;}
   selecting=true;const selection=selectionEpoch;
   let sources;
   try{sources=await desktopCapturer.getSources({types:['window'],thumbnailSize:{width:0,height:0},fetchWindowIcons:false});}finally{selecting=false;}
@@ -169,16 +171,18 @@ function startProbe(){
   probe?.kill();
   armedHandle='';
   watchedHandle='';
-  const helper=path.join(directory,'bin','DFWindowProbe.exe');
+  const helper=path.join(directory,'bin',platformTarget().helper);
   if(!fsSync.existsSync(helper)){phase='error';detail='Helper de detecção ausente. Gere o app com npm run package.';broadcast();return;}
   const args=['--parent',String(process.pid)];
   if(selfTest)args.push('--fixture',String(process.pid));
   if(tracker.settings.processName)args.push('--process',tracker.settings.processName);
   probe=spawn(helper,args,{windowsHide:true,stdio:['pipe','pipe','pipe']});
   const child=probe;
+  let unsupported=false;
   child.stdin.on('error',()=>{});
   readline.createInterface({input:child.stdout}).on('line',line=>{try{
     const packet=JSON.parse(line);if(child!==probe)return;
+    if(packet.unsupported){unsupported=true;phase=packet.unsupported==='wayland'?'linuxWayland':'linuxX11Required';detail='';broadcast();return;}
     if(Array.isArray(packet.windows))updateWindows(packet.windows,packet.clients);
     if(packet.lootCapture?.handle===target?.handle&&source&&!target.minimized&&Number.isFinite(packet.lootCapture.at)&&Math.abs(Date.now()-packet.lootCapture.at)<1000){
       lootManualAt=Date.now();captureWindow?.webContents.send('capture:update',{type:'lootCapture',token,at:packet.lootCapture.at});broadcast();
@@ -198,7 +202,7 @@ function startProbe(){
     }
   }catch{}});
   child.on('error',()=>{phase='error';detail='Não foi possível iniciar a detecção da janela.';broadcast();});
-  child.on('exit',()=>{if(child===probe&&!quitting){phase='error';detail='A detecção da janela foi encerrada. Reabra o app.';broadcast();}});
+  child.on('exit',()=>{if(child===probe&&!quitting&&!unsupported){phase='error';detail='A detecção da janela foi encerrada. Reabra o app.';broadcast();}});
 }
 async function createFixture(){
   fixtureWindow=new BrowserWindow({show:false,title:'DF Overview Capture Fixture',width:1920,height:1080,x:0,y:0,frame:false,webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false,backgroundThrottling:false}});
@@ -209,7 +213,7 @@ if(!app.requestSingleInstanceLock()){app.quit();}
 else {
   app.on('second-instance',(_event,args)=>{if(args.includes('--clear-history')){clearHistoryRequested=true;if(store&&tracker)clearHistory();}if(mainWindow)showMain();});
   app.whenReady().then(async()=>{
-    if(process.platform!=='win32'){dialog.showErrorBox('DeadFrontier Overview','Esta prévia é para Windows.');app.quit();return;}
+    platformTarget();
     Menu.setApplicationMenu(null);
     protocol.handle('dfov',async request=>{
       const url=new URL(request.url);const pathname=decodeURIComponent(url.pathname);
@@ -251,6 +255,7 @@ else {
     secureWindow(overlayWindow,overlayURL);overlayWindow.setIgnoreMouseEvents(true,{forward:true});
     overlayWindow.on('show',broadcast);
     overlayWindow.setAlwaysOnTop(true,'screen-saver');
+    if(process.platform==='darwin')overlayWindow.setVisibleOnAllWorkspaces(true,{visibleOnFullScreen:true});
     tray=new Tray(nativeImage.createFromPath(path.join(root,'icon.png')));tray.setToolTip('DeadFrontier Overview — acompanhamento local');tray.on('double-click',showMain);updateTray();
     ipcMain.handle('overview:read',event=>{if(![uiURL,overlayURL].includes(event.senderFrame?.url))throw Error('Origem inválida');return publicState();});
     ipcMain.handle('overview:session',(event,request)=>{

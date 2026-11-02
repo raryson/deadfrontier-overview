@@ -1,0 +1,53 @@
+name: Native Linux and macOS builds
+on:
+  push:
+    branches: ['codex/initial-release']
+    paths:
+      - 'desktop/native/**'
+      - 'desktop/platform.mjs'
+      - 'desktop/build.mjs'
+      - 'desktop/main.mjs'
+      - 'scripts/package-unix.mjs'
+      - '.github/workflows/desktop-platforms.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-22.04
+            target: linux-x64
+          - runner: macos-15-intel
+            target: macos-x64
+          - runner: macos-15
+            target: macos-arm64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.14.1'
+      - name: Linux native dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libx11-dev
+      - name: Shared tests
+        run: npm test
+      - name: Install desktop dependencies
+        working-directory: desktop
+        run: npm ci --ignore-scripts --no-fund
+      - name: Install pinned Electron
+        working-directory: desktop
+        run: node node_modules/electron/install.js
+      - name: Build native helper and app
+        working-directory: desktop
+        run: npm run package
+      - name: Desktop tests including native helper
+        working-directory: desktop
+        run: npm test
+      - name: Package and validate archives
+        run: node scripts/package-unix.mjs

@@ -27,5 +27,6 @@ docs/screenshots/*
 *.xpi
 node_modules/
 dist/
+desktop/bin/
 .DS_Store
 Thumbs.db

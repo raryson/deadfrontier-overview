@@ -1,5 +1,7 @@
 # Instalar / Install
 
+**[Full English installation guide: browser extension and Windows companion app](INSTALL-EN.md)**
+
 ## Firefox 140+
 
 1. No Firefox, abra `about:debugging#/runtime/this-firefox`.

@@ -1,5 +1,7 @@
 # DeadFrontier Overview
 
+**[English installation guide — extension + Windows app](INSTALL-EN.md)** · [Discord announcement](docs/DISCORD-ANNOUNCEMENT.md)
+
 Addon para **Dead Frontier**, com banco rápido, acompanhamento automático de buffs e janela flutuante. Interface em **português e inglês**, com visual inspirado em ferrugem, cobre e vermelho escuro.
 
 O [app Windows em Electron](desktop/README.md) está em desenvolvimento separado: captura automática da janela do client, overlay próprio e histórico SQLite. A extensão continua funcionando durante a validação dessa migração. O app Windows consulta preços públicos diretamente, sem código ou navegador; veja o [guia de preços](docs/prices.md).

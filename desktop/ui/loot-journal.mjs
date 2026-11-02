@@ -19,7 +19,9 @@ export class LootJournal{
  observe(reading,sessionId,now=Date.now()){
   if(!/^[a-zA-Z0-9-]{1,80}$/.test(reading.eventId??'')||!Number.isFinite(reading.capturedAt)||reading.capturedAt>now+100||now-reading.capturedAt>600000||!Number.isFinite(reading.confidence)||reading.confidence<65||reading.frameAt!=null&&(!Number.isFinite(reading.frameAt)||reading.frameAt<reading.capturedAt||reading.frameAt>now+100))return false;
   const parsed=parseLootPrompt(reading.text);if(!parsed)return false;
-  const original=parsed.item;parsed.item=canonicalLootName(original,this.store.itemCatalog());
+  const existing=this.store.lootById?.(reading.eventId);if(existing?.correctedByUser)return false;
+  const original=parsed.item,aliasKey=original.normalize('NFKC').toLocaleLowerCase('en-US').replace(/[^\p{L}\p{N}]+/gu,' ').trim(),alias=this.store.get?.('priceAliases',{})?.[aliasKey];
+  parsed.item=this.store.itemCatalog().find(item=>item.itemId===alias)?.name??canonicalLootName(original,this.store.itemCatalog());
   let event=this.events.get(reading.eventId);if(!event){event={id:reading.eventId,sessionId,foundAt:reading.capturedAt,votes:new Map(),quantities:new Map()};this.events.set(reading.eventId,event);while(this.events.size>200)this.events.delete(this.events.keys().next().value);}
   const signature=key(parsed.item),old=event.votes.get(signature),seen=new Set(old?.frames??[]);seen.add(reading.frameAt??reading.capturedAt);event.votes.set(signature,{frames:[...seen]});
   if(parsed.quantity){const votes=event.quantities.get(parsed.quantity)??new Set();votes.add(reading.frameAt??reading.capturedAt);event.quantities.set(parsed.quantity,votes);}
@@ -27,7 +29,7 @@ export class LootJournal{
   if(seen.size<2&&reading.confidence<(known?75:85))return false;
   if(event.saved&&key(event.saved.item)!==signature)return false;
   const verifiedQuantity=parsed.quantity&&(event.quantities.get(parsed.quantity).size>=2||reading.quantityConfidence>=90)?parsed.quantity:event.saved?.quantity;
-  const entry={...event.saved,id:event.id,sessionId:event.sessionId??null,item:parsed.item,rawItem:original,foundAt:event.foundAt,readAt:now,status:'observed',captureMode:reading.manual?'shortcut':'snapshot',...(parsed.cash?{cash:parsed.cash}:{}),...(parsed.unit?{unit:parsed.unit}:{}),...(verifiedQuantity?{quantity:verifiedQuantity,quantityUncertain:false}:parsed.quantity||parsed.quantityUncertain?{quantityUncertain:true}:{})};
+  const entry={...existing,...event.saved,ocrText:reading.text.slice(0,1200),ocrConfidence:reading.confidence,id:event.id,sessionId:event.sessionId??null,item:parsed.item,rawItem:original,foundAt:event.foundAt,readAt:now,status:'observed',captureMode:reading.manual?'shortcut':'snapshot',...(parsed.cash?{cash:parsed.cash}:{}),...(parsed.unit?{unit:parsed.unit}:{}),...(verifiedQuantity?{quantity:verifiedQuantity,quantityUncertain:false}:parsed.quantity||parsed.quantityUncertain?{quantityUncertain:true}:{})};
   event.saved=entry;this.store.saveLoot(entry);return true;
  }
 }

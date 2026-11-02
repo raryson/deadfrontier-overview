@@ -1,7 +1,9 @@
+import {SessionView} from './session-view.mjs';
 import {localizer} from './strings.mjs';
 import {experienceStats} from '../../experience.js';
 const api=window.overview,$=id=>document.getElementById(id);
 let state,language,drawGeneration=0,previewImage=null,drag=null;
+const sessionView=new SessionView({api,context:()=>({state,language}),navigate:(...args)=>navigate(...args),action:act});
 const duration=ms=>{const total=Math.max(0,Math.floor(ms/1000));return [Math.floor(total/3600),Math.floor(total/60)%60,total%60].map(n=>String(n).padStart(2,'0')).join(':');};
 function number(value){return new Intl.NumberFormat(language.locale,{maximumFractionDigits:0}).format(value);}
 function money(value){return '$'+new Intl.NumberFormat(language.locale,{maximumFractionDigits:2}).format(value);}
@@ -11,6 +13,7 @@ function render(){
   if(!state)return;language=localizer(state.settings.language);
   for(const element of document.querySelectorAll('[data-text]'))element.textContent=language.t(element.dataset.text);
   document.documentElement.lang=language.language;
+  $('save-images').checked=state.settings.saveLootImages!==false;
   $('language').value=state.settings.language??'auto';$('auto').checked=state.settings.autoTrack;$('overlay').checked=state.settings.overlay;
   $('phase').textContent=language.t(state.phase);$('dot').className='status-dot '+state.phase;
   $('rail-status').textContent=language.t(state.phase);$('rail-indicator').className='status-dot '+state.phase;
@@ -36,7 +39,7 @@ function render(){
   for(const entry of state.history){
     const row=document.createElement('tr'),date=new Date(entry.startedAt);
     const values=[date.toLocaleDateString(language.locale)+'\n'+date.toLocaleTimeString(language.locale,{hour:'2-digit',minute:'2-digit'}),number(entry.gained),number(entry.perHour),duration(entry.elapsed),entry.baseAvailable?number(entry.baseGained):'—',entry.baseAvailable?number(entry.basePerHour):'—',number(entry.lost),number(state.lootCounts?.find(row=>row.sessionId===entry.id)?.identified??0),priceSummary(state.pricing?.sessions?.[entry.id]),[language.t(entry.running?'running':'stopped'),!entry.running&&entry.reason==='gameClosed'?language.t('clientClosedReason'):'',entry.basePartial?language.t('partial'):'',entry.gap?language.t('gap'):''].filter(Boolean).join(' · ')];
-    for(const text of values){const cell=document.createElement('td');cell.textContent=text;row.append(cell);}$('sessions').append(row);
+    for(const text of values){const cell=document.createElement('td');cell.textContent=text;row.append(cell);}const action=document.createElement('td'),button=document.createElement('button');button.textContent=language.t('sessionDetails');button.onclick=()=>sessionView.open(entry.id);action.append(button);row.prepend(action);$('sessions').append(row);
   }
   const accepted=state.lootCounts?.find(row=>row.sessionId===(xp?.session?.id??null))?.identified??0;
   $('loot-count').textContent=language.t(xp?.session?.id?'lootAccepted':'lootUnassignedAccepted',{count:number(accepted)});
@@ -48,7 +51,8 @@ function render(){
   if(!$('loot-rows').contains(document.activeElement)){
     $('loot-rows').replaceChildren();
     for(const entry of state.loot??[]){
-      const row=document.createElement('tr');for(const value of [new Date(entry.foundAt).toLocaleString(language.locale),entry.item+(entry.quantity?' · '+number(entry.quantity)+(entry.unit==='ml'?' ml':' ×'):''),language.t(entry.pickupEvidence==='user-confirmed'?'lootUserConfirmed':entry.status)]){const cell=document.createElement('td');cell.textContent=value;row.append(cell);}
+      const row=document.createElement('tr');for(const value of [new Date(entry.foundAt).toLocaleString(language.locale),(entry.item||language.t(entry.status))+(entry.quantity?' · '+number(entry.quantity)+(entry.unit==='ml'?' ml':' ×'):''),language.t(entry.pickupEvidence==='user-confirmed'?'lootUserConfirmed':entry.status)]){const cell=document.createElement('td');cell.textContent=value;row.append(cell);}
+      if(entry.hasImage){const image=document.createElement('img');image.src=sessionView.image(entry);image.className='loot-thumb';image.loading='lazy';image.alt=language.t('lootImage');image.onclick=()=>sessionView.open(entry.sessionId??'unassigned',0,entry);row.children[1].prepend(image);}
       if(entry.rawItem&&row.children[1])row.children[1].title='OCR: '+entry.rawItem;
       const valuation=entry.valuation,cell=document.createElement('td');cell.textContent=valuation?.value!=null?money(valuation.value)+(valuation.reason==='yard'?' · Yard':valuation.reason==='estimated'?' · '+language.t('priceMarketSource'):''):language.t('priceReason_'+(valuation?.reason??'noQuote'));
       if(valuation?.quote)cell.title=`${valuation.quote.market.label} · ${new Date(valuation.quote.observedAt).toLocaleString(language.locale)} · ${valuation.quote.samples} · ${valuation.quote.name}`;
@@ -65,13 +69,13 @@ function render(){
         select.value=entry.priceMode==='market'?entry.priceItemId:'';
         select.title=language.t('priceCustomHint');select.onchange=async()=>{await act('priceEquipmentVariant',{id:entry.id,itemId:select.value||null});document.activeElement?.blur();render();};cell.append(select);
       }
-      row.append(cell);$('loot-rows').append(row);
+      const review=document.createElement('button');review.textContent=language.t('reviewLoot');review.onclick=()=>sessionView.open(entry.sessionId??'unassigned',0,entry);cell.append(document.createElement('br'),review);row.append(cell);$('loot-rows').append(row);
     }
   }
-  renderPrices();
+  renderPrices();sessionView.update();
   if(state.preview&&state.preview.image!==previewImage?.src){const generation=++drawGeneration;const image=new Image();image.onload=()=>{if(drawGeneration!==generation)return;previewImage=image;drawPreview();};image.src=state.preview.image;}
 }
-async function act(type,value){try{state=await api.action(type,value);if(state){if(['lootConfirm','lootUndoConfirm'].includes(type))document.activeElement?.blur();render();}}catch(error){$('error').hidden=false;$('error').textContent=language?.t(error.message)??error.message;setTimeout(()=>$('error').hidden=true,7000);}}
+async function act(type,value){try{state=await api.action(type,value);if(state){if(['lootConfirm','lootUndoConfirm','lootCorrect','lootIgnore'].includes(type))document.activeElement?.blur();render();}return true;}catch(error){$('error').hidden=false;$('error').textContent=language?.t(error.message)??error.message;setTimeout(()=>$('error').hidden=true,7000);return false;}}
 function renderPrices(){
   const pricing=state.pricing;if(!pricing)return;const bridge=pricing.bridge;
   $('price-direct-state').textContent=language.t('priceNative_'+(pricing.direct?.phase??'idle'));
@@ -112,14 +116,14 @@ $('price-alias-form').onsubmit=event=>{event.preventDefault();act('priceAlias',{
 api.subscribe(value=>{state=value;render();});state=await api.read();render();
 setInterval(()=>{if(state?.experience?.session?.running){const stats=experienceStats(state.experience);$('elapsed').textContent=duration(stats.elapsed);$('rate').textContent=number(stats.perHour);if(state.experience.multiplier||stats.baseGained>0)$('base-rate').textContent=number(stats.basePerHour);}},1000);
 
-const pages={overview:['navOverview','pageOverviewHint'],loot:['navLoot','pageLootHint'],history:['history','pageHistoryHint'],market:['priceTitle','pageMarketHint'],aliases:['navAliases','pageAliasesHint'],settings:['navSettings','pageSettingsHint']};
+const pages={overview:['navOverview','pageOverviewHint'],loot:['navLoot','pageLootHint'],history:['history','pageHistoryHint'],market:['priceTitle','pageMarketHint'],aliases:['navAliases','pageAliasesHint'],settings:['navSettings','pageSettingsHint'],session:['sessionDetails','sessionDetailsHint']};
 function navigate(page,focus=false){
  if(!Object.hasOwn(pages,page))page='overview';
  for(const view of document.querySelectorAll('[data-view]'))view.hidden=view.dataset.view!==page;
- for(const button of document.querySelectorAll('.nav-button')){const active=button.dataset.page===page;button.classList.toggle('active',active);if(active)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');}
+ for(const button of document.querySelectorAll('.nav-button')){const active=button.dataset.page===(page==='session'?'history':page);button.classList.toggle('active',active);if(active)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');}
  $('view-title').dataset.text=pages[page][0];$('view-description').dataset.text=pages[page][1];
- $('view-title').textContent=language.t(pages[page][0]);$('view-description').textContent=language.t(pages[page][1]);$('view-number').textContent=String(Object.keys(pages).indexOf(page)+1).padStart(2,'0')+' / 06';
- try{localStorage.setItem('overview.page',page);}catch{}
+ $('view-title').textContent=language.t(pages[page][0]);$('view-description').textContent=language.t(pages[page][1]);$('view-number').textContent=String(Object.keys(pages).indexOf(page==='session'?'history':page)+1).padStart(2,'0')+' / 06';
+ try{localStorage.setItem('overview.page',page==='session'?'history':page);}catch{}
  window.scrollTo({top:0,behavior:'instant'});if(focus)$('view-title').focus({preventScroll:true});
 }
 for(const button of document.querySelectorAll('[data-page],[data-page-link]'))button.onclick=()=>navigate(button.dataset.page??button.dataset.pageLink,true);
@@ -128,3 +132,5 @@ $('clear-history').onclick=()=>act('clearHistory');
 
 $('price-query-form').onsubmit=event=>{event.preventDefault();act('priceQuery',{name:$('price-query-name').value,custom:$('price-query-custom').checked});};
 $('price-refresh').onclick=()=>act('priceRefresh');
+
+$('save-images').onchange=()=>act('saveLootImages',$('save-images').checked);

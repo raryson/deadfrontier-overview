@@ -89,3 +89,14 @@ test('XP sem K funciona no início do nível e em valores exatos grandes sem ace
  assert.equal(parseHudXp('LV 100: 2,113 / 6100K'),null);
  assert.equal(parseHudXp('LV 100: 150 / 6100K',{previous:{level:100,xp:100,precision:1}}).xp,150);
 });
+
+test('exact XP can start from three coherent moving readouts with moderate OCR confidence',()=>{
+ const gate=createOcrGate(),raw=xp=>({xp,level:100,nextLevelXp:6100000,precision:1});
+ assert.equal(gate.accept(raw(1234),64,0),null);assert.equal(gate.accept(raw(2345),68,2000),null);
+ assert.equal(gate.accept(raw(3456),66,4000).xp,3456);assert.equal(gate.accept(raw(4567),67,6000).xp,4567);
+ const bad=createOcrGate();assert.equal(bad.accept(raw(1),59,0),null);assert.equal(bad.accept(raw(999999),64,2000),null);assert.equal(bad.accept(raw(1),65,4000),null);
+});
+test('a damaged closing parenthesis does not hide a valid zero-percent exact XP readout',()=>{
+ for(const tail of ['(0%7','(0%,','(0%','(0%)'])assert.equal(parseHudXp('LV 100: 1,234 / 6,100K '+tail).xp,1234);
+ assert.equal(parseHudXp('LV 100: 2,113 / 6100K (35%7'),null);
+});

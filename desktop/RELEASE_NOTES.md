@@ -1,9 +1,10 @@
-## Windows 0.7.1
+## Windows 0.8.0
 
-Fechar o client encerra e salva a sessão. Ao reabrir, a primeira leitura estável de XP inicia outra, com uma referência nova. O histórico identifica o encerramento como “Client fechado”.
+- Captura de loot a até 60 fps, dois workers de OCR e fila de 64 diálogos. Detecta mudanças de item sem exigir que o diálogo desapareça entre elas.
+- Salva o recorte local antes do OCR. Capturas sem leitura ou com fila cheia continuam disponíveis para revisão, sem entrar automaticamente nos totais.
+- Histórico → Detalhes da sessão reúne XP recebida, XP/h, perdas, XP líquida, base estimada, duração e todos os loots registrados em páginas de 100.
+- Revisão com imagem, texto original, correção de item/quantidade e associação reutilizável. Correções manuais não são sobrescritas por resultados atrasados do OCR.
+- Pequenos JPEGs de loot ficam no SQLite local por padrão; opção para desligar imagens futuras em Preferências. Sem upload. Capturas anteriores à atualização não possuem imagens.
+- Melhora o início de sessão com XP exata sem K e confiança moderada, exigindo três leituras coerentes. Mantém verificações de saltos e sufixos perdidos.
 
-A identidade combina o processo e seu instante de criação: minimizar, trocar de mapa, recriar a janela ou recuperar a captura na mesma execução não divide automaticamente a partida. A troca de resolução também preserva a sessão.
-
-Recortes na fila podem terminar o OCR por até 30 segundos após o fechamento e mantêm a sessão em que foram capturados. Histórico existente preservado.
-
-Validação: fechamento/reabertura, execução sem janela, reutilização de PID/identificador de janela, referência de XP independente e loot processado após o início de outra sessão.
+Validação: 86 testes compartilhados e 63 testes desktop; teste integrado com cinco diálogos diferentes a cada 250 ms, sem intervalo vazio, confirmou cinco registros e imagens, Gasoline 812 ml, munição 880 e ganho contínuo de XP sem K. A captura real em Onslaught ainda depende da duração/visibilidade de cada diálogo.

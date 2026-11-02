@@ -3,7 +3,7 @@ import {recordExperience,startExperience,stopExperience,setExperienceMultiplier,
 export class DesktopTracker {
   constructor(store){
     this.store=store;
-    this.settings={autoTrack:true,overlay:true,multiplier:null,processName:'',preferredTitle:'',region:null,...store.get('settings',{})};
+    this.settings={autoTrack:true,overlay:true,saveLootImages:true,multiplier:null,processName:'',preferredTitle:'',region:null,...store.get('settings',{})};
     this.experience=store.get('experience',null);
     this.pendingStart=true;
     if(this.experience?.session?.running)this.finish('appClosed',this.experience.latest?.receivedAt??Date.now());

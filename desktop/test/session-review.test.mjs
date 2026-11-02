@@ -1,0 +1,31 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {DesktopStore} from '../store.mjs';import {correctLoot,decodeLootImage} from '../loot-review.mjs';import {LootJournal} from '../ui/loot-journal.mjs';import {LootSnapshotQueue} from '../ui/loot-snapshots.mjs';
+const image='data:image/jpeg;base64,/9j/2Q==';
+function setup(t){const store=new DesktopStore(':memory:');t.after(()=>store.close());store.saveCatalog({version:1,observedAt:Date.now(),items:[{itemId:'whiskey',name:'Whiskey',kind:'item'},{itemId:'fuelammo',name:'Gasoline',kind:'round'}]});return store;}
+test('all session loot remains accessible beyond the recent-200 list, with strict paging and session isolation',t=>{
+ const store=setup(t);for(let i=0;i<351;i++)store.saveLoot({id:'loot-'+i,sessionId:i===350?'other':'run',foundAt:i,item:'Whiskey',status:'observed'});
+ assert.equal(store.lootHistory().length,200);const rows=[];for(let page=0;page<4;page++){const result=store.sessionLoot('run',page);assert.equal(result.total,350);rows.push(...result.rows);}assert.equal(rows.length,350);assert.equal(new Set(rows.map(r=>r.id)).size,350);assert.ok(rows.every(row=>row.sessionId==='run'));assert.throws(()=>store.sessionLoot('run',-1));
+});
+test('the crop is saved before OCR, survives failed recognition and is removed only with history',t=>{
+ const store=setup(t);store.saveCapture({eventId:'capture',capturedAt:1000,imageData:image},'run',true,2000);store.markOcrFailed('capture','unreadable text');
+ const row=store.sessionLoot('run').rows[0];assert.equal(row.status,'ocrFailed');assert.equal(row.hasImage,true);assert.deepEqual([...store.lootImage('capture')],[255,216,255,217]);
+ store.set('priceAliases',{bad:'whiskey'});store.clearHistory();assert.equal(store.lootImage('capture'),null);assert.equal(store.get('priceAliases').bad,'whiskey');
+});
+test('saved image payloads reject remote URLs, SVG and oversized data; saving can be disabled',t=>{
+ const store=setup(t);for(const bad of ['https://example.com/a.jpg','data:image/svg+xml;base64,PHN2Zz4=','data:image/jpeg;base64,'+'A'.repeat(400000)])assert.throws(()=>decodeLootImage(bad));
+ store.saveCapture({eventId:'off',capturedAt:1000,imageData:image},'run',false,2000);assert.equal(store.lootImage('off'),null);
+});
+test('manual review updates an old row, preserves its session and teaches future OCR names without overwriting corrections',t=>{
+ const store=setup(t);store.saveCapture({eventId:'old',capturedAt:1000,imageData:image},'original',true,2000);
+ correctLoot(store,{id:'old',itemId:'fuelammo',quantity:812,aliasFrom:'GASOUNE'});const corrected=store.lootById('old');assert.equal(corrected.item,'Gasoline');assert.equal(corrected.quantity,812);assert.equal(corrected.unit,'ml');assert.equal(corrected.sessionId,'original');
+ const journal=new LootJournal(store);journal.observe({eventId:'next',capturedAt:3000,frameAt:3010,text:'YOU HAVE FOUND SOME GASOUNE. WILL YOU TAKE IT?',confidence:90},'next-run',4000);assert.equal(store.lootById('next').item,'Gasoline');
+ assert.equal(journal.observe({eventId:'old',capturedAt:1000,frameAt:1010,text:'YOU HAVE FOUND SOME WHISKEY. WILL YOU TAKE IT?',confidence:95},'wrong-run',5000),false);assert.equal(store.lootById('old').item,'Gasoline');
+});
+test('fast dialogs separate after one absent frame and after a confirmed in-place prompt change',()=>{
+ let id=0;const queue=new LootSnapshotQueue({id:()=>String(++id)}),a=Uint8Array.from({length:60},(_,i)=>i<25?1:0),b=Uint8Array.from({length:60},(_,i)=>i>=25&&i<50?1:0);
+ const first=queue.offer({},1000,true,a);queue.offer({},1016,false);const second=queue.offer({},1032,true,a);assert.notEqual(first,second);
+ assert.equal(queue.offer({},1050,true,b),null);const third=queue.offer({},1066,true,b);assert.notEqual(second,third);assert.equal(queue.created.capturedAt,1050);
+});
+test('queue overflow retains a capture identity for later image review instead of silently losing the event',()=>{
+ let id=0;const queue=new LootSnapshotQueue({limit:1,id:()=>String(++id)});queue.offer({},1000,true);queue.offer({},1030,false);const overflow=queue.offer({},1040,true);assert.equal(overflow,'2');assert.equal(queue.created.queued,false);assert.equal(queue.created.eventId,'2');assert.equal(queue.dropped,1);
+});

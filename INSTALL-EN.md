@@ -15,11 +15,11 @@ These are the published builds used in this guide:
 
 | Download | Version | File |
 | --- | --- | --- |
-| [Chrome extension](https://github.com/raryson/deadfrontier-overview/releases/download/v0.9.5/deadfrontier-overview-chrome.zip) | 0.9.5 | `deadfrontier-overview-chrome.zip` |
-| [Firefox extension](https://github.com/raryson/deadfrontier-overview/releases/download/v0.9.5/deadfrontier-overview.zip) | 0.9.5 | `deadfrontier-overview.zip` |
-| [Windows app (x64)](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.7.1/deadfrontier-overview-windows-0.7.1.zip) | 0.7.1 | `deadfrontier-overview-windows-0.7.1.zip` |
+| [Chrome extension](https://github.com/raryson/deadfrontier-overview/releases/download/v0.9.6/deadfrontier-overview-chrome.zip) | 0.9.6 | `deadfrontier-overview-chrome.zip` |
+| [Firefox extension](https://github.com/raryson/deadfrontier-overview/releases/download/v0.9.6/deadfrontier-overview.zip) | 0.9.6 | `deadfrontier-overview.zip` |
+| [Windows app (x64)](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.8.0/deadfrontier-overview-windows-0.8.0.zip) | 0.8.0 | `deadfrontier-overview-windows-0.8.0.zip` |
 
-Check the [Releases page](https://github.com/raryson/deadfrontier-overview/releases) for newer builds. Extension releases use tags such as `v0.9.5`; Windows releases use tags such as `desktop-v0.7.1`. Each component has its own version number.
+Check the [Releases page](https://github.com/raryson/deadfrontier-overview/releases) for newer builds. Extension releases use tags such as `v0.9.6`; Windows releases use tags such as `desktop-v0.8.0`. Each component has its own version number.
 
 You do not need Node.js, npm or developer tools to run the downloaded Windows app or install the packaged extension.
 
@@ -89,7 +89,7 @@ The sidebar opens one screen at a time:
 
 - **Overview:** XP gained, XP/hour, duration, losses and shortcuts to your data.
 - **Live loot:** identified items, quantities and potential values.
-- **Session history:** previous runs and CSV export.
+- **Session history:** previous runs, detailed XP and loot records, saved dialog images and CSV export.
 - **Market prices:** manual price lookup and market-region selection.
 - **Item mappings:** correct OCR names and review saved mappings.
 - **Preferences:** XP multiplier, client-window selection, OCR calibration and optional extension integration.
@@ -106,7 +106,7 @@ The sidebar opens one screen at a time:
 
 ### Loot and values
 
-Loot OCR runs in the background on small, memory-only dialog crops. You can accept items immediately or keep using F normally.
+Loot OCR runs in the background on small dialog crops, sampled at up to 60 fps. Two OCR workers process frozen crops while you keep playing. You can accept items immediately or keep using F normally.
 
 **The list records items seen in the dialog. It does not verify acceptance or entry into your backpack.** Its totals represent potential value, not confirmed sales or inventory. Loot OCR is still experimental.
 
@@ -118,6 +118,16 @@ Loot OCR runs in the background on small, memory-only dialog crops. You can acce
 - Unknown quantities remain editable and are excluded from totals until resolved. Prices are estimates and quotes expire after 15 minutes.
 
 If a name is wrong or the app says **Waiting for game catalog**, open **Item mappings**, choose the OCR name and the matching original item, then click **Save mapping**. The mapping is stored on this computer and reused when OCR reads that same name again. Item names remain in their original language.
+
+### Review a completed session
+
+1. Open **Session history** and click **Session details** beside the run.
+2. Review XP gained, XP/hour, losses, net XP, estimated base XP and duration.
+3. Browse the loot table using **Previous/Next** (100 records per page). It includes all saved captures for that session, beyond the latest 200 shown in Live loot.
+4. Click **Review** or a thumbnail to see the original OCR crop and recognized text. Select the correct catalog item and quantity, then save. Leave the mapping option enabled to reuse the corrected OCR name on future drops.
+5. A capture that could not be read remains available for manual review. You can exclude a false detection from totals.
+
+Small dialog images are saved locally by default. Disable **Save loot images** under **Preferences** to stop saving future crops. Existing records remain available. Images exist only for captures made with image saving enabled; older images cannot be recovered. OCR can still miss dialogs that are too brief or obscured; **Shift + F** provides an extra snapshot.
 
 ## 5. Troubleshooting
 
@@ -152,7 +162,7 @@ The browser extension stores its own data in that browser. Browser XP history is
 
 ### Privacy
 
-OCR runs locally. Game-window crops stay in memory; the app does not record audio or upload screenshots. Recognized text, session statistics and settings are stored locally. Market lookup makes requests for public item listings. The Windows app does not ask for your game password.
+OCR runs locally. Small loot-dialog JPEG crops are saved locally in SQLite by default for later review; this can be disabled in Preferences. Full video frames and XP previews remain in memory. The app does not record audio or video and does not upload screenshots. Recognized text, session statistics and settings are stored locally. Clearing history also removes saved loot images. Market lookup makes requests for public item listings. The Windows app does not ask for your game password.
 
 ## 7. Feedback and contributions
 

@@ -8,6 +8,7 @@ import readline from 'node:readline';
 import {DesktopStore} from './store.mjs';
 import {DesktopTracker} from './tracker.mjs';
 import {ClientSession} from './client-session.mjs';
+import {correctLoot} from './loot-review.mjs';
 import {LootFlow} from './ui/loot-model.mjs';
 import {LootJournal,canonicalLootName} from './ui/loot-journal.mjs';
 import {selectGameWindow,sourceForWindow,validRegion,csvOfSessions} from './selection.mjs';
@@ -52,7 +53,7 @@ function priceState(){
   for(const quote of priceCache.quotes)if(catalog.get(quote.itemId)?.kind!=='equipment')catalog.set(quote.itemId,{...quote,source:'market'});
   return{direct:marketClient?.status(),marketOptions:MARKET_OPTIONS,market:priceCache.market,markets:priceCache.markets,catalog:[...catalog.values()],sessions:priceCache.sessions,bridge:priceBridge?.status(),aliases:priceCache.aliases};
 }
-function publicState(){const pricing=priceState();return{...tracker.snapshot(),pricing,loot:store.lootHistory().map(e=>({...e,valuation:valueLoot(e,priceCache.quotes,{aliases:priceCache.aliases,catalog:priceCache.catalog,requireCatalog:true})})),lootCounts:store.lootCounts(),lootSearching:Date.now()-(lootFlow?.searchingAt??0)<12000,lootManualAt,lootQueueSize,lootQueueDropped,lootProcessing:lootQueueSize>0,lootCaptureWarning:Date.now()-lootCaptureWarningAt<15000,pendingLoot:lootFlow?.pending?{item:lootFlow.pending.item,foundAt:lootFlow.pending.foundAt}:null,phase,detail,game:target?{title:target.title,processName:target.processName,minimized:target.minimized}:null,
+function publicState(){const pricing=priceState();return{...tracker.snapshot(),pricing,detailRevision:store.priceRevision,loot:store.lootHistory().map(e=>({...e,valuation:valueLoot(e,priceCache.quotes,{aliases:priceCache.aliases,catalog:priceCache.catalog,requireCatalog:true})})),lootCounts:store.lootCounts(),lootSearching:Date.now()-(lootFlow?.searchingAt??0)<12000,lootManualAt,lootQueueSize,lootQueueDropped,lootProcessing:lootQueueSize>0,lootCaptureWarning:Date.now()-lootCaptureWarningAt<15000,pendingLoot:lootFlow?.pending?{item:lootFlow.pending.item,foundAt:lootFlow.pending.foundAt}:null,phase,detail,game:target?{title:target.title,processName:target.processName,minimized:target.minimized}:null,
   windows:windows.map(window=>({handle:window.handle,title:window.title,processName:window.processName})),demo:localTest,preview};}
 function broadcast(){
   if(!tracker)return;const state=publicState();
@@ -196,7 +197,7 @@ function startProbe(){
 }
 async function createFixture(){
   fixtureWindow=new BrowserWindow({show:false,title:'DF Overview Capture Fixture',width:1920,height:1080,x:0,y:0,frame:false,webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false,backgroundThrottling:false}});
-  await fixtureWindow.loadURL('dfov://app/desktop/ui/fixture.html'+(process.argv.includes('--snapshot-test')?'?snapshots=1':process.argv.includes('--manual-capture-test')?'?manual=1':''));fixtureWindow.showInactive();
+  await fixtureWindow.loadURL('dfov://app/desktop/ui/fixture.html'+(process.argv.includes('--onslaught-test')?'?onslaught=1':process.argv.includes('--snapshot-test')?'?snapshots=1':process.argv.includes('--manual-capture-test')?'?manual=1':''));fixtureWindow.showInactive();
 }
 
 if(!app.requestSingleInstanceLock()){app.quit();}
@@ -207,6 +208,8 @@ else {
     Menu.setApplicationMenu(null);
     protocol.handle('dfov',async request=>{
       const url=new URL(request.url);const pathname=decodeURIComponent(url.pathname);
+      const imageMatch=/^\/loot-image\/([a-zA-Z0-9-]{1,80})\.jpg$/.exec(pathname);
+      if(url.host==='app'&&request.method==='GET'&&imageMatch){const image=store?.lootImage(imageMatch[1]);return new Response(image??'Not found',{status:image?200:404,headers:{'Content-Type':image?'image/jpeg':'text/plain','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});}
       const allowed=url.host==='app'&&request.method==='GET'&&(
         /^\/desktop\/ui\/[a-zA-Z0-9._-]+$/.test(pathname)||/^\/vendor\/ocr\/[a-zA-Z0-9._-]+$/.test(pathname)||['/experience.js','/ocr-parser.js','/i18n.js','/icon.png'].includes(pathname));
       if(!allowed)return new Response('Not found',{status:404});
@@ -241,12 +244,20 @@ else {
     overlayWindow.setAlwaysOnTop(true,'screen-saver');
     tray=new Tray(nativeImage.createFromPath(path.join(root,'icon.png')));tray.setToolTip('DeadFrontier Overview — acompanhamento local');tray.on('double-click',showMain);updateTray();
     ipcMain.handle('overview:read',event=>{if(![uiURL,overlayURL].includes(event.senderFrame?.url))throw Error('Origem inválida');return publicState();});
+    ipcMain.handle('overview:session',(event,request)=>{
+      if(!ownRenderer(event,uiURL)||(typeof request?.id!=='string'||request.id.length>120))throw Error('Invalid session');
+      const entry=request.id==='unassigned'?{id:'unassigned'}:store.sessionById(request.id);if(!entry)throw Error('Invalid session');const page=store.sessionLoot(request.id==='unassigned'?null:request.id,request.page??0);priceState();
+      return{session:entry,definitions:priceCache.catalog,totals:priceCache.sessions[entry.id]??null,...page,rows:page.rows.map(row=>({...row,valuation:valueLoot(row,priceCache.quotes,{aliases:priceCache.aliases,catalog:priceCache.catalog,requireCatalog:true})}))};
+    });
     ipcMain.handle('overview:action',async(event,message)=>{
       if(!ownRenderer(event,uiURL))throw Error('Origem inválida');
       const {type,value}=message??{};
       if(type==='auto'&&typeof value==='boolean'){preferences({autoTrack:value});if(!value)finishCapture('disabled');}
       else if(type==='language'&&['auto','pt','en'].includes(value))preferences({language:value});
       else if(type==='overlay'&&typeof value==='boolean'){preferences({overlay:value});positionOverlay();}
+      else if(type==='saveLootImages'&&typeof value==='boolean'){preferences({saveLootImages:value});captureWindow?.webContents.send('capture:update',{type:'imageSetting',token,enabled:value});}
+      else if(type==='lootCorrect'){correctLoot(store,value);}
+      else if(type==='lootIgnore'&&typeof value==='string'){const entry=store.lootById(value);if(entry)store.saveLoot({...entry,status:'ignored'});}
       else if(type==='stop'){tracker.finish('stopped');}
       else if(type==='reset'){tracker.reset();if(captureWindow){token=crypto.randomUUID();captureWindow.webContents.send('capture:update',{type:'reset',token});}}
       else if(type==='multiplier')tracker.setMultiplier(value);
@@ -300,7 +311,7 @@ else {
     });
     ipcMain.handle('capture:config',event=>{
       if(!ownRenderer(event,captureURL)||event.sender!==captureWindow?.webContents)throw Error('Origem inválida');
-      return{token,region:tracker.settings.region,diagnostics:!!diagnosticFile};
+      return{token,region:tracker.settings.region,diagnostics:!!diagnosticFile,saveImages:tracker.settings.saveLootImages!==false};
     });
     ipcMain.on('capture:sample',(event,message)=>{
       if(!ownRenderer(event,captureURL)||event.sender!==captureWindow?.webContents||message?.token!==token||!source||target?.minimized||message.confidence<60)return;
@@ -323,16 +334,18 @@ else {
       const retired=retiredReaders.get(event.sender.id),current=event.sender===captureWindow?.webContents&&message?.token===token&&!!source;
       if(!current&&(!retired||message?.token!==retired.token||Date.now()>retired.until))return;
       const reading=message.reading;
-      if(retired&&reading?.kind!=='snapshot'&&reading?.kind!=='queue')return;
-      if(retired&&reading?.kind==='snapshot'&&(reading.capturedAt>retired.closedAt||(reading.frameAt??reading.capturedAt)>retired.closedAt))return;
+      if(retired&&!['capture','ocrFailed','snapshot','queue'].includes(reading?.kind))return;
+      if(retired&&['capture','ocrFailed','snapshot'].includes(reading?.kind)&&(reading.capturedAt>retired.closedAt||(reading.frameAt??reading.capturedAt)>retired.closedAt))return;
       if(retired&&reading?.kind==='queue'){if(reading.pending===0)disposeReader(event.sender.id);return;}
-      if(!['snapshot','queue','visible','hint','found','absent','unknown','searching'].includes(reading?.kind)||String(reading.text??'').length>1200)return;
+      if(!['capture','ocrFailed','snapshot','queue','visible','hint','found','absent','unknown','searching'].includes(reading?.kind)||String(reading.text??'').length>1200)return;
       if(reading.kind==='queue'){
-        if(Number.isSafeInteger(reading.pending)&&reading.pending>=0&&reading.pending<=72)lootQueueSize=reading.pending;
+        if(Number.isSafeInteger(reading.pending)&&reading.pending>=0&&reading.pending<=256)lootQueueSize=reading.pending;
         if(Number.isSafeInteger(reading.dropped)&&reading.dropped>=0)lootQueueDropped=reading.dropped;
         broadcast();return;
       }
-      if(reading.kind==='snapshot'){if(diagnosticFile)try{fsSync.writeFileSync(diagnosticFile+'.loot.json',JSON.stringify(reading));}catch{}lootJournal.observe(reading,store.sessionAt(reading.capturedAt));broadcast();return;}
+      if(reading.kind==='capture'){store.saveCapture(reading,store.sessionAt(reading.capturedAt),tracker.settings.saveLootImages!==false);if(reading.queued===false)store.markOcrFailed(reading.eventId);broadcast();return;}
+      if(reading.kind==='ocrFailed'){store.markOcrFailed(reading.eventId,reading.text);broadcast();return;}
+      if(reading.kind==='snapshot'){store.saveCapture(reading,store.sessionAt(reading.capturedAt),tracker.settings.saveLootImages!==false);if(diagnosticFile)try{fsSync.writeFileSync(diagnosticFile+'.loot.json',JSON.stringify({...reading,imageData:undefined}));}catch{}if(!lootJournal.observe(reading,store.sessionAt(reading.capturedAt)))store.markOcrFailed(reading.eventId,reading.text);broadcast();return;}
       if(diagnosticFile&&!['hint','visible'].includes(reading.kind))try{fsSync.writeFileSync(diagnosticFile+'.loot.json',JSON.stringify(reading));}catch{}
       if(reading.buttons&&Object.values(reading.buttons).some(value=>!validRegion(value)))return;
       if(reading.inputId){

@@ -23,3 +23,10 @@ if(new URL(location.href).searchParams.has('manual')){
  loot.querySelector('div').textContent='';
  document.addEventListener('keydown',event=>{if(event.key.toLowerCase()==='f')loot.hidden=true;});
 }
+
+if(new URL(location.href).searchParams.has('onslaught')){
+ clearInterval(gainTimer);loot.hidden=true;const hud=document.getElementById('hud');let raw=1234;
+ setInterval(()=>{raw+=111;hud.textContent='LV. 100: '+new Intl.NumberFormat('en-US').format(raw)+' / 6,100K (0%';},400);
+ ['WHISKEY','GASOLINE (812)','12.7MM RIFLE BULLETS (880)','STEROIDS','WHISKEY'].forEach((name,index)=>setTimeout(()=>{loot.querySelector('p').textContent='YOU HAVE FOUND SOME '+name+'. WILL YOU TAKE THEM?';loot.hidden=false;},6000+index*250));
+ setTimeout(()=>loot.hidden=true,7250);
+}

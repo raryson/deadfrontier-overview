@@ -3,9 +3,10 @@ import {parseHudXp,createOcrGate,defaultHudRegion} from '../../ocr-parser.js';
 import {lootRegion} from './loot-model.mjs';
 import {LootFrames} from './loot-frames.mjs';
 import {parseLootPrompt} from './loot-journal.mjs';
-import {LootSnapshotQueue,frameIsBlack,looksLikeLoot} from './loot-snapshots.mjs';
-const bridge=window.captureBridge,video=document.getElementById('game'),gate=createOcrGate(),queue=new LootSnapshotQueue(),recent=new LootFrames(30);
-let draining=false,config,region,worker,lootWorker,stream,frameTimer,frameWidth=0,frameHeight=0,epoch=0,previewRequested=false,lootBusy=false,lootWake,firstRead=false,missingSince=0,lastSample=null;
+import {LootSnapshotQueue,frameIsBlack,looksLikeLoot,lootFingerprint} from './loot-snapshots.mjs';
+const bridge=window.captureBridge,video=document.getElementById('game'),gate=createOcrGate(),queue=new LootSnapshotQueue(),recent=new LootFrames(60),persisted=new Set();
+let lootWorkers=[];
+let draining=false,config,region,worker,lootWorker,stream,frameTimer,frameWidth=0,frameHeight=0,epoch=0,previewRequested=false,lootBusy=0,lootWake,firstRead=false,missingSince=0,lastSample=null;
 const sendStatus=(phase,detail='')=>bridge.status({token:config?.token,phase,detail:String(detail).slice(0,200)});
 function prepare(area,threshold=null){
  const w=Math.max(1,Math.round(area.width*video.videoWidth)),h=Math.max(1,Math.round(area.height*video.videoHeight)),canvas=document.createElement('canvas'),scale=Math.min(4,4096/w,1400/h);
@@ -22,16 +23,18 @@ function crop(canvas,x,y,w,h){const out=document.createElement('canvas');out.wid
 function captureLoot(){
  if(!video.videoWidth)return;
  const area=lootRegion(video.videoWidth,video.videoHeight),canvas=document.createElement('canvas');canvas.width=350;canvas.height=310;const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(video,area.x*video.videoWidth,area.y*video.videoHeight,area.width*video.videoWidth,area.height*video.videoHeight,0,0,350,310);
- const pixels=ctx.getImageData(0,0,350,310).data;const at=Date.now(),frame=recent.push(canvas,at);frame.eventId=queue.offer(canvas,at,looksLikeLoot(pixels,350,310));if(queue.size)lootWake?.();
+ const pixels=ctx.getImageData(0,0,350,310).data;const at=Date.now(),frame=recent.push(canvas,at);frame.eventId=queue.offer(canvas,at,looksLikeLoot(pixels,350,310),lootFingerprint(pixels));persistCapture();if(queue.size)lootWake?.();
 }
+function persistCapture(){const item=queue.created;if(!item||persisted.has(item.eventId))return;persisted.add(item.eventId);while(persisted.size>1000)persisted.delete(persisted.values().next().value);bridge.loot({token:config.token,reading:{kind:'capture',eventId:item.eventId,capturedAt:item.capturedAt,frameAt:item.frameAt,queued:item.queued,manual:item.manual,...(config.saveImages?{imageData:item.canvas.toDataURL('image/jpeg',.85)}:{})}});}
 bridge.subscribe(update=>{
  if(!['reset','region','clear'].includes(update.type)&&update.token!==config?.token)return;
+ if(update.type==='imageSetting'){config.saveImages=update.enabled;return;}
  if(update.type==='drain'){draining=true;clearInterval(frameTimer);recent.clear();stream?.getTracks().forEach(track=>track.stop());if(queue.size)void readLoot();else if(!lootBusy)bridge.loot({token:config.token,reading:{kind:'queue',pending:0,dropped:queue.dropped}});return;}
  if(update.type==='lootCapture'){
   const at=update.at,frames=recent.frames.filter(f=>f.at<=at&&at-f.at<=200);
   const eventId=frames.findLast(f=>f.eventId)?.eventId;
   const eligible=frames.filter(f=>f.eventId===eventId&&eventId),selected=eligible.length?eligible.slice(-3):[frames[0],frames[Math.floor(frames.length/2)],frames.at(-1)].filter(Boolean);
-  if(queue.capture(selected,eventId))lootWake?.();return;
+  const queued=queue.capture(selected,eventId);persistCapture();if(queued)lootWake?.();return;
  }
  if(update.type==='lootSearch'){captureLoot();return;}
  if(update.type==='preview'){previewRequested=true;return;}
@@ -40,34 +43,36 @@ bridge.subscribe(update=>{
  if(update.type==='region'){config.region=update.region;region=update.region;gate.reset();lastSample=null;epoch++;}
 });
 const workerOptions={workerPath:new URL('../../vendor/ocr/worker.min.js',import.meta.url).href,corePath:new URL('../../vendor/ocr/tesseract-core-lstm.wasm.js',import.meta.url).href,langPath:new URL('../../vendor/ocr',import.meta.url).href,workerBlobURL:false,cacheMethod:'none'};
-async function readLoot(){
- if(lootBusy||!lootWorker)return;lootBusy=true;
+async function readLoot(ocr=lootWorker){
+ if(!ocr||ocr.busy)return;ocr.busy=true;lootBusy++;
  try{
   let job;while(job=queue.next()){
    bridge.loot({token:config.token,reading:{kind:'queue',pending:queue.size+1,dropped:queue.dropped}});
    const prompt=crop(job.canvas,35,30,280,65),large=document.createElement('canvas');large.width=1120;large.height=260;const ctx=large.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.drawImage(prompt,0,0,large.width,large.height);
-   let best=null;const quantities=[];
+   let best=null,lastText='';const quantities=[];
    for(const threshold of [null,80,110]){
-    const result=await lootWorker.recognize(await bytes(filter(large,threshold))),text=result.data.text,parsed=parseLootPrompt(text);if(!parsed)continue;
+    const result=await ocr.recognize(await bytes(filter(large,threshold))),text=result.data.text,parsed=parseLootPrompt(text);lastText=text;if(!parsed)continue;
     if(parsed.quantity)quantities.push(parsed.quantity);
     if(!best||result.data.confidence>best.confidence)best={text,confidence:result.data.confidence};
     if(result.data.confidence>=85&&!parsed.quantity)break;
    }
    if(job.generation!==queue.generation)continue;
-   if(best){const parsed=parseLootPrompt(best.text);bridge.loot({token:config.token,reading:{kind:'snapshot',manual:job.manual,eventId:job.eventId,capturedAt:job.capturedAt,frameAt:job.at,...best,quantityConfidence:parsed?.quantity&&quantities.filter(q=>q===parsed.quantity).length>=2?95:0}});}
-   bridge.loot({token:config.token,reading:{kind:'queue',pending:queue.size,dropped:queue.dropped}});
+   if(best){const parsed=parseLootPrompt(best.text);bridge.loot({token:config.token,reading:{kind:'snapshot',manual:job.manual,eventId:job.eventId,capturedAt:job.capturedAt,frameAt:job.at,...best,...(config.saveImages?{imageData:job.canvas.toDataURL('image/jpeg',.85)}:{}),quantityConfidence:parsed?.quantity&&quantities.filter(q=>q===parsed.quantity).length>=2?95:0}});}
+   if(best?.confidence>=85&&(!parseLootPrompt(best.text)?.quantity||quantities.filter(q=>q===parseLootPrompt(best.text)?.quantity).length>=2))queue.complete(job.eventId);
+   if(!best)bridge.loot({token:config.token,reading:{kind:'ocrFailed',eventId:job.eventId,capturedAt:job.capturedAt,text:lastText.slice(0,1200)}});
+   bridge.loot({token:config.token,reading:{kind:'queue',pending:queue.size+lootBusy-1,dropped:queue.dropped}});
   }
  }catch{/* A failed crop never stops XP. Later saved crops remain queued. */}
- finally{lootBusy=false;if(queue.size&&(stream?.active||draining))setTimeout(readLoot,50);else if(draining)bridge.loot({token:config.token,reading:{kind:'queue',pending:0,dropped:queue.dropped}});}
+ finally{ocr.busy=false;lootBusy--;if(queue.size&&(stream?.active||draining))setTimeout(()=>readLoot(ocr),10);else if(draining&&!lootBusy)bridge.loot({token:config.token,reading:{kind:'queue',pending:0,dropped:queue.dropped}});}
 }
 window.startCapture=async()=>{
  try{
-  config=await bridge.config();stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:{ideal:30,max:30}},audio:false});stream.getVideoTracks()[0].addEventListener('ended',()=>{if(!draining)sendStatus('ended');});video.srcObject=stream;await video.play();
+  config=await bridge.config();stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:{ideal:60,max:60}},audio:false});stream.getVideoTracks()[0].addEventListener('ended',()=>{if(!draining)sendStatus('ended');});video.srcObject=stream;await video.play();
   frameWidth=video.videoWidth;frameHeight=video.videoHeight;const saved=config.region;region=saved&&saved.sourceWidth===frameWidth&&saved.sourceHeight===frameHeight?saved:defaultHudRegion(frameWidth,frameHeight);
   // Capture starts before WASM initialization. The FIFO owns frozen crops;
   // closing a dialog or holding F never cancels its asynchronous OCR.
-  frameTimer=setInterval(captureLoot,33);lootWake=readLoot;sendStatus('loading');
-  const initializeLoot=async()=>{lootWorker=await Tesseract.createWorker('eng',1,workerOptions);await lootWorker.setParameters({tessedit_pageseg_mode:Tesseract.PSM.SINGLE_BLOCK,user_defined_dpi:'300'});await readLoot();};
+  frameTimer=setInterval(captureLoot,16);lootWake=()=>{for(const ocr of lootWorkers)void readLoot(ocr);};sendStatus('loading');
+  const initializeLoot=async()=>{lootWorker=await Tesseract.createWorker('eng',1,workerOptions);await lootWorker.setParameters({tessedit_pageseg_mode:Tesseract.PSM.SINGLE_BLOCK,user_defined_dpi:'300'});lootWorkers.push(lootWorker);void readLoot(lootWorker);const second=await Tesseract.createWorker('eng',1,workerOptions);await second.setParameters({tessedit_pageseg_mode:Tesseract.PSM.SINGLE_BLOCK,user_defined_dpi:'300'});lootWorkers.push(second);void readLoot(second);};
   void initializeLoot().catch(()=>sendStatus('error','Não foi possível iniciar o leitor de itens.'));
   worker=await Tesseract.createWorker('eng',1,{...workerOptions,errorHandler:error=>sendStatus('error',error)});await worker.setParameters({tessedit_pageseg_mode:Tesseract.PSM.SINGLE_LINE,tessedit_char_whitelist:'0123456789LVYlvKkMmBb.,:/()% ',user_defined_dpi:'300'});
   const check=document.createElement('canvas');check.width=48;check.height=27;const checkCtx=check.getContext('2d',{willReadFrequently:true});
@@ -77,9 +82,11 @@ window.startCapture=async()=>{
     if(frameWidth!==video.videoWidth||frameHeight!==video.videoHeight){frameWidth=video.videoWidth;frameHeight=video.videoHeight;config.region=null;region=defaultHudRegion(frameWidth,frameHeight);gate.reset();lastSample=null;epoch++;sendStatus('resolution');}
     checkCtx.drawImage(video,0,0,48,27);const black=frameIsBlack(checkCtx.getImageData(0,0,48,27).data);
     if(black){missingSince=0;sendStatus(firstRead?'transition':'waitingHud');return;}
-    const revision=epoch,candidates=[region];if(!config.region&&region.y*video.videoHeight<85)candidates.push({...region,y:Math.min(112/video.videoHeight,1-region.height)});
+    const tight=area=>({...area,y:area.y+3/video.videoHeight,width:Math.min(area.width,280/video.videoWidth),height:Math.min(area.height,21/video.videoHeight)});
+    const base=config.region?region:defaultHudRegion(frameWidth,frameHeight);
+    const revision=epoch,candidates=config.region?[region]:[tight(base),base];if(!config.region&&base.y*video.videoHeight<85){const lower={...base,y:Math.min(112/video.videoHeight,1-base.height)};candidates.push(tight(lower),lower);}
     let best=null,diagnostic=[];
-    for(const candidate of candidates){if(best?.confidence>=75)break;for(const threshold of [80,null,160,110]){
+    for(const candidate of candidates){if(best?.confidence>=75||best?.sample.precision===1&&best.confidence>=65)break;for(const threshold of [80,null,160,110]){
      const result=await worker.recognize(await bytes(prepare(candidate,threshold))),sample=parseHudXp(result.data.text,{previous:lastSample});diagnostic.push({text:result.data.text.slice(0,100),confidence:Math.round(result.data.confidence),threshold});if(sample&&(!best||result.data.confidence>best.confidence))best={sample,confidence:result.data.confidence,candidate};if(sample&&result.data.confidence>=85)break;
     }}
     if(revision!==epoch)return;const accepted=gate.accept(best?.sample,best?.confidence);
@@ -96,4 +103,4 @@ window.startCapture=async()=>{
   await loop();
  }catch(error){sendStatus('error',error.message);throw error;}
 };
-window.addEventListener('pagehide',()=>{clearInterval(frameTimer);queue.clear();recent.clear();stream?.getTracks().forEach(track=>track.stop());worker?.terminate();lootWorker?.terminate();});
+window.addEventListener('pagehide',()=>{clearInterval(frameTimer);queue.clear();recent.clear();stream?.getTracks().forEach(track=>track.stop());worker?.terminate();for(const ocr of lootWorkers)ocr.terminate();});

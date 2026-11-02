@@ -26,7 +26,7 @@ export function parseHudXp(text,{previous=null}={}) {
   if(!current||!target||level<1||level>415||target.value<=0)return null;
   // A dropped K/M suffix turns millions into thousands and creates false deaths.
   const currentUnit=/[KMB]\s*$/.exec(match[2]),targetUnit=/[KMB]\s*$/.exec(match[3]);
-  const percent=/^\s*\(\s*(\d{1,3})\s*%\s*\)/.exec(normalized.slice(match.index+match[0].length));
+  const percent=/^\s*\(\s*(\d{1,3})\s*%/.exec(normalized.slice(match.index+match[0].length));
   let shown=percent?Number(percent[1]):NaN;
   // The closing HUD parenthesis can be appended as 7 before %. Repair only
   // an impossible percentage with that exact suffix, checked against XP/target.
@@ -61,12 +61,14 @@ export function createOcrGate() {
       if(!sample||!Number.isFinite(confidence)||confidence<60){pending=null;return null;}
       const priorPending=pending;
       const repeat=same(pending?.sample,sample)?pending.count+1:1;
-      const consistent=priorPending&&confidence>=75&&priorPending.confidence>=75&&now-priorPending.at<=10000&&sample.level===priorPending.sample.level&&sample.nextLevelXp===priorPending.sample.nextLevelXp&&sample.xp>=priorPending.sample.xp&&sample.xp-priorPending.sample.xp<=Math.max(sample.nextLevelXp*0.08,sample.precision*10);
-      const sequence=consistent?priorPending.sequence+1:repeat;
+      const coherent=priorPending&&now-priorPending.at<=10000&&sample.level===priorPending.sample.level&&sample.nextLevelXp===priorPending.sample.nextLevelXp&&sample.xp>=priorPending.sample.xp&&sample.xp-priorPending.sample.xp<=Math.max(sample.nextLevelXp*0.08,sample.precision*10);
+      const consistent=coherent&&confidence>=75&&priorPending.confidence>=75;
+      const exactSequence=coherent&&sample.precision===1&&priorPending.sample.precision===1&&confidence>=60&&priorPending.confidence>=60;
+      const sequence=consistent||exactSequence?priorPending.sequence+1:repeat;
       pending={sample,count:repeat,sequence,confidence,at:now};
       let rebase=false;
       if(!accepted) {
-        if(repeat<2&&!consistent)return null;
+        if(repeat<2&&!consistent&&!(exactSequence&&sequence>=3))return null;
       }
       else if(sample.level===accepted.sample.level && sample.nextLevelXp===accepted.sample.nextLevelXp) {
         const difference=sample.xp-accepted.sample.xp;

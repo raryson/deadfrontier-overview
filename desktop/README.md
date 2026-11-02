@@ -2,9 +2,9 @@
 
 **[English installation and usage guide](../INSTALL-EN.md)**
 
-Prévia **0.7.1** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
+Prévia **0.8.0** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
 
-[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.7.1/deadfrontier-overview-windows-0.7.1.zip)
+[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.8.0/deadfrontier-overview-windows-0.8.0.zip)
 
 ## Usar a versão portátil
 
@@ -53,15 +53,17 @@ O jogo precisa continuar renderizando a janela. Minimizar pode interromper os fr
 
 Esta prévia usa um perfil local de XP; não faz login no jogo nem identifica automaticamente troca de personagem. Ao trocar de personagem na mesma janela, use **Salvar e zerar sessão**. O loot é experimental. O catálogo Yard acompanha o app e os anúncios são consultados diretamente, sem navegador. Buffs vindos do addon e compra/banco ainda não estão implementados neste app.
 
-## Loot em segundo plano (0.7.1)
+## Loot em segundo plano (0.8.0)
 
-A captura roda a até 30 quadros por segundo e seleciona pequenos recortes do diálogo para uma fila em memória. O OCR trabalha separado da leitura de XP: pode aceitar o item imediatamente ou segurar F. Não é preciso aguardar a leitura.
+A captura roda a até 60 quadros por segundo e seleciona pequenos recortes do diálogo para uma fila em memória. O OCR trabalha separado da leitura de XP: pode aceitar o item imediatamente ou segurar F. Não é preciso aguardar a leitura.
 
 **Captura manual extra:** com a tela de item encontrado visível e o client em primeiro plano, pressione **Shift + F** uma vez e siga jogando. O overlay mostra “recorte enviado para OCR”. O atalho usa os quadros imediatamente anteriores ao comando, inclusive se F fechar o diálogo. Ele não bloqueia as teclas do jogo. A captura automática continua ligada; as duas usam o mesmo registro para não duplicar o item. O atalho não atua em outras janelas.
 
 O histórico registra **itens identificados no diálogo**, sem verificar aceite ou entrada na mochila. O total é o valor potencial desses itens. Recortes repetidos do mesmo diálogo não criam novas linhas; dois diálogos separados do mesmo item contam separadamente. Quantidades duvidosas ficam editáveis e fora da estimativa. O catálogo corrige grafias próximas de munição apenas quando o calibre coincide e há uma única correspondência.
 
-São até 24 diálogos pendentes, com no máximo três recortes de 350 × 310 por diálogo. A fila cheia aparece no painel; não há gravação de imagens em disco. Encerrar o app descarta recortes ainda não processados. Fechar só o painel mantém o processamento na bandeja.
+São até 64 diálogos pendentes, com no máximo três recortes de 350 × 310 por diálogo e dois workers de OCR. Mudanças de texto no mesmo diálogo são capturadas separadamente. O primeiro recorte é salvo localmente antes do OCR; mesmo com a fila cheia ou leitura malsucedida, a captura pode ser revisada depois. Fechar só o painel mantém o processamento na bandeja. Encerrar o app interrompe o OCR pendente, mas preserva os recortes já salvos.
+
+Em **Histórico de sessões → Detalhes da sessão**, veja XP, perdas, duração e todos os loots registrados, em páginas de 100. Abra **Revisar** para conferir a imagem e o texto OCR, corrigir item/quantidade e salvar uma associação para próximas leituras. O limite de 200 registros da lista ao vivo não limita os detalhes da sessão. Imagens só existem para novas capturas com o salvamento ligado; capturas antigas não podem ser reconstruídas. Em **Preferências**, é possível desligar o salvamento de imagens futuras.
 
 Telas pretas de carregamento mostram “Aguardando o HUD” ou “Carregando mapa”. Não iniciam uma sessão nem geram XP. A sessão começa na primeira leitura estável, aceitando XP exata sem K no início do nível.
 
@@ -69,7 +71,7 @@ Telas pretas de carregamento mostram “Aguardando o HUD” ou “Carregando map
 
 Apenas a janela do processo associado é usada como fonte de vídeo. A enumeração do Electron pede metadados sem thumbnails para evitar prévias de outras janelas; a seleção do stream usa o HWND validado pelo helper. Não há áudio, gravação de vídeo, upload, analytics, interceptação de tráfego, leitura de memória ou injeção no executável do jogo.
 
-Frames e prévias ficam na memória. O banco contém configurações, leituras numéricas e sessões. O OCR, modelo e WebAssembly vêm no app. O protocolo local serve somente os recursos permitidos da aplicação e as conexões de rede do renderer são bloqueadas. A aplicação não pede credenciais do jogo.
+Frames completos e prévias de XP ficam na memória. Pequenos recortes JPEG do diálogo de loot são salvos por padrão no SQLite para revisão local; a opção pode ser desligada em Preferências. Limpar o histórico remove também essas imagens. O banco contém configurações, texto reconhecido, loot, leituras numéricas e sessões. O OCR, modelo e WebAssembly vêm no app. O protocolo local serve somente os recursos permitidos da aplicação e as conexões de rede do renderer são bloqueadas. A aplicação não pede credenciais do jogo.
 
 ## Desenvolvimento e reprodução
 
@@ -102,7 +104,7 @@ Para diagnosticar o OCR localmente, inicie o executável com `--diagnostic-file 
 
 Extract the entire portable ZIP and run **DeadFrontier Overview.exe**. Leave automatic tracking enabled and open the game client. The app detects its window and starts a session on the first stable readout, without a browser sharing picker. Close minimizes to the tray; Quit exits. Alt+Shift+D toggles the dashboard and Alt+Shift+O toggles the overlay. Portuguese/English follow the selected language or system preferences.
 
-Sessions stay locally in SQLite under the app's user-data folder. Stop freezes the session; Save and reset preserves it and starts another. Closing the game ends and saves the session. Base XP is an estimate; K values have about 1,000 XP precision. Windowed/borderless mode is recommended for initial validation. Loot OCR runs on a bounded queue of frozen dialog crops at up to 30 fps. Accept immediately or hold F: the app identifies items seen without waiting for acceptance. Totals show potential value, not confirmed inventory. Black loading screens wait for the HUD; exact XP without K is supported. Public prices and Yard references work without a browser or code; see the [price guide](../docs/prices.md).
+Sessions stay locally in SQLite under the app's user-data folder. Stop freezes the session; Save and reset preserves it and starts another. Closing the game ends and saves the session. Base XP is an estimate; K values have about 1,000 XP precision. Windowed/borderless mode is recommended for initial validation. Session details show all saved loot and XP, with local dialog images and editable OCR mappings. Image saving can be disabled in Preferences. Loot OCR runs on a bounded queue of frozen dialog crops at up to 60 fps. Accept immediately or hold F: the app identifies items seen without waiting for acceptance. Totals show potential value, not confirmed inventory. Black loading screens wait for the HUD; exact XP without K is supported. Public prices and Yard references work without a browser or code; see the [price guide](../docs/prices.md).
 
 ## Preços e Yard
 

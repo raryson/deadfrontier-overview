@@ -4,6 +4,7 @@ import path from 'node:path';
 import {aggregateQuotes} from '../market-prices.js';
 import {sanitizeItemCatalog} from '../item-catalog.js';
 import {parseLootItem} from './ui/loot-model.mjs';
+import {decodeLootImage} from './loot-review.mjs';
 
 export class DesktopStore {
   constructor(filename){
@@ -15,6 +16,8 @@ export class DesktopStore {
       CREATE TABLE IF NOT EXISTS sessions(id TEXT PRIMARY KEY,started_at INTEGER NOT NULL,running INTEGER NOT NULL,payload TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS loot(id TEXT PRIMARY KEY,session_id TEXT,found_at INTEGER NOT NULL,status TEXT NOT NULL,payload TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS prices(market TEXT NOT NULL,item_id TEXT NOT NULL,unit_kind TEXT NOT NULL,observed_at INTEGER NOT NULL,payload TEXT NOT NULL,PRIMARY KEY(market,item_id,unit_kind));
+      CREATE TABLE IF NOT EXISTS loot_images(loot_id TEXT PRIMARY KEY,captured_at INTEGER NOT NULL,quality REAL NOT NULL,image BLOB NOT NULL);
+      CREATE INDEX IF NOT EXISTS loot_session_time ON loot(session_id,found_at);
       CREATE TABLE IF NOT EXISTS item_catalog(item_id TEXT PRIMARY KEY,observed_at INTEGER NOT NULL,payload TEXT NOT NULL);`);
     // A shutdown cannot confirm a pickup that was still awaiting the screen.
     this.db.prepare("UPDATE loot SET status='unconfirmed',payload=json_set(payload,'$.status','unconfirmed') WHERE status='found'").run();
@@ -48,12 +51,30 @@ export class DesktopStore {
   count(){return this.db.prepare('SELECT COUNT(*) AS count FROM sessions').get().count;}
   clearHistory(){
     this.db.exec('BEGIN IMMEDIATE');
-    try{this.db.exec("DELETE FROM loot;DELETE FROM sessions;DELETE FROM state WHERE key='experience';");this.set('historyClearedAt',Date.now());this.db.exec('COMMIT');this.priceRevision++;}
+    try{this.db.exec("DELETE FROM loot_images;DELETE FROM loot;DELETE FROM sessions;DELETE FROM state WHERE key='experience';");this.set('historyClearedAt',Date.now());this.db.exec('COMMIT');this.priceRevision++;}
     catch(error){this.db.exec('ROLLBACK');throw error;}
   }
   saveLoot(entry){const {buttons,key,...saved}=entry;this.db.prepare(`INSERT INTO loot(id,session_id,found_at,status,payload) VALUES(?,?,?,?,?)
     ON CONFLICT(id) DO UPDATE SET session_id=excluded.session_id,status=excluded.status,payload=excluded.payload`).run(entry.id,entry.sessionId,entry.foundAt,entry.status,JSON.stringify(saved));this.priceRevision++;}
-  lootHistory(){return this.db.prepare('SELECT payload FROM loot ORDER BY found_at DESC LIMIT 200').all().map(row=>JSON.parse(row.payload));}
+  lootHistory(){return this.db.prepare('SELECT payload,EXISTS(SELECT 1 FROM loot_images WHERE loot_id=loot.id) has_image FROM loot ORDER BY found_at DESC LIMIT 200').all().map(row=>({...JSON.parse(row.payload),hasImage:!!row.has_image}));}
+  sessionById(id){const row=this.db.prepare('SELECT payload FROM sessions WHERE id=?').get(id);return row?JSON.parse(row.payload):null;}
+  sessionLoot(id,page=0){
+    if(!Number.isSafeInteger(page)||page<0||page>1000000)throw Error('Invalid page');
+    const rows=this.db.prepare('SELECT payload,EXISTS(SELECT 1 FROM loot_images WHERE loot_id=loot.id) has_image FROM loot WHERE session_id IS ? ORDER BY found_at,id LIMIT 100 OFFSET ?').all(id,page*100);
+    return{total:this.db.prepare('SELECT COUNT(*) n FROM loot WHERE session_id IS ?').get(id).n,page,pageSize:100,rows:rows.map(row=>({...JSON.parse(row.payload),hasImage:!!row.has_image}))};
+  }
+  saveLootImage(id,data,at,quality=0){
+    const image=decodeLootImage(data);if(!this.lootById(id)||!Number.isFinite(at)||!Number.isFinite(quality))throw Error('Invalid capture');
+    this.db.prepare('INSERT INTO loot_images VALUES(?,?,?,?) ON CONFLICT(loot_id) DO UPDATE SET captured_at=excluded.captured_at,quality=excluded.quality,image=excluded.image WHERE excluded.quality>loot_images.quality').run(id,at,quality,image);
+  }
+  lootImage(id){return this.db.prepare('SELECT image FROM loot_images WHERE loot_id=?').get(id)?.image??null;}
+  saveCapture(reading,sessionId,saveImage=true,now=Date.now()){
+    if(!/^[a-zA-Z0-9-]{1,80}$/.test(reading.eventId??'')||!Number.isFinite(reading.capturedAt)||reading.capturedAt>now+100||now-reading.capturedAt>600000)return false;
+    if(!this.lootById(reading.eventId))this.saveLoot({id:reading.eventId,sessionId:sessionId??null,foundAt:reading.capturedAt,item:'',status:'ocrPending',captureMode:reading.manual?'shortcut':'snapshot'});
+    if(saveImage&&reading.imageData)this.saveLootImage(reading.eventId,reading.imageData,reading.frameAt??reading.capturedAt,reading.confidence??0);
+    return true;
+  }
+  markOcrFailed(id,text=''){const entry=this.lootById(id);if(entry?.status==='ocrPending')this.saveLoot({...entry,status:'ocrFailed',ocrText:String(text).slice(0,1200)});}
   confirmLoot(id,quantity){
     const entry=this.lootById(id);if(!entry||entry.status!=='unconfirmed')throw Error('Invalid loot confirmation.');
     if(quantity!==undefined&&(!Number.isSafeInteger(quantity)||quantity<1||quantity>1e9))throw Error('Invalid loot quantity.');

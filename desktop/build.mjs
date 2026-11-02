@@ -15,7 +15,7 @@ await buildProbe();
 if(process.argv.includes('--probe-only')){console.log('Compiled native window detector.');process.exit(0);}
 const stage=path.join(root,'.tmp','desktop-stage-'+Date.now());
 await fs.mkdir(path.join(stage,'desktop'),{recursive:true});
-const modules=['main.mjs','store.mjs','tracker.mjs','client-session.mjs','selection.mjs','price-bridge.mjs','market-client.mjs','preload.cjs','capture-preload.cjs'];
+const modules=['main.mjs','store.mjs','tracker.mjs','client-session.mjs','loot-review.mjs','selection.mjs','price-bridge.mjs','market-client.mjs','preload.cjs','capture-preload.cjs'];
 for(const file of modules)await fs.copyFile(path.join(directory,file),path.join(stage,'desktop',file));
 for(const folder of ['ui','bin','data'])await fs.cp(path.join(directory,folder),path.join(stage,'desktop',folder),{recursive:true});
 for(const file of ['experience.js','ocr-parser.js','i18n.js','market-prices.js','market-search.js','item-catalog.js','icon.png'])await fs.copyFile(path.join(root,file),path.join(stage,file));

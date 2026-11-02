@@ -6,6 +6,7 @@ import {parseLootPrompt} from './loot-journal.mjs';
 import {LootSnapshotQueue,frameIsBlack,looksLikeLoot,lootFingerprint} from './loot-snapshots.mjs';
 import {hudReadRegions} from './xp-regions.mjs';
 import {CAPTURE_LIMITS,HudScanBudget,pixelSignature} from './capture-budget.mjs';
+import {readHudStrokes} from './hud-strokes.mjs';
 const bridge=window.captureBridge,video=document.getElementById('game'),gate=createOcrGate(),queue=new LootSnapshotQueue(),recent=new LootFrames(CAPTURE_LIMITS.recentFrames),persisted=new Set(),scanBudget=new HudScanBudget();
 const detector=document.createElement('canvas');detector.width=350;detector.height=310;const detectorContext=detector.getContext('2d',{willReadFrequently:true});
 let lootWorkers=[];
@@ -82,7 +83,9 @@ window.startCapture=async()=>{
   // closing a dialog or holding F never cancels its asynchronous OCR.
   const initializeLoot=async()=>{if(lootWorker||lootInitializing)return;lootInitializing=true;try{const reader=await Tesseract.createWorker('eng',1,workerOptions);await reader.setParameters({tessedit_pageseg_mode:Tesseract.PSM.SINGLE_BLOCK,user_defined_dpi:'300'});lootWorker=reader;lootWorkers.push(reader);void readLoot(reader);}catch{sendStatus('error','Não foi possível iniciar o leitor de itens.');}finally{lootInitializing=false;}};
   frameTimer=setInterval(captureLoot,CAPTURE_LIMITS.frameMs);lootWake=()=>{clearTimeout(lootIdleTimer);if(lootWorker)void readLoot(lootWorker);else void initializeLoot();};sendStatus('loading');
-  worker=await Tesseract.createWorker('eng',1,{...workerOptions,errorHandler:error=>sendStatus('error',error)});await worker.setParameters({tessedit_pageseg_mode:Tesseract.PSM.SINGLE_LINE,tessedit_char_whitelist:'0123456789LVYlvKkMmBb.,:/()% ',user_defined_dpi:'300'});
+  // The outlined HUD has a small, inexpensive stroke reader. Load the general
+  // WASM OCR only when that complete layout cannot be read (e.g. another font).
+  const ensureXpWorker=async()=>{if(!worker){worker=await Tesseract.createWorker('eng',1,{...workerOptions,errorHandler:error=>sendStatus('error',error)});await worker.setParameters({tessedit_pageseg_mode:Tesseract.PSM.SINGLE_LINE,tessedit_char_whitelist:'0123456789LVYlvKkMmBb.,:/()% ',user_defined_dpi:'300'});}return worker;};
   const check=document.createElement('canvas');check.width=48;check.height=27;const checkCtx=check.getContext('2d',{willReadFrequently:true});
   const stamp=document.createElement('canvas'),stampCtx=stamp.getContext('2d',{willReadFrequently:true});
   const signature=area=>{stamp.width=Math.max(1,Math.round(area.width*frameWidth));stamp.height=Math.max(1,Math.round(area.height*frameHeight));stampCtx.drawImage(video,area.x*frameWidth,area.y*frameHeight,area.width*frameWidth,area.height*frameHeight,0,0,stamp.width,stamp.height);return pixelSignature(stampCtx.getImageData(0,0,stamp.width,stamp.height).data);};
@@ -96,7 +99,15 @@ window.startCapture=async()=>{
     let best=null,diagnostic=[];
     if(lastScan&&Date.now()-lastScan.at<CAPTURE_LIMITS.cacheMs&&signature(lastScan.best.candidate)===lastScan.signature)best=lastScan.best;
     else{
-     for(const {area:candidate,threshold} of scanBudget.attempts(candidates)){
+     if(!config.region&&frameWidth>=320&&frameHeight>=136){
+      for(const y of [82,114]){
+       const candidate={x:0,y:y/frameHeight,width:320/frameWidth,height:22/frameHeight};
+       stamp.width=320;stamp.height=22;stampCtx.drawImage(video,0,y,320,22,0,0,320,22);const pixels=stampCtx.getImageData(0,0,320,22).data;
+       const reading=readHudStrokes(pixels,320,22);if(reading){best={...reading,candidate,signature:pixelSignature(pixels)};diagnostic.push({text:reading.text,confidence:reading.confidence,method:reading.method});break;}
+      }
+     }
+     if(!best)for(const {area:candidate,threshold} of scanBudget.attempts(candidates)){
+      await ensureXpWorker();
       const candidateStamp=signature(candidate),prepared=prepare(candidate,threshold),result=await worker.recognize(await bytes(prepared)),sample=parseHudXp(result.data.text,{previous:lastSample});diagnostic.push({text:result.data.text.slice(0,100),confidence:Math.round(result.data.confidence),threshold});if(sample&&(!best||result.data.confidence>best.confidence))best={sample,confidence:result.data.confidence,candidate,threshold,signature:candidateStamp};if(best?.confidence>=75||best?.sample.precision===1&&best.confidence>=65)break;
      }
      scanBudget.result(best);lastScan=best&&best.confidence>=60?{best,signature:best.signature,at:Date.now()}:null;

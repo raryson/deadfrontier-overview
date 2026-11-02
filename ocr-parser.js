@@ -44,12 +44,15 @@ export function parseHudXp(text,{previous=null}={}) {
     const tinyExact=visible&&shown===0&&current.value<1000;
     const contextExact=previous?.level===level&&previous.precision===1&&current.value>=previous.xp&&current.value-previous.xp<=10000;
     const unambiguous=current.value<=target.value&&current.value*multiplier>target.value;
-    if(visible){if(Math.abs(ratio-shown)>1.1||!tinyExact&&Math.abs(ratio*multiplier-shown)<=1.1)return null;}
+    if(visible){if(Math.abs(Math.min(100,ratio)-shown)>1.1||!tinyExact&&Math.abs(Math.min(100,ratio*multiplier)-shown)<=1.1)return null;}
     else if(percent||!unambiguous&&!contextExact)return null;
   }
   // OCR often reads the closing parenthesis as a 7 (40% -> 407%). Such an
   // impossible percentage is not evidence against otherwise valid XP tokens.
-  if(Number.isFinite(shown)&&shown<=100&&Math.abs(current.value/target.value*100-shown)>2)return null;
+  // The game keeps accumulating XP beyond the level target while the HUD
+  // percentage stays at 100 (including Onslaught). Preserve the full XP value.
+  if(current.value>target.value&&Number.isFinite(shown)&&shown<=100&&shown!==100)return null;
+  if(Number.isFinite(shown)&&shown<=100&&Math.abs(Math.min(100,current.value/target.value*100)-shown)>2)return null;
   return {xp:current.value,level,nextLevelXp:target.value,precision:current.precision,source:'ocr',totalXp:null,serverTime:null};
 }
 export function createOcrGate() {

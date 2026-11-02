@@ -11,6 +11,6 @@ export class HudScanBudget{
   let checked=0;while(out.length<CAPTURE_LIMITS.xpAttempts&&checked++<variants.length){const choice=variants[this.cursor++%variants.length];if(!out.some(v=>v.threshold===choice.threshold&&JSON.stringify(v.area)===JSON.stringify(choice.area)))out.push(choice);}
   return out;
  }
- result(best){if(best){this.preferred={area:best.candidate,threshold:best.threshold};this.misses=0;}else{this.misses++;if(this.misses>=2)this.preferred=null;}}
+ result(best){if(best){if(best.method!=='hud-strokes')this.preferred={area:best.candidate,threshold:best.threshold};this.misses=0;}else{this.misses++;if(this.misses>=2)this.preferred=null;}}
  get delay(){return this.misses>=2?CAPTURE_LIMITS.xpIdleInterval:CAPTURE_LIMITS.xpInterval;}
 }

@@ -75,11 +75,12 @@ function render(){
   renderPrices();sessionView.update();
   if(state.preview&&state.preview.image!==previewImage?.src){const generation=++drawGeneration;const image=new Image();image.onload=()=>{if(drawGeneration!==generation)return;previewImage=image;drawPreview();};image.src=state.preview.image;}
 }
-async function act(type,value){try{state=await api.action(type,value);if(state){if(['lootConfirm','lootUndoConfirm','lootCorrect','lootIgnore'].includes(type))document.activeElement?.blur();render();}return true;}catch(error){$('error').hidden=false;$('error').textContent=language?.t(error.message)??error.message;setTimeout(()=>$('error').hidden=true,7000);return false;}}
+async function act(type,value){try{state=await api.action(type,value);if(state){if(['lootConfirm','lootUndoConfirm','lootCorrect','lootCash','lootIgnore'].includes(type))document.activeElement?.blur();render();}return true;}catch(error){$('error').hidden=false;$('error').textContent=language?.t(error.message)??error.message;setTimeout(()=>$('error').hidden=true,7000);return false;}}
 function renderPrices(){
   const pricing=state.pricing;if(!pricing)return;const bridge=pricing.bridge;
   $('price-direct-state').textContent=language.t('priceNative_'+(pricing.direct?.phase??'idle'));
-  $('price-query-status').textContent=pricing.direct?.error?language.t(pricing.direct.error):pricing.direct?.name?pricing.direct.name+' · '+language.t('priceNative_'+pricing.direct.phase):'';
+  $('price-refresh').disabled=pricing.direct?.phase==='loading';
+  $('price-query-status').textContent=pricing.direct?.error?language.t(pricing.direct.error):pricing.direct?.name?pricing.direct.name+' · '+language.t('priceNative_'+pricing.direct.phase):'';if(pricing.direct?.batch)$('price-query-status').textContent+=' · '+language.t('priceBatchSummary',pricing.direct.batch);
   if(!$('price-item-names').childElementCount)$('price-item-names').replaceChildren(...pricing.catalog.map(item=>new Option(item.name)));
   $('price-bridge-state').textContent=language.t(bridge?.error??(bridge?.clients&&bridge.listening?'pricePaired':bridge?.listening?'priceReady':'priceOff'));
   $('price-disconnect').disabled=!bridge?.clients&&!bridge?.listening;

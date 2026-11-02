@@ -100,3 +100,15 @@ test('a damaged closing parenthesis does not hide a valid zero-percent exact XP 
  for(const tail of ['(0%7','(0%,','(0%','(0%)'])assert.equal(parseHudXp('LV 100: 1,234 / 6,100K '+tail).xp,1234);
  assert.equal(parseHudXp('LV 100: 2,113 / 6100K (35%7'),null);
 });
+
+test('capped HUD percentages preserve XP above the level target in fast modes',()=>{
+ const gate=createOcrGate();
+ const first=parseHudXp('LV 106: 7,233K / 6,700K (100%)');
+ assert.equal(first.xp,7233000);assert.equal(first.nextLevelXp,6700000);
+ assert.equal(gate.accept(first,85,0),null);
+ const next=parseHudXp('LV 106: 7,300K / 6,700K (100%)');
+ assert.equal(gate.accept(next,85,2000).xp,7300000);
+ assert.equal(parseHudXp('LV 106: 7,233K / 6,700K (99%)'),null);
+ assert.equal(parseHudXp('LV 106: 7,233 / 6,700K (100%)'),null);
+ assert.equal(parseHudXp('LV 106: 233K / 6,700K (100%)'),null);
+});

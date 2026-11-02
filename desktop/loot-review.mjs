@@ -14,3 +14,8 @@ export function correctLoot(store,{id,itemId,quantity,aliasFrom}){
  if(aliasFrom?.trim()){const aliases=store.get('priceAliases',{}),key=itemKey(aliasFrom);if(!key||key.length>120||Object.keys(aliases).length>=1000&&!Object.hasOwn(aliases,key))throw Error('priceAliasInvalid');aliases[key]=definition.itemId;store.set('priceAliases',aliases);}
  store.saveLoot(saved);return saved;
 }
+export function correctCash(store,{id,cash}){
+ const entry=store.lootById(id);if(!entry||!Number.isSafeInteger(cash)||cash<1||cash>1e12)throw Error('invalidCashAmount');
+ const saved={...entry,item:'$'+new Intl.NumberFormat('en-US').format(cash),cash,quantity:1,quantityUncertain:false,status:'observed',correctedByUser:true,correctedAt:Date.now(),cashSource:'user-confirmed'};
+ delete saved.unit;delete saved.priceMode;delete saved.priceItemId;store.saveLoot(saved);return saved;
+}

@@ -15,7 +15,7 @@ export class MarketClient{
     this.queue=Promise.resolve();this.ticking=false;this.phase='idle';this.error=null;
     this.cache=store.get('nativeMarketCache',{});this.requests=store.get('nativeMarketRequests',[]).filter(at=>Number.isFinite(at)&&now()-at<60000&&at<=now());
   }
-  status(){return{phase:this.phase,error:this.error,lastSync:this.lastSync??null,name:this.name??null};}
+  status(){return{phase:this.phase,error:this.error,lastSync:this.lastSync??null,name:this.name??null,batch:this.batch??null};}
   changed(phase,error=null){this.phase=phase;this.error=error;this.onChange();}
   run(task){const result=this.queue.then(task);this.queue=result.catch(()=>{});return result;}
   zone(){const zone=this.getZone();return validMarket(zone)?zone:'21';}
@@ -23,10 +23,10 @@ export class MarketClient{
   saveCache(key,failed=false){
     this.cache[key]={at:this.now(),failed};this.cache=Object.fromEntries(Object.entries(this.cache).sort((a,b)=>b[1].at-a[1].at).slice(0,500));this.store.set('nativeMarketCache',this.cache);
   }
-  needs(){
-    const pending=this.getPending(),revision=this.store.priceRevision,key=JSON.stringify([revision,pending?.id,pending?.item]);
+  needs(sessionId=this.store.history(1)[0]?.id??null){
+    const revision=this.store.priceRevision,key=JSON.stringify([revision,sessionId,Math.floor(this.now()/60000)]);
     if(Number.isFinite(revision)&&this.needsCache?.key===key)return this.needsCache.items;
-    const rows=[...(pending?[{...pending,status:'found'}]:[]),...this.store.lootHistory().filter(e=>['accepted','observed'].includes(e.status))],aliases=this.store.get('priceAliases',{}),catalog=this.store.itemCatalog(),names=new Map();
+    const rows=this.store.sessionMarketLoot(sessionId,this.now()-7*86400000),aliases=this.store.get('priceAliases',{}),catalog=this.store.itemCatalog(),names=new Map();
     for(const entry of rows){
       if(entry.cash)continue;const alias=aliases[itemKey(entry.item)]?.split('_')[0],definition=resolveCatalog(entry.item,catalog,alias);
       if(!definition||definition.kind==='equipment'&&entry.priceMode!=='market')continue;
@@ -50,10 +50,15 @@ export class MarketClient{
       this.store.savePrices(batch);this.saveCache(key);this.lastSync=this.now();this.changed(batch.offers.length?'ready':'empty');return{offers:batch.offers.length};
     }catch(error){this.changed(error.message==='priceRateLimit'?'limited':'error',error.message);throw error;}
   }
-  async tick(){
-    if(this.ticking)return;this.ticking=true;
-    try{await this.run(async()=>{const next=this.needs().find(item=>!this.cached(this.zone()+':'+itemKey(item.name)));if(next)await this.request(next.name,next.custom,false);});}
-    catch{/* A pricing failure never interrupts tracking or retries immediately. */}
-    finally{this.ticking=false;}
+  async tick(){return{manualOnly:true};}
+  async syncSession(sessionId=this.store.history(1)[0]?.id??null){
+    if(this.ticking)return{busy:true};this.ticking=true;
+    try{return await this.run(async()=>{
+      const zone=this.zone(),items=this.needs(sessionId),pending=items.filter(item=>!this.cached(zone+':'+itemKey(item.name)));
+      this.batch={sessionId,total:items.length,queried:0,cached:items.length-pending.length,remaining:pending.length,failed:0,at:this.now()};this.changed('loading');
+      for(const item of pending){this.requests=this.requests.filter(at=>this.now()-at<60000);if(this.batch.queried>=6||this.requests.length>=6||this.zone()!==zone)break;
+        try{await this.request(item.name,item.custom,false);}catch{this.batch.failed++;}this.batch.queried++;this.batch.remaining--;}
+      this.changed(this.batch.remaining?'limited':this.batch.failed?'error':'ready',this.batch.failed?'priceQueryFailed':null);return this.batch;
+    });}finally{this.ticking=false;}
   }
 }

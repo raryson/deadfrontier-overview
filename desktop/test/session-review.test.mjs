@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {DesktopStore} from '../store.mjs';import {correctLoot,decodeLootImage} from '../loot-review.mjs';import {LootJournal} from '../ui/loot-journal.mjs';import {LootSnapshotQueue} from '../ui/loot-snapshots.mjs';
+import {DesktopStore} from '../store.mjs';import {correctLoot,correctCash,decodeLootImage} from '../loot-review.mjs';import {LootJournal} from '../ui/loot-journal.mjs';import {LootSnapshotQueue} from '../ui/loot-snapshots.mjs';
 const image='data:image/jpeg;base64,/9j/2Q==';
 function setup(t){const store=new DesktopStore(':memory:');t.after(()=>store.close());store.saveCatalog({version:1,observedAt:Date.now(),items:[{itemId:'whiskey',name:'Whiskey',kind:'item'},{itemId:'fuelammo',name:'Gasoline',kind:'round'}]});return store;}
 test('all session loot remains accessible beyond the recent-200 list, with strict paging and session isolation',t=>{
@@ -63,4 +63,12 @@ test('conflicting numeric variants cannot confirm ammunition quantity',t=>{
  const store=setup(t),journal=new LootJournal(store),reading={eventId:'conflict',capturedAt:1000,confidence:95,text:'YOU HAVE FOUND SOME 12.7MM RIFLE BULLETS (830). WILL YOU TAKE THEM?',quantityConfidence:95,quantityConflict:true};
  journal.observe({...reading,frameAt:1010},'run',2000);journal.observe({...reading,frameAt:1220},'run',2300);
  assert.equal(store.lootById('conflict').quantity,undefined);assert.equal(store.lootById('conflict').quantityUncertain,true);
+});
+
+test('manual raw cash preserves its image/session and can be restored to an item',t=>{
+ const store=setup(t);store.saveCapture({eventId:'cash',capturedAt:1000,imageData:image},'run',true,2000);
+ assert.throws(()=>correctCash(store,{id:'cash',cash:0}));assert.throws(()=>correctCash(store,{id:'cash',cash:2.5}));
+ correctCash(store,{id:'cash',cash:2122});const saved=store.lootById('cash');assert.equal(saved.cash,2122);assert.equal(saved.sessionId,'run');assert.equal(saved.correctedByUser,true);assert.ok(store.lootImage('cash'));
+ correctLoot(store,{id:'cash',itemId:'whiskey',quantity:null});assert.equal(store.lootById('cash').cash,undefined);assert.equal(store.lootById('cash').item,'Whiskey');
+ store.saveLoot({...saved,status:'ignored'});assert.equal(store.sessionReviewLoot('run').length,0);
 });

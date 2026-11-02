@@ -61,6 +61,8 @@ export class DesktopStore {
     ON CONFLICT(id) DO UPDATE SET session_id=excluded.session_id,status=excluded.status,payload=excluded.payload`).run(entry.id,entry.sessionId,entry.foundAt,entry.status,JSON.stringify(saved));this.priceRevision++;}
   lootHistory(){return this.db.prepare("SELECT payload,EXISTS(SELECT 1 FROM loot_images WHERE loot_id=loot.id) has_image FROM loot WHERE status!='notLoot' ORDER BY found_at DESC LIMIT 200").all().map(row=>({...JSON.parse(row.payload),hasImage:!!row.has_image}));}
   sessionById(id){const row=this.db.prepare('SELECT payload FROM sessions WHERE id=?').get(id);return row?JSON.parse(row.payload):null;}
+  sessionMarketLoot(id,notBefore){return this.db.prepare("SELECT payload FROM loot WHERE session_id IS ? AND found_at>=? AND status IN ('accepted','observed') ORDER BY found_at DESC LIMIT 1000").all(id,notBefore).map(row=>JSON.parse(row.payload));}
+  sessionReviewLoot(id){return this.db.prepare("SELECT payload,EXISTS(SELECT 1 FROM loot_images WHERE loot_id=loot.id) has_image FROM loot WHERE session_id IS ? AND status NOT IN ('notLoot','ignored','rejected','used') ORDER BY found_at,id LIMIT 5000").all(id).map(row=>({...JSON.parse(row.payload),hasImage:!!row.has_image}));}
   sessionLoot(id,page=0){
     if(!Number.isSafeInteger(page)||page<0||page>1000000)throw Error('Invalid page');
     const rows=this.db.prepare("SELECT payload,EXISTS(SELECT 1 FROM loot_images WHERE loot_id=loot.id) has_image FROM loot WHERE session_id IS ? AND status!='notLoot' ORDER BY found_at,id LIMIT 100 OFFSET ?").all(id,page*100);

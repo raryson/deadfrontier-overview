@@ -9,7 +9,7 @@ import readline from 'node:readline';
 import {DesktopStore} from './store.mjs';
 import {DesktopTracker} from './tracker.mjs';
 import {ClientSession} from './client-session.mjs';
-import {correctLoot} from './loot-review.mjs';
+import {correctLoot,correctCash} from './loot-review.mjs';
 import {looksLikeLoot} from './ui/loot-snapshots.mjs';
 import {LootFlow} from './ui/loot-model.mjs';
 import {LootJournal,canonicalLootName} from './ui/loot-journal.mjs';
@@ -89,7 +89,7 @@ function secureWindow(window,url){
   window.webContents.on('will-navigate',(event,destination)=>{if(destination!==url)event.preventDefault();});
   window.webContents.on('will-attach-webview',event=>event.preventDefault());
 }
-function showMain(){mainWindow.show();mainWindow.focus();broadcast();}
+function showMain(){if(mainWindow.isMinimized())mainWindow.restore();mainWindow.show();mainWindow.focus();broadcast();}
 function clearHistory(){
   lootFlow?.finish();nativeLootInputs.clear();lootCaptureWarningAt=0;lootQueueSize=0;lootQueueDropped=0;store.clearHistory();lootJournal=new LootJournal(store);priceCache=null;
   tracker.experience=null;tracker.pendingStart=true;tracker.persist();
@@ -264,6 +264,12 @@ else {
       const entry=request.id==='unassigned'?{id:'unassigned'}:store.sessionById(request.id);if(!entry)throw Error('Invalid session');const page=store.sessionLoot(request.id==='unassigned'?null:request.id,request.page??0);priceState();
       return{session:entry,definitions:priceCache.catalog,totals:priceCache.sessions[entry.id]??null,...page,rows:page.rows.map(row=>({...row,valuation:valueLoot(row,priceCache.quotes,{aliases:priceCache.aliases,catalog:priceCache.catalog,requireCatalog:true})}))};
     });
+    ipcMain.handle('overview:review',(event,request)=>{
+      if(!ownRenderer(event,uiURL)||typeof request?.id!=='string'||request.id.length>120)throw Error('Invalid session');
+      const id=request.id==='unassigned'?null:request.id;if(id&&!store.sessionById(id))throw Error('Invalid session');priceState();
+      const rows=store.sessionReviewLoot(id).filter(entry=>{const valuation=valueLoot(entry,priceCache.quotes,{aliases:priceCache.aliases,catalog:priceCache.catalog,requireCatalog:true});return ['ocrPending','ocrFailed','unconfirmed'].includes(entry.status)||entry.quantityUncertain||['noCatalog','ambiguous','quantityUnknown'].includes(valuation.reason);});
+      return{rows,definitions:priceCache.catalog};
+    });
     ipcMain.handle('overview:action',async(event,message)=>{
       if(!ownRenderer(event,uiURL))throw Error('Origem inválida');
       const {type,value}=message??{};
@@ -272,15 +278,16 @@ else {
       else if(type==='overlay'&&typeof value==='boolean'){preferences({overlay:value});positionOverlay();}
       else if(type==='saveLootImages'&&typeof value==='boolean'){preferences({saveLootImages:value});captureWindow?.webContents.send('capture:update',{type:'imageSetting',token,enabled:value});}
       else if(type==='lootCorrect'){correctLoot(store,value);}
+      else if(type==='lootCash'){correctCash(store,value);}
       else if(type==='lootIgnore'&&typeof value==='string'){const entry=store.lootById(value);if(entry)store.saveLoot({...entry,status:'ignored'});}
       else if(type==='stop'){tracker.finish('stopped');}
       else if(type==='reset'){tracker.reset();if(captureWindow){token=crypto.randomUUID();captureWindow.webContents.send('capture:update',{type:'reset',token});}}
       else if(type==='multiplier')tracker.setMultiplier(value);
       else if(type==='pricePair')await priceBridge.pairCode();
       else if(type==='priceDisconnect'){priceBridge.revoke();await priceBridge.close();}
-      else if(type==='priceMarket'&&validMarket(value)){preferences({priceMarket:value,priceMarketMode:'manual'});if(!localTest)void marketClient.tick();}
+      else if(type==='priceMarket'&&validMarket(value)){preferences({priceMarket:value,priceMarketMode:'manual'});}
       else if(type==='priceQuery'&&typeof value?.name==='string'&&value.name.length<=120){try{await marketClient.query(value.name.trim(),{custom:value.custom===true,force:true});}catch{/* Localized query status is returned below. */}}
-      else if(type==='priceRefresh'&&!localTest){void marketClient.tick();}
+      else if(type==='priceRefresh'){const id=value?.sessionId==='unassigned'?null:typeof value?.sessionId==='string'?value.sessionId:tracker.experience?.session?.id??store.history(1)[0]?.id??null;if(id&&!store.sessionById(id))throw Error('Invalid session');void marketClient.syncSession(id).then(broadcast).catch(broadcast);}
       else if(type==='priceAlias'&&typeof value?.from==='string'&&typeof value?.itemId==='string'){
         const aliases=store.get('priceAliases',{}),key=itemKey(value.from);
         if(!key||key.length>120||!priceState().catalog.some(q=>q.itemId===value.itemId))throw Error('priceAliasInvalid');
@@ -388,7 +395,6 @@ else {
       if(quitting||!tracker)return;
       for(const [id,entry]of nativeLootInputs)if(Date.now()-entry.input.at>10000){if(entry.sawDialog)lootCaptureWarningAt=Date.now();nativeLootInputs.delete(id);}
       armLoot(false);
-      if(!localTest)void marketClient.tick();
       positionOverlay();
       if(diagnosticFile&&overlayWindow&&!overlayWindow.isDestroyed())try{fsSync.writeFileSync(diagnosticFile+'.overlay.json',JSON.stringify({phase,enabled:tracker.settings.overlay,game:!!target,foreground:target?.foreground,minimized:target?.minimized,source:!!source,visible:overlayWindow.isVisible(),alwaysOnTop:overlayWindow.isAlwaysOnTop(),bounds:overlayWindow.getBounds()}));}catch{}
       if(captureWindow&&Date.now()-Math.max(captureStartedAt,lastCaptureMessage)>45000){finishCapture('captureFailed');phase='error';detail='O leitor não respondeu. Nova tentativa em alguns segundos.';retryAt=Date.now()+10000;broadcast();}

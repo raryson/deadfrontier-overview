@@ -46,6 +46,14 @@ A integração opcional mantém `127.0.0.1:17373` autenticado por pareamento. Co
 
 ## English
 
+### Desktop 0.9.1: manual session sync
+
+Market searches run only after an explicit click. **Sync latest session prices** uses the current/latest session; a session's details also have **Sync prices for this session**. Only loot found within the last seven days is eligible. Each click sends at most six searches, and the shared rolling limit remains six searches per minute. A ten-minute cache avoids repeated searches. Remaining items wait for another click; there is no automatic background continuation or scan of the entire history. Ordinary equipment still uses Yard/NPC references without a market request.
+
+### App 0.9.1: sincronização manual por sessão
+
+As consultas ao mercado só começam ao clicar. **Sincronizar preços da última sessão** usa a sessão atual/mais recente; os detalhes de cada sessão também oferecem **Sincronizar preços desta sessão**. Apenas loots dos últimos sete dias são elegíveis. Cada clique faz no máximo seis consultas, respeitando também o limite compartilhado de seis por minuto e o cache de dez minutos. Os itens restantes aguardam outro clique. Não há continuação automática nem varredura de todo o histórico. Equipamentos comuns continuam usando Yard/NPC sem consultar o mercado.
+
 Windows app **0.6.0** queries public listings directly; no extension or pairing code is needed. Keep **Secronom Bunker / Outposts** as the default or choose another region in **Market prices**. Enter **Gasoline** and click **Look up price** to test. Identified dialog items with known quantities are valued automatically as quotes become available. These are potential values, without confirming acceptance or inventory entry.
 
 Ordinary equipment uses bundled **Yard/NPC values** without market searches. Custom equipment requires an explicit manual query and exact variant selection. Other items use the lowest observed unit listing; Gasoline uses ml. Quotes expire after 15 minutes; cache lasts ten minutes, with up to six queries per minute. Missing or uncertain values stay excluded and can be corrected manually.

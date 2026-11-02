@@ -6,9 +6,9 @@ const catalog=JSON.parse(fs.readFileSync(new URL('../data/item-catalog.json',imp
 function setup(t){const store=new DesktopStore(':memory:');t.after(()=>store.close());for(let i=0;i<catalog.items.length;i+=500)store.saveCatalog({...catalog,items:catalog.items.slice(i,i+500)},catalog.observedAt);return{store,journal:new LootJournal(store)};}
 test('captures survive dialog dismissal and a slow reader; FIFO preserves independent encounters and has bounded storage',()=>{
  let n=0;const queue=new LootSnapshotQueue({limit:2,id:()=>String(++n)}),image={frozen:true};
- queue.offer(image,1000,true);queue.offer(image,1100,true);queue.offer(image,1200,true);queue.offer(image,1300,true);assert.equal(queue.size,4);
+ queue.offer(image,1000,true);queue.offer(image,1100,true);queue.offer(image,1200,true);queue.offer(image,1340,true);assert.equal(queue.size,3);
  queue.offer(null,1500,false);queue.offer({next:true},1600,true);queue.offer(null,1900,false);queue.offer({},2000,true);assert.equal(queue.dropped,1);
- const jobs=[];let job;while(job=queue.next())jobs.push(job);assert.deepEqual(jobs.map(j=>j.eventId),['1','2','1','1','1']);assert.equal(jobs[0].canvas,image);
+ const jobs=[];let job;while(job=queue.next())jobs.push(job);assert.deepEqual(jobs.map(j=>j.eventId),['1','2','1','1']);assert.equal(jobs[0].canvas,image);
  queue.clear();assert.equal(queue.size,0);assert.notEqual(jobs[0].generation,queue.generation);
 });
 test('one fast high-confidence dialog is journaled after it closed, without mouse/key/acceptance evidence',t=>{

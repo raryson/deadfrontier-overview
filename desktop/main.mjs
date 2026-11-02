@@ -50,15 +50,19 @@ function priceState(){
     const expiry=quotes.map(q=>q.observedAt+PRICE_TTL+1).filter(at=>at>now);
     priceCache={revision:store.priceRevision,selected,until:Math.min(now+60000,...expiry),market,markets,quotes,aliases,catalog,sessions:valued.sessions};
   }
-  const catalog=new Map(priceCache.catalog.map(item=>[item.itemId,{...item,unitPrice:item.yardValue,source:item.kind==='equipment'?'yard':null}]));
-  for(const quote of priceCache.quotes)if(catalog.get(quote.itemId)?.kind!=='equipment')catalog.set(quote.itemId,{...quote,source:'market'});
-  return{direct:marketClient?.status(),marketOptions:MARKET_OPTIONS,market:priceCache.market,markets:priceCache.markets,catalog:[...catalog.values()],sessions:priceCache.sessions,bridge:priceBridge?.status(),aliases:priceCache.aliases};
+  if(!priceCache.displayCatalog){const catalog=new Map(priceCache.catalog.map(item=>[item.itemId,{...item,unitPrice:item.yardValue,source:item.kind==='equipment'?'yard':null}]));for(const quote of priceCache.quotes)if(catalog.get(quote.itemId)?.kind!=='equipment')catalog.set(quote.itemId,{...quote,source:'market'});priceCache.displayCatalog=[...catalog.values()];}
+  return{direct:marketClient?.status(),marketOptions:MARKET_OPTIONS,market:priceCache.market,markets:priceCache.markets,catalog:priceCache.displayCatalog,sessions:priceCache.sessions,bridge:priceBridge?.status(),aliases:priceCache.aliases};
 }
-function publicState(){const pricing=priceState();return{...tracker.snapshot(),pricing,detailRevision:store.priceRevision,loot:store.lootHistory().map(e=>({...e,valuation:valueLoot(e,priceCache.quotes,{aliases:priceCache.aliases,catalog:priceCache.catalog,requireCatalog:true})})),lootCounts:store.lootCounts(),lootSearching:Date.now()-(lootFlow?.searchingAt??0)<12000,lootManualAt,lootQueueSize,lootQueueDropped,lootProcessing:lootQueueSize>0,lootCaptureWarning:Date.now()-lootCaptureWarningAt<15000,pendingLoot:lootFlow?.pending?{item:lootFlow.pending.item,foundAt:lootFlow.pending.foundAt}:null,phase,detail,game:target?{title:target.title,processName:target.processName,minimized:target.minimized}:null,
+function publicState(){const pricing=priceState();return{...tracker.snapshot(),pricing,detailRevision:store.priceRevision,loot:priceCache.valuedLoot??=store.lootHistory().map(e=>({...e,valuation:valueLoot(e,priceCache.quotes,{aliases:priceCache.aliases,catalog:priceCache.catalog,requireCatalog:true})})),lootCounts:store.lootCounts(),lootSearching:Date.now()-(lootFlow?.searchingAt??0)<12000,lootManualAt,lootQueueSize,lootQueueDropped,lootProcessing:lootQueueSize>0,lootCaptureWarning:Date.now()-lootCaptureWarningAt<15000,pendingLoot:lootFlow?.pending?{item:lootFlow.pending.item,foundAt:lootFlow.pending.foundAt}:null,phase,detail,game:target?{title:target.title,processName:target.processName,minimized:target.minimized}:null,
   windows:windows.map(window=>({handle:window.handle,title:window.title,processName:window.processName})),demo:localTest,preview};}
+let broadcastTimer=null,lastBroadcastAt=0;
 function broadcast(){
-  if(!tracker)return;const state=publicState();
-  for(const window of [mainWindow,overlayWindow])if(window&&!window.isDestroyed())window.webContents.send('overview:state',state);
+  if(!tracker)return;
+  const recipients=[mainWindow,overlayWindow].filter(window=>window&&!window.isDestroyed()&&window.isVisible()&&!window.isMinimized());
+  if(!recipients.length)return;
+  const delay=250-(Date.now()-lastBroadcastAt);if(delay>0){broadcastTimer??=setTimeout(()=>{broadcastTimer=null;broadcast();},delay);return;}
+  if(broadcastTimer){clearTimeout(broadcastTimer);broadcastTimer=null;}lastBroadcastAt=Date.now();const state=publicState();
+  for(const window of recipients)window.webContents.send('overview:state',state);
 }
 function preferences(extra){Object.assign(tracker.settings,extra);tracker.persist();updateTray();broadcast();}
 function disposeReader(id){const entry=retiredReaders.get(id);if(!entry)return;retiredReaders.delete(id);clearTimeout(entry.timer);if(!entry.window.isDestroyed())entry.window.destroy();}
@@ -242,8 +246,10 @@ else {
     mainWindow=new BrowserWindow({title:'DeadFrontier Overview',width:1120,height:830,minWidth:860,minHeight:660,backgroundColor:'#17110f',icon:path.join(root,'icon.png'),webPreferences:{preload:path.join(directory,'preload.cjs'),sandbox:true,contextIsolation:true,nodeIntegration:false}});
     secureWindow(mainWindow,uiURL);
     mainWindow.on('close',event=>{if(!quitting){event.preventDefault();mainWindow.hide();}});
+    mainWindow.on('show',broadcast);mainWindow.on('restore',broadcast);
     overlayWindow=new BrowserWindow({title:'DF Overview Overlay',width:350,height:275,show:false,frame:false,transparent:true,resizable:false,skipTaskbar:true,focusable:false,alwaysOnTop:true,webPreferences:{preload:path.join(directory,'preload.cjs'),sandbox:true,contextIsolation:true,nodeIntegration:false,backgroundThrottling:false}});
     secureWindow(overlayWindow,overlayURL);overlayWindow.setIgnoreMouseEvents(true,{forward:true});
+    overlayWindow.on('show',broadcast);
     overlayWindow.setAlwaysOnTop(true,'screen-saver');
     tray=new Tray(nativeImage.createFromPath(path.join(root,'icon.png')));tray.setToolTip('DeadFrontier Overview — acompanhamento local');tray.on('double-click',showMain);updateTray();
     ipcMain.handle('overview:read',event=>{if(![uiURL,overlayURL].includes(event.senderFrame?.url))throw Error('Origem inválida');return publicState();});
@@ -348,7 +354,7 @@ else {
       }
       if(reading.kind==='capture'){store.saveCapture(reading,store.sessionAt(reading.capturedAt),tracker.settings.saveLootImages!==false);if(reading.queued===false)store.markOcrFailed(reading.eventId);broadcast();return;}
       if(reading.kind==='ocrFailed'){store.markOcrFailed(reading.eventId,reading.text);broadcast();return;}
-      if(reading.kind==='snapshot'){store.saveCapture(reading,store.sessionAt(reading.capturedAt),tracker.settings.saveLootImages!==false);if(diagnosticFile)try{fsSync.writeFileSync(diagnosticFile+'.loot.json',JSON.stringify({...reading,imageData:undefined}));}catch{}if(!lootJournal.observe(reading,store.sessionAt(reading.capturedAt)))store.markOcrFailed(reading.eventId,reading.text);broadcast();return;}
+      if(reading.kind==='snapshot'){store.saveCapture(reading,store.sessionAt(reading.capturedAt),tracker.settings.saveLootImages!==false);if(diagnosticFile)try{fsSync.writeFileSync(diagnosticFile+'.loot.json',JSON.stringify({...reading,imageData:undefined}));}catch{}if(!lootJournal.observe(reading,store.sessionAt(reading.capturedAt)))store.markOcrFailed(reading.eventId,reading.text);const saved=store.lootById(reading.eventId);if(saved?.status==='observed'&&(saved.cash||!saved.quantityUncertain&&store.itemCatalog().some(item=>item.name===saved.item)))event.sender.send('capture:update',{type:'lootResolved',token:message.token,eventId:reading.eventId});broadcast();return;}
       if(diagnosticFile&&!['hint','visible'].includes(reading.kind))try{fsSync.writeFileSync(diagnosticFile+'.loot.json',JSON.stringify(reading));}catch{}
       if(reading.buttons&&Object.values(reading.buttons).some(value=>!validRegion(value)))return;
       if(reading.inputId){

@@ -11,6 +11,14 @@ function setup(t,{fetcher,now=Date.now,getZone,getPending}={}){
   return {store,client:new MarketClient({store,fetcher,now,getZone,getPending})};
 }
 const response=()=>new Response(new URLSearchParams({tradelist_maxresults:'1',tradelist_0_item:'fuelammo',tradelist_0_itemname:'Gasoline',tradelist_0_price:'12000',tradelist_0_quantity:'1000'}));
+
+test('unchanged loot reuses market needs instead of rescanning the catalog on every timer tick',t=>{
+ const {store,client}=setup(t);store.saveLoot({id:'one',sessionId:'run',foundAt:1,item:'Whiskey',status:'observed'});
+ const read=store.lootHistory.bind(store);let scans=0;store.lootHistory=()=>{scans++;return read();};
+ assert.equal(client.needs().length,1);client.needs();client.needs();assert.equal(scans,1);
+ store.saveLoot({id:'two',sessionId:'run',foundAt:2,item:'Gasoline',quantity:100,unit:'ml',status:'observed'});
+ assert.equal(client.needs().length,2);assert.equal(scans,2);
+});
 test('bundled public catalog gives ordinary equipment Yard values without a browser or market search',async t=>{
  const {store,client}=setup(t,{fetcher:async()=>{assert.fail('ordinary gear must not query market');}});
  assert.ok(seed.items.length>1000);for(const item of seed.items)assert.ok(Object.keys(item).every(key=>['itemId','name','kind','yardValue'].includes(key)));

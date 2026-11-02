@@ -24,13 +24,15 @@ export class MarketClient{
     this.cache[key]={at:this.now(),failed};this.cache=Object.fromEntries(Object.entries(this.cache).sort((a,b)=>b[1].at-a[1].at).slice(0,500));this.store.set('nativeMarketCache',this.cache);
   }
   needs(){
-    const pending=this.getPending(),rows=[...(pending?[{...pending,status:'found'}]:[]),...this.store.lootHistory().filter(e=>['accepted','observed'].includes(e.status))],aliases=this.store.get('priceAliases',{}),catalog=this.store.itemCatalog(),names=new Map();
+    const pending=this.getPending(),revision=this.store.priceRevision,key=JSON.stringify([revision,pending?.id,pending?.item]);
+    if(Number.isFinite(revision)&&this.needsCache?.key===key)return this.needsCache.items;
+    const rows=[...(pending?[{...pending,status:'found'}]:[]),...this.store.lootHistory().filter(e=>['accepted','observed'].includes(e.status))],aliases=this.store.get('priceAliases',{}),catalog=this.store.itemCatalog(),names=new Map();
     for(const entry of rows){
       if(entry.cash)continue;const alias=aliases[itemKey(entry.item)]?.split('_')[0],definition=resolveCatalog(entry.item,catalog,alias);
       if(!definition||definition.kind==='equipment'&&entry.priceMode!=='market')continue;
       names.set(itemKey(definition.name),{name:definition.name,custom:definition.kind==='equipment'});if(names.size>=50)break;
     }
-    return [...names.values()];
+    const items=[...names.values()];if(Number.isFinite(revision))this.needsCache={key,items};return items;
   }
   async query(name,{custom=false,force=false}={}){return this.run(()=>this.request(name,custom,force));}
   async request(name,custom,force){

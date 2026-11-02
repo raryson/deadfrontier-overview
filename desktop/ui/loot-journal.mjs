@@ -26,11 +26,11 @@ export class LootJournal{
   parsed.item=this.store.itemCatalog().find(item=>item.itemId===alias)?.name??canonicalLootName(original,this.store.itemCatalog());
   let event=this.events.get(reading.eventId);if(!event){event={id:reading.eventId,sessionId,foundAt:reading.capturedAt,votes:new Map(),quantities:new Map()};this.events.set(reading.eventId,event);while(this.events.size>200)this.events.delete(this.events.keys().next().value);}
   const signature=key(parsed.item),old=event.votes.get(signature),seen=new Set(old?.frames??[]);seen.add(reading.frameAt??reading.capturedAt);event.votes.set(signature,{frames:[...seen]});
-  if(parsed.quantity){const votes=event.quantities.get(parsed.quantity)??new Set();votes.add(reading.frameAt??reading.capturedAt);event.quantities.set(parsed.quantity,votes);}
+  if(parsed.quantity&&!reading.quantityConflict){const votes=event.quantities.get(parsed.quantity)??new Set();votes.add(reading.frameAt??reading.capturedAt);event.quantities.set(parsed.quantity,votes);}
   const known=this.store.itemCatalog().some(item=>key(item.name)===signature);
   if(seen.size<2&&reading.confidence<(known?75:85))return false;
   if(event.saved&&key(event.saved.item)!==signature){const priorKnown=this.store.itemCatalog().some(item=>key(item.name)===key(event.saved.item));if(priorKnown||!known)return false;}
-  const verifiedQuantity=parsed.quantity&&(event.quantities.get(parsed.quantity).size>=2||reading.quantityConfidence>=90)?parsed.quantity:event.saved?.quantitySource==='single-item'?undefined:event.saved?.quantity;
+  const verifiedQuantity=parsed.quantity&&!reading.quantityConflict&&((event.quantities.get(parsed.quantity)?.size??0)>=2||reading.quantityConfidence>=90)?parsed.quantity:event.saved?.quantitySource==='single-item'?undefined:event.saved?.quantity;
   const entry={...existing,...event.saved,ocrText:reading.text.slice(0,1200),ocrConfidence:reading.confidence,id:event.id,sessionId:event.sessionId??null,item:parsed.item,rawItem:original,foundAt:event.foundAt,readAt:now,status:'observed',captureMode:reading.manual?'shortcut':'snapshot',...(parsed.cash?{cash:parsed.cash}:{}),...(parsed.unit?{unit:parsed.unit}:{}),...(verifiedQuantity?{quantity:verifiedQuantity,quantityUncertain:false}:parsed.quantity||parsed.quantityUncertain?{quantityUncertain:true}:{})};
   if(!parsed.cash){if(!isStackLoot(entry,this.store.itemCatalog().find(item=>key(item.name)===signature))){entry.quantity=1;entry.quantityUncertain=false;entry.quantitySource='single-item';}else{delete entry.quantitySource;if(!verifiedQuantity){delete entry.quantity;entry.quantityUncertain=true;}}}
   event.saved=entry;this.store.saveLoot(entry);return true;

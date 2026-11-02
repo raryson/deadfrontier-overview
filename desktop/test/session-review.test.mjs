@@ -58,3 +58,9 @@ test('completed OCR still gets later sharp crops of the same translucent dialog'
  assert.equal(queue.offer({},1220,true),'dialog');assert.equal(queue.next().eventId,'dialog');queue.complete('dialog');
  assert.equal(queue.offer({},1440,true),'dialog');assert.equal(queue.next().eventId,'dialog');
 });
+
+test('conflicting numeric variants cannot confirm ammunition quantity',t=>{
+ const store=setup(t),journal=new LootJournal(store),reading={eventId:'conflict',capturedAt:1000,confidence:95,text:'YOU HAVE FOUND SOME 12.7MM RIFLE BULLETS (830). WILL YOU TAKE THEM?',quantityConfidence:95,quantityConflict:true};
+ journal.observe({...reading,frameAt:1010},'run',2000);journal.observe({...reading,frameAt:1220},'run',2300);
+ assert.equal(store.lootById('conflict').quantity,undefined);assert.equal(store.lootById('conflict').quantityUncertain,true);
+});

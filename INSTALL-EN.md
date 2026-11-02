@@ -17,9 +17,9 @@ These are the published builds used in this guide:
 | --- | --- | --- |
 | [Chrome extension](https://github.com/raryson/deadfrontier-overview/releases/download/v0.9.6/deadfrontier-overview-chrome.zip) | 0.9.6 | `deadfrontier-overview-chrome.zip` |
 | [Firefox extension](https://github.com/raryson/deadfrontier-overview/releases/download/v0.9.6/deadfrontier-overview.zip) | 0.9.6 | `deadfrontier-overview.zip` |
-| [Windows app (x64)](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.8.2/deadfrontier-overview-windows-0.8.2.zip) | 0.8.2 | `deadfrontier-overview-windows-0.8.2.zip` |
+| [Windows app (x64)](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.8.3/deadfrontier-overview-windows-0.8.3.zip) | 0.8.3 | `deadfrontier-overview-windows-0.8.3.zip` |
 
-Check the [Releases page](https://github.com/raryson/deadfrontier-overview/releases) for newer builds. Extension releases use tags such as `v0.9.6`; Windows releases use tags such as `desktop-v0.8.2`. Each component has its own version number.
+Check the [Releases page](https://github.com/raryson/deadfrontier-overview/releases) for newer builds. Extension releases use tags such as `v0.9.6`; Windows releases use tags such as `desktop-v0.8.3`. Each component has its own version number.
 
 You do not need Node.js, npm or developer tools to run the downloaded Windows app or install the packaged extension.
 
@@ -106,7 +106,7 @@ The sidebar opens one screen at a time:
 
 ### Loot and values
 
-Loot OCR runs in the background on small dialog crops, sampled at up to 60 fps. Two OCR workers process frozen crops while you keep playing. You can accept items immediately or keep using F normally.
+Loot OCR runs in the background on small dialog crops, sampled at up to 15 fps. A single loot OCR worker loads on demand and processes frozen crops while you keep playing. You can accept items immediately or keep using F normally.
 
 **The list records items seen in the dialog. It does not verify acceptance or entry into your backpack.** Its totals represent potential value, not confirmed sales or inventory. Loot OCR is still experimental.
 

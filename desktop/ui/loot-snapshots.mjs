@@ -31,7 +31,7 @@ export class LootSnapshotQueue{
    if(!event.noOcr){event.frames.push({canvas:first.canvas,at:first.at});event.taken=1;event.lastTakenAt=first.at;this.events.push(event);}
   }
   event.lastSeenAt=at;
-  if(!event.noOcr&&event.taken<5&&at-event.capturedAt>=[0,40,80,220,420][event.taken]){
+  if(!event.noOcr&&!event.resolved&&event.taken<3&&at-event.capturedAt>=[0,120,320][event.taken]){
    event.frames.push({canvas,at});event.lastTakenAt=at;event.taken++;
    if(!this.events.includes(event))this.events.push(event);
   }
@@ -42,13 +42,14 @@ export class LootSnapshotQueue{
   let event=this.events.find(e=>e.id===eventId)??(this.active?.id===eventId?this.active:null);
   if(!event){event={id:eventId??this.id(),capturedAt:frames[0].at,lastSeenAt:frames.at(-1).at,frames:[],taken:3};this.created={eventId:event.id,capturedAt:event.capturedAt,frameAt:frames[0].at,canvas:frames[0].canvas,queued:this.events.length<this.limit,manual:true};}
   if(this.events.length>=this.limit&&!this.events.includes(event)){this.dropped++;return false;}
-  event.manual=true;event.taken=5;event.noOcr=false;event.done=false;
+  event.manual=true;event.taken=3;event.noOcr=false;event.done=false;
   if(!this.active||this.active.id===event.id)this.active=event;
   for(const frame of frames.slice(-3))if(!event.frames.some(f=>f.at===frame.at)){event.frames.push(frame);while(event.frames.length>3)event.frames.shift();}
   if(!this.events.includes(event))this.events.push(event);return true;
  }
  next(){const event=this.events.shift();if(!event)return null;const frame=event.frames.shift();if(event.frames.length)this.events.push(event);return{...frame,generation:this.generation,manual:event.manual===true,eventId:event.id,capturedAt:event.capturedAt};}
  complete(id){this.events=this.events.filter(e=>e.id!==id);if(this.active?.id===id){this.active.done=true;this.active.frames=[];}}
+ resolve(id){this.complete(id);if(this.active?.id===id)this.active.resolved=true;}
  get size(){return this.events.reduce((n,e)=>n+e.frames.length,0);}
  clear(){this.events=[];this.active=null;this.change=null;this.created=null;this.generation++;}
 }

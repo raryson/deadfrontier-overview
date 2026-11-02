@@ -5,7 +5,7 @@ DeadFrontier Overview has two separate components. You can use either one on its
 | Component | What it does |
 | --- | --- |
 | Browser extension | Quick bank actions and buff timers on the Dead Frontier website. |
-| Windows companion app | In-game overlay, XP/hour, session history, background loot OCR and estimated item values. |
+| Desktop companion app | In-game overlay, XP/hour, session history, background loot OCR and estimated item values. |
 
 The interface supports **English and Portuguese**. Select **English** from the language menu if needed.
 
@@ -18,18 +18,20 @@ These are the published builds used in this guide:
 | [Chrome extension](https://github.com/raryson/deadfrontier-overview/releases/download/v0.9.6/deadfrontier-overview-chrome.zip) | 0.9.6 | `deadfrontier-overview-chrome.zip` |
 | [Firefox extension](https://github.com/raryson/deadfrontier-overview/releases/download/v0.9.6/deadfrontier-overview.zip) | 0.9.6 | `deadfrontier-overview.zip` |
 | [Windows app (x64)](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.8.3/deadfrontier-overview-windows-0.8.3.zip) | 0.8.3 | `deadfrontier-overview-windows-0.8.3.zip` |
+| [Linux x64 installer · experimental](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.9.0/deadfrontier-overview-linux-x64-0.9.0.deb) | 0.9.0 | Debian/Ubuntu package, X11 only |
+| [Linux x64 portable · experimental](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.9.0/deadfrontier-overview-linux-x64-0.9.0.tar.gz) | 0.9.0 | Portable tar.gz |
+| [macOS Apple Silicon · experimental](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.9.0/deadfrontier-overview-macos-arm64-0.9.0.zip) | 0.9.0 | M-series Macs |
+| [macOS Intel · experimental](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.9.0/deadfrontier-overview-macos-x64-0.9.0.zip) | 0.9.0 | Intel Macs |
 
-Check the [Releases page](https://github.com/raryson/deadfrontier-overview/releases) for newer builds. Extension releases use tags such as `v0.9.6`; Windows releases use tags such as `desktop-v0.8.3`. Each component has its own version number.
+Check the [Releases page](https://github.com/raryson/deadfrontier-overview/releases) for newer builds. Extension releases use tags such as `v0.9.6`; Desktop releases use tags such as `desktop-v0.9.0`. Each component has its own version number.
 
-You do not need Node.js, npm or developer tools to run the downloaded Windows app or install the packaged extension.
+You do not need Node.js, npm or developer tools to run the downloaded desktop app or install the packaged extension.
 
-### Linux and macOS availability
+### Platform support
 
-The browser extension can be used with the supported browsers on these systems. The native Overview companion currently ships as a **Windows x64 build only**. Linux and macOS builds are being planned; there are no native download links yet.
+Windows is the version already tested with the real game client. Linux x64 (X11) and macOS Intel/Apple Silicon are **experimental ports**: native helpers, application builds, packaging and automated tests have passed on their respective CI runners. Real game-client capture, fullscreen behavior and HUD scaling still need validation on each system.
 
-The desktop port needs a platform-specific replacement for the Windows game-window detector, plus validation of screen capture, overlay placement and session boundaries with the game client. Packaging Electron for another operating system alone does not provide those integrations.
-
-The intended targets are Linux x64, macOS Apple Silicon and macOS Intel. Installation steps and download links will be added here when functional experimental builds are available. See [platform support and porting requirements](docs/platform-support.md) for the current status.
+Linux Wayland tracking is not supported by this preview. macOS requires screen-recording permission, with optional Input Monitoring for game-key hints. See [platform support](docs/platform-support.md) for details. Overview and the game client run as separate applications.
 
 ## 2. Install the browser extension
 
@@ -62,7 +64,7 @@ Keep the extracted folder in place. Chrome loads the extension from that folder.
 - **Buff timers:** the extension reads the active buff expiry times provided by the game. Open or reload a city page to synchronize them.
 - The Windows app is independent of these city tools. You can keep using the extension while the Windows overlay tracks your run.
 
-## 3. Install the Windows companion app
+## 3. Install the Desktop companion app
 
 ### Before you start
 
@@ -90,6 +92,37 @@ Closing the Overview dashboard leaves the app running in the system tray. Use **
 | **Shift + F** | Queue an extra manual loot snapshot while the game client is in the foreground. |
 
 For manual loot capture, press **Shift + F once while the item-found dialog is visible**, then continue playing immediately. It uses recent dialog crops so OCR can finish after the dialog closes. The shortcut passes through to the game, so F may also perform its normal game action. Automatic capture remains enabled, and the two paths share the same dialog record to avoid duplicates.
+
+### Linux x64 — experimental
+
+Use a desktop Linux system with an **X11 session**. The installer is built on Ubuntu 22.04 x64; Debian-family systems need compatible runtime libraries (including glibc 2.35 or newer). Select an X11/Xorg session at the login screen if your desktop normally uses Wayland.
+
+**Debian/Ubuntu installation:** download the Linux .deb above, open a terminal in its folder and run:
+
+```sh
+sudo apt install ./deadfrontier-overview-linux-x64-0.9.0.deb
+```
+
+Launch **DeadFrontier Overview** from the application menu, or run `deadfrontier-overview`. Run the app as your normal user. The package installs the Chromium sandbox helper with its required ownership and permissions.
+
+**Portable alternative:** extract the entire tar.gz and run `DeadFrontier Overview` inside the extracted folder. If your distribution rejects the portable Chromium sandbox configuration, use the installer package; the supported installation keeps the sandbox enabled.
+
+Start the native game client and leave automatic tracking enabled. If its executable has a different name, set that name under **Preferences**, then select its window. If the HUD uses a different scale, adjust the XP region once. Wayland sessions display an unsupported-session message instead of capturing another window.
+
+To remove the installed application, use `sudo apt remove deadfrontier-overview`. User history is kept separately under `~/.config/DeadFrontier Overview/`.
+
+### macOS — experimental
+
+1. Use macOS **14 or newer**. Download **arm64** for an Apple Silicon (M-series) Mac or **x64** for an Intel Mac. Check **Apple menu → About This Mac** if unsure.
+2. Extract the ZIP and move **DeadFrontier Overview.app** into **Applications**.
+3. Open the app. These preview bundles are **ad-hoc signed, not Apple-notarized**. macOS may block the first launch; follow [Apple's instructions for opening downloaded apps](https://support.apple.com/en-us/102445) if you choose to authorize this preview.
+4. Grant Overview permission under **System Settings → Privacy & Security → Screen Recording** (called **Screen & System Audio Recording** on some versions). Overview captures the selected game window without audio.
+5. Fully quit and reopen Overview after granting permission.
+6. Start the native Dead Frontier client. Automatic tracking starts after a stable XP readout. If necessary, configure the client executable name and adjust the XP region under **Preferences**.
+
+**Optional Input Monitoring:** enable Overview under **Privacy & Security → Input Monitoring** if you want Shift+F snapshots and E/F hold hints. Use the + button to add the app if it is not listed. Automatic loot OCR does not require this extra permission. The detector queries those keys only while the recognized game is in the foreground; it does not log typed text.
+
+On macOS, **Option+Shift+D** opens the dashboard and **Option+Shift+O** toggles the overlay. Closing the dashboard leaves the app running; use **Quit app** to exit. History lives in `~/Library/Application Support/DeadFrontier Overview/`.
 
 ## 4. Use the app
 
@@ -158,13 +191,13 @@ Small dialog images are saved locally by default. Disable **Save loot images** u
 - **Firefox:** for a ZIP installation, load the new ZIP through **Load Temporary Add-on…**. For an extracted-folder installation, replace all files and click **Reload** in `about:debugging`.
 - In both browsers, close old Overview tabs, reload the game page and reopen the panel. Check the extension version in the browser's extension manager.
 
-### Update the Windows app
+### Update the desktop app
 
 1. Use **Quit app** to fully exit Overview.
 2. Download and extract the entire new Windows ZIP.
 3. Run the new `DeadFrontier Overview.exe` and update any shortcut you created.
 
-The Windows history, settings and saved mappings live in `%APPDATA%\DeadFrontier Overview\`, separately from the portable app folder. Updates reuse those local data files. To make a backup, quit Overview first, then copy that user-data folder.
+On Windows, history, settings and saved mappings live in `%APPDATA%\DeadFrontier Overview\`, separately from the portable app folder. Updates reuse those local data files. To make a backup, quit Overview first, then copy that user-data folder.
 
 The browser extension stores its own data in that browser. Browser XP history is separate from the Windows app's history.
 

@@ -1,12 +1,16 @@
-# DeadFrontier Overview — Windows
+# DeadFrontier Overview — Desktop
 
 **[English installation and usage guide](../INSTALL-EN.md)**
 
-Prévia **0.8.3** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
+Prévia **0.9.0** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
 
-[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.8.3/deadfrontier-overview-windows-0.8.3.zip)
+[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.9.0/deadfrontier-overview-windows-0.9.0.zip)
 
-## Usar a versão portátil
+## Linux e macOS experimentais
+
+A 0.9.0 inclui builds nativas para Linux x64/X11 e macOS Intel/Apple Silicon. Consulte o [tutorial em inglês](../INSTALL-EN.md) para downloads, instalação e permissões. Os builds e testes rodam nos sistemas correspondentes no GitHub; captura com o client real e escala do HUD ainda precisam de validação em cada sistema. Wayland ainda não é suportado. O macOS requer autorização de captura de tela; Input Monitoring é opcional para os atalhos observados no jogo. Os pacotes Mac usam assinatura ad-hoc e não têm notarização da Apple.
+
+## Usar a versão portátil Windows
 
 1. Extraia **todo** o ZIP do app para uma pasta fixa. Não execute apenas o EXE de dentro do arquivo compactado.
 2. Execute `DeadFrontier Overview.exe` dentro da pasta extraída. Não precisa instalar Node.js nem um SDK.
@@ -53,7 +57,7 @@ O jogo precisa continuar renderizando a janela. Minimizar pode interromper os fr
 
 Esta prévia usa um perfil local de XP; não faz login no jogo nem identifica automaticamente troca de personagem. Ao trocar de personagem na mesma janela, use **Salvar e zerar sessão**. O loot é experimental. O catálogo Yard acompanha o app e os anúncios são consultados diretamente, sem navegador. Buffs vindos do addon e compra/banco ainda não estão implementados neste app.
 
-## Loot em segundo plano (0.8.3)
+## Loot em segundo plano (0.9.0)
 
 A captura roda a até 15 quadros por segundo e seleciona pequenos recortes do diálogo para uma fila em memória. O OCR trabalha separado da leitura de XP: pode aceitar o item imediatamente ou segurar F. Não é preciso aguardar a leitura.
 
@@ -75,7 +79,7 @@ Frames completos e prévias de XP ficam na memória. Pequenos recortes JPEG do d
 
 ## Desenvolvimento e reprodução
 
-Build em Windows x64, Node.js 24.14.1, npm 11.11.0. O helper é compilado com o `csc.exe` do .NET Framework presente no Windows e usa Win32 para enumerar as janelas. Dependências fixadas em `desktop/package-lock.json`.
+Build em Windows x64, Node.js 24.14.1, npm 11.11.0. O helper Windows usa C#/Win32; o Linux usa C++/X11; o macOS usa Objective-C++/AppKit/CoreGraphics. Compile cada arquitetura no sistema correspondente. Linux requer g++ e libx11-dev; macOS requer as ferramentas de desenvolvimento da Apple. Dependências fixadas em `desktop/package-lock.json`.
 
 ```powershell
 cd desktop

@@ -1,12 +1,12 @@
-name: Windows desktop preview
+name: Desktop preview releases
 on:
   push:
     tags: ['desktop-v*']
 permissions:
   contents: write
 jobs:
-  windows:
-    runs-on: windows-latest
+  prepare:
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -14,32 +14,69 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24.14.1'
-      - name: Check tag and desktop version
-        shell: pwsh
+      - name: Verify version and create draft
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          $version = (Get-Content desktop/package.json -Raw | ConvertFrom-Json).version
-          if ($env:GITHUB_REF_NAME -ne "desktop-v$version") { throw 'Desktop tag/version mismatch.' }
-      - name: Extension regression tests
+          version=$(node -p 'require("./desktop/package.json").version')
+          test "$GITHUB_REF_NAME" = "desktop-v$version"
+          gh release create "$GITHUB_REF_NAME" --verify-tag --draft --prerelease --title "DeadFrontier Overview desktop $version preview" --notes-file desktop/RELEASE_NOTES.md
+  package:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-latest
+            target: windows-x64
+          - runner: ubuntu-22.04
+            target: linux-x64
+          - runner: macos-15-intel
+            target: macos-x64
+          - runner: macos-15
+            target: macos-arm64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.14.1'
+      - name: Linux native dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libx11-dev
+      - name: Shared regression tests
         run: npm test
       - name: Install pinned desktop dependencies
         working-directory: desktop
         run: npm ci --ignore-scripts --no-fund
-      - name: Install official Electron runtime
+      - name: Install pinned Electron
         working-directory: desktop
         run: node node_modules/electron/install.js
-      - name: Desktop tests
-        working-directory: desktop
-        run: npm test
-      - name: Build portable Windows app
+      - name: Build native helper and app
         working-directory: desktop
         run: npm run package
-      - name: Create reviewed portable ZIP
+      - name: Desktop regression tests
+        working-directory: desktop
+        run: npm test
+      - name: Windows archive
+        if: runner.os == 'Windows'
         shell: pwsh
         run: ./scripts/package-desktop.ps1
-      - name: Publish desktop preview
+      - name: Linux and macOS archives
+        if: runner.os != 'Windows'
+        run: node scripts/package-unix.mjs
+      - name: Upload reviewed assets to draft
         env:
           GH_TOKEN: ${{ github.token }}
-        shell: pwsh
-        run: |
-          $version = (Get-Content desktop/package.json -Raw | ConvertFrom-Json).version
-          gh release create "$env:GITHUB_REF_NAME" "dist/deadfrontier-overview-windows-$version.zip" dist/WINDOWS-SHA256SUMS.txt --verify-tag --prerelease --title "DeadFrontier Overview Windows $version preview" --notes-file desktop/RELEASE_NOTES.md
+        run: node scripts/upload-desktop-assets.mjs
+  publish:
+    needs: package
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Publish after every platform passes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release edit "$GITHUB_REF_NAME" --draft=false --prerelease

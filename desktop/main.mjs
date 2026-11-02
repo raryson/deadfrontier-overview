@@ -256,6 +256,7 @@ else {
     overlayWindow.on('show',broadcast);
     overlayWindow.setAlwaysOnTop(true,'screen-saver');
     if(process.platform==='darwin')overlayWindow.setVisibleOnAllWorkspaces(true,{visibleOnFullScreen:true});
+    if(process.platform==='linux')overlayWindow.setVisibleOnAllWorkspaces(true);
     tray=new Tray(nativeImage.createFromPath(path.join(root,'icon.png')));tray.setToolTip('DeadFrontier Overview — acompanhamento local');tray.on('double-click',showMain);updateTray();
     ipcMain.handle('overview:read',event=>{if(![uiURL,overlayURL].includes(event.senderFrame?.url))throw Error('Origem inválida');return publicState();});
     ipcMain.handle('overview:session',(event,request)=>{

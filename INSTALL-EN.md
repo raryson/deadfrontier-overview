@@ -23,6 +23,14 @@ Check the [Releases page](https://github.com/raryson/deadfrontier-overview/relea
 
 You do not need Node.js, npm or developer tools to run the downloaded Windows app or install the packaged extension.
 
+### Linux and macOS availability
+
+The browser extension can be used with the supported browsers on these systems. The native Overview companion currently ships as a **Windows x64 build only**. Linux and macOS builds are being planned; there are no native download links yet.
+
+The desktop port needs a platform-specific replacement for the Windows game-window detector, plus validation of screen capture, overlay placement and session boundaries with the game client. Packaging Electron for another operating system alone does not provide those integrations.
+
+The intended targets are Linux x64, macOS Apple Silicon and macOS Intel. Installation steps and download links will be added here when functional experimental builds are available. See [platform support and porting requirements](docs/platform-support.md) for the current status.
+
 ## 2. Install the browser extension
 
 ### Google Chrome

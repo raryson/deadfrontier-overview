@@ -6,9 +6,9 @@ const catalog=JSON.parse(fs.readFileSync(new URL('../data/item-catalog.json',imp
 function setup(t){const store=new DesktopStore(':memory:');t.after(()=>store.close());for(let i=0;i<catalog.items.length;i+=500)store.saveCatalog({...catalog,items:catalog.items.slice(i,i+500)},catalog.observedAt);return{store,journal:new LootJournal(store)};}
 test('captures survive dialog dismissal and a slow reader; FIFO preserves independent encounters and has bounded storage',()=>{
  let n=0;const queue=new LootSnapshotQueue({limit:2,id:()=>String(++n)}),image={frozen:true};
- queue.offer(image,1000,true);queue.offer(image,1100,true);queue.offer(image,1200,true);queue.offer(image,1300,true);assert.equal(queue.size,3);
+ queue.offer(image,1000,true);queue.offer(image,1100,true);queue.offer(image,1200,true);queue.offer(image,1300,true);assert.equal(queue.size,4);
  queue.offer(null,1500,false);queue.offer({next:true},1600,true);queue.offer(null,1900,false);queue.offer({},2000,true);assert.equal(queue.dropped,1);
- const jobs=[];let job;while(job=queue.next())jobs.push(job);assert.deepEqual(jobs.map(j=>j.eventId),['1','2','1','1']);assert.equal(jobs[0].canvas,image);
+ const jobs=[];let job;while(job=queue.next())jobs.push(job);assert.deepEqual(jobs.map(j=>j.eventId),['1','2','1','1','1']);assert.equal(jobs[0].canvas,image);
  queue.clear();assert.equal(queue.size,0);assert.notEqual(jobs[0].generation,queue.generation);
 });
 test('one fast high-confidence dialog is journaled after it closed, without mouse/key/acceptance evidence',t=>{
@@ -41,9 +41,10 @@ test('black loading frames and blank cards do not masquerade as an item dialog',
 });
 
 test('real-game dark grey title remains eligible while the brighter prompt is required',()=>{
- const width=350,height=310,pixels=new Uint8ClampedArray(width*height*4);
+ const width=350,height=310,pixels=new Uint8ClampedArray(width*height*4);for(let i=0;i<pixels.length;i+=4){pixels[i]=125;pixels[i+1]=95;pixels[i+2]=70;}
  // The real title has neutral grey strokes around 80–110, below white text.
  const dot=(x,y,value)=>{const i=(y*width+x)*4;pixels[i]=pixels[i+1]=pixels[i+2]=value;pixels[i+3]=255;};
+ for(let x=25;x<=334;x++){dot(x,15,20);dot(x,234,20);}for(let y=15;y<=234;y++){dot(25,y,20);dot(334,y,20);}for(let x=46;x<=145;x++){dot(x,155,20);dot(x,194,20);}
  for(let y=14;y<28;y+=2)for(let x=120;x<225;x+=6)dot(x,y,100);
  for(let y=36;y<62;y+=2)for(let x=45;x<300;x+=8)dot(x,y,190);
  assert.equal(looksLikeLoot(pixels,width,height),true);

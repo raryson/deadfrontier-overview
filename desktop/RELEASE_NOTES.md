@@ -1,10 +1,10 @@
-## Windows 0.8.0
+## Windows 0.8.1
 
-- Captura de loot a até 60 fps, dois workers de OCR e fila de 64 diálogos. Detecta mudanças de item sem exigir que o diálogo desapareça entre elas.
-- Salva o recorte local antes do OCR. Capturas sem leitura ou com fila cheia continuam disponíveis para revisão, sem entrar automaticamente nos totais.
-- Histórico → Detalhes da sessão reúne XP recebida, XP/h, perdas, XP líquida, base estimada, duração e todos os loots registrados em páginas de 100.
-- Revisão com imagem, texto original, correção de item/quantidade e associação reutilizável. Correções manuais não são sobrescritas por resultados atrasados do OCR.
-- Pequenos JPEGs de loot ficam no SQLite local por padrão; opção para desligar imagens futuras em Preferências. Sem upload. Capturas anteriores à atualização não possuem imagens.
-- Melhora o início de sessão com XP exata sem K e confiança moderada, exigindo três leituras coerentes. Mantém verificações de saltos e sufixos perdidos.
+- Exige a moldura do quadro de loot e os botões antes de guardar ou analisar uma imagem. A mesma validação vale para Shift+F.
+- Não inicia outro registro por uma oscilação breve do detector ou uma alteração rápida do fundo através do diálogo transparente.
+- Revisa amostras posteriores do mesmo quadro para melhorar texto inicialmente encoberto; um nome conhecido pode substituir uma leitura desconhecida sem duplicar o item.
+- Prioriza recorte de texto mais estreito e reconhece o prefixo Grey de armaduras presentes no catálogo.
+- Itens comuns ficam com quantidade 1, inclusive no histórico e na revisão. Munição e Gasoline mantêm validação da quantidade.
+- Capturas antigas sem quadro de loot, ainda pendentes ou ilegíveis, são ocultadas da lista. As imagens originais permanecem no banco local; capturas válidas ilegíveis continuam disponíveis para revisão.
 
-Validação: 86 testes compartilhados e 63 testes desktop; teste integrado com cinco diálogos diferentes a cada 250 ms, sem intervalo vazio, confirmou cinco registros e imagens, Gasoline 812 ml, munição 880 e ganho contínuo de XP sem K. A captura real em Onslaught ainda depende da duração/visibilidade de cada diálogo.
+Validação: regressões do detector, oscilações, refinamento de OCR, quantidades e migração; amostra privada de 19 capturas relatadas pelo usuário rejeitou 15 cenas sem diálogo e preservou as 4 imagens com o quadro realmente visível. Imagens do usuário não fazem parte do código nem dos pacotes publicados.

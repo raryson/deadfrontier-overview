@@ -2,9 +2,9 @@
 
 **[English installation and usage guide](../INSTALL-EN.md)**
 
-Prévia **0.8.0** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
+Prévia **0.8.1** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
 
-[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.8.0/deadfrontier-overview-windows-0.8.0.zip)
+[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.8.1/deadfrontier-overview-windows-0.8.1.zip)
 
 ## Usar a versão portátil
 
@@ -53,15 +53,15 @@ O jogo precisa continuar renderizando a janela. Minimizar pode interromper os fr
 
 Esta prévia usa um perfil local de XP; não faz login no jogo nem identifica automaticamente troca de personagem. Ao trocar de personagem na mesma janela, use **Salvar e zerar sessão**. O loot é experimental. O catálogo Yard acompanha o app e os anúncios são consultados diretamente, sem navegador. Buffs vindos do addon e compra/banco ainda não estão implementados neste app.
 
-## Loot em segundo plano (0.8.0)
+## Loot em segundo plano (0.8.1)
 
 A captura roda a até 60 quadros por segundo e seleciona pequenos recortes do diálogo para uma fila em memória. O OCR trabalha separado da leitura de XP: pode aceitar o item imediatamente ou segurar F. Não é preciso aguardar a leitura.
 
 **Captura manual extra:** com a tela de item encontrado visível e o client em primeiro plano, pressione **Shift + F** uma vez e siga jogando. O overlay mostra “recorte enviado para OCR”. O atalho usa os quadros imediatamente anteriores ao comando, inclusive se F fechar o diálogo. Ele não bloqueia as teclas do jogo. A captura automática continua ligada; as duas usam o mesmo registro para não duplicar o item. O atalho não atua em outras janelas.
 
-O histórico registra **itens identificados no diálogo**, sem verificar aceite ou entrada na mochila. O total é o valor potencial desses itens. Recortes repetidos do mesmo diálogo não criam novas linhas; dois diálogos separados do mesmo item contam separadamente. Quantidades duvidosas ficam editáveis e fora da estimativa. O catálogo corrige grafias próximas de munição apenas quando o calibre coincide e há uma única correspondência.
+O histórico registra **itens identificados no diálogo**, sem verificar aceite ou entrada na mochila. O total é o valor potencial desses itens. Recortes repetidos do mesmo diálogo não criam novas linhas; dois diálogos separados do mesmo item contam separadamente. Itens comuns usam quantidade 1. Quantidades duvidosas de munição e Gasoline ficam editáveis e fora da estimativa. O catálogo corrige grafias próximas de munição apenas quando o calibre coincide e há uma única correspondência.
 
-São até 64 diálogos pendentes, com no máximo três recortes de 350 × 310 por diálogo e dois workers de OCR. Mudanças de texto no mesmo diálogo são capturadas separadamente. O primeiro recorte é salvo localmente antes do OCR; mesmo com a fila cheia ou leitura malsucedida, a captura pode ser revisada depois. Fechar só o painel mantém o processamento na bandeja. Encerrar o app interrompe o OCR pendente, mas preserva os recortes já salvos.
+São até 64 diálogos pendentes, com no máximo cinco recortes de 350 × 310 por diálogo, incluindo amostras posteriores mais nítidas e dois workers de OCR. Mudanças de texto no mesmo diálogo são capturadas separadamente. A moldura e os botões do diálogo são validados antes de qualquer captura, inclusive manual. Oscilações breves não iniciam outro registro. O primeiro recorte válido é salvo localmente antes do OCR; mesmo com a fila cheia ou leitura malsucedida, a captura pode ser revisada depois. Fechar só o painel mantém o processamento na bandeja. Encerrar o app interrompe o OCR pendente, mas preserva os recortes já salvos.
 
 Em **Histórico de sessões → Detalhes da sessão**, veja XP, perdas, duração e todos os loots registrados, em páginas de 100. Abra **Revisar** para conferir a imagem e o texto OCR, corrigir item/quantidade e salvar uma associação para próximas leituras. O limite de 200 registros da lista ao vivo não limita os detalhes da sessão. Imagens só existem para novas capturas com o salvamento ligado; capturas antigas não podem ser reconstruídas. Em **Preferências**, é possível desligar o salvamento de imagens futuras.
 

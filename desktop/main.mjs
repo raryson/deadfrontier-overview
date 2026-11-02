@@ -9,6 +9,7 @@ import {DesktopStore} from './store.mjs';
 import {DesktopTracker} from './tracker.mjs';
 import {ClientSession} from './client-session.mjs';
 import {correctLoot} from './loot-review.mjs';
+import {looksLikeLoot} from './ui/loot-snapshots.mjs';
 import {LootFlow} from './ui/loot-model.mjs';
 import {LootJournal,canonicalLootName} from './ui/loot-journal.mjs';
 import {selectGameWindow,sourceForWindow,validRegion,csvOfSessions} from './selection.mjs';
@@ -226,6 +227,8 @@ else {
     });
     const dataDirectory=app.getPath('userData');
     store=new DesktopStore(path.join(dataDirectory,'overview.sqlite'));
+    store.normalizeLootQuantities();
+    store.rejectNonLootCaptures(bytes=>{const image=nativeImage.createFromBuffer(bytes);if(image.isEmpty())return true;const size=image.getSize();if(size.width!==350||size.height!==310)return true;return looksLikeLoot(image.toBitmap(),350,310);});
     if(clearHistoryRequested){store.clearHistory();clearHistoryRequested=false;}
     const seed=JSON.parse(await fs.readFile(path.join(directory,'data','item-catalog.json'),'utf8'));
     for(let i=0;i<seed.items.length;i+=500)store.saveCatalog({version:1,observedAt:seed.observedAt,items:seed.items.slice(i,i+500)},seed.observedAt);
@@ -339,7 +342,7 @@ else {
       if(retired&&reading?.kind==='queue'){if(reading.pending===0)disposeReader(event.sender.id);return;}
       if(!['capture','ocrFailed','snapshot','queue','visible','hint','found','absent','unknown','searching'].includes(reading?.kind)||String(reading.text??'').length>1200)return;
       if(reading.kind==='queue'){
-        if(Number.isSafeInteger(reading.pending)&&reading.pending>=0&&reading.pending<=256)lootQueueSize=reading.pending;
+        if(Number.isSafeInteger(reading.pending)&&reading.pending>=0&&reading.pending<=512)lootQueueSize=reading.pending;
         if(Number.isSafeInteger(reading.dropped)&&reading.dropped>=0)lootQueueDropped=reading.dropped;
         broadcast();return;
       }

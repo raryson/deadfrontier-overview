@@ -7,7 +7,7 @@ export class SessionView{
  document.getElementById('review-alias-save').onchange=()=>document.getElementById('review-alias-from').disabled=!document.getElementById('review-alias-save').checked;
  document.getElementById('review-form').onsubmit=async event=>{event.preventDefault();const name=document.getElementById('review-item').value,definition=this.data.definitions.find(d=>d.name+' · '+d.itemId===name);if(!definition){document.getElementById('review-message').textContent=this.context().language.t('chooseCatalogItem');return;}
  const quantity=document.getElementById('review-quantity').value;if(await action('lootCorrect',{id:this.review.id,itemId:definition.itemId,quantity:quantity?Number(quantity):null,aliasFrom:document.getElementById('review-alias-save').checked?document.getElementById('review-alias-from').value:''})===false)return;
- this.review={...this.review,item:definition.name,quantity:quantity?Number(quantity):undefined,status:'observed'};await this.open(this.id,this.page,this.review);document.getElementById('review-message').textContent=this.context().language.t('correctionSaved');};
+ this.review={...this.review,item:definition.name,quantity:definition.kind==='round'?(quantity?Number(quantity):undefined):1,status:'observed'};await this.open(this.id,this.page,this.review);document.getElementById('review-message').textContent=this.context().language.t('correctionSaved');};
  document.getElementById('review-ignore').onclick=async()=>{await action('lootIgnore',this.review.id);this.review=null;await this.open(this.id,this.page);};
  }
  image(entry){return 'dfov://app/loot-image/'+encodeURIComponent(entry.id)+'.jpg';}
@@ -29,7 +29,7 @@ export class SessionView{
  }
  showReview(entry,scroll=true){this.review=entry;const {language}=this.context(),t=language.t,$=id=>document.getElementById(id);$('loot-review').hidden=false;$('review-image').hidden=!entry.hasImage;$('review-no-image').hidden=!!entry.hasImage;if(entry.hasImage)$('review-image').src=this.image(entry);
  $('review-ocr').textContent=entry.ocrText||entry.rawItem||entry.item||t('noOcrText');$('review-alias-from').value=entry.rawItem||entry.item||'';$('review-alias-save').checked=!!$('review-alias-from').value;$('review-alias-from').disabled=!$('review-alias-save').checked;
- const options=this.data.definitions.map(d=>new Option(d.name+' · '+d.itemId));$('review-items').replaceChildren(...options);const current=this.data.definitions.find(d=>d.name===entry.item);$('review-item').value=current?current.name+' · '+current.itemId:'';$('review-quantity').value=entry.quantity??'';$('review-message').textContent='';
+ const options=this.data.definitions.map(d=>new Option(d.name+' · '+d.itemId));$('review-items').replaceChildren(...options);const current=this.data.definitions.find(d=>d.name===entry.item);$('review-item').value=current?current.name+' · '+current.itemId:'';$('review-quantity').value=entry.quantity??1;$('review-message').textContent='';
  if(scroll)$('loot-review').scrollIntoView({behavior:'smooth',block:'start'});
  }
 }

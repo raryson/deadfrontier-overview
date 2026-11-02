@@ -21,11 +21,40 @@ test('manual review updates an old row, preserves its session and teaches future
  const journal=new LootJournal(store);journal.observe({eventId:'next',capturedAt:3000,frameAt:3010,text:'YOU HAVE FOUND SOME GASOUNE. WILL YOU TAKE IT?',confidence:90},'next-run',4000);assert.equal(store.lootById('next').item,'Gasoline');
  assert.equal(journal.observe({eventId:'old',capturedAt:1000,frameAt:1010,text:'YOU HAVE FOUND SOME WHISKEY. WILL YOU TAKE IT?',confidence:95},'wrong-run',5000),false);assert.equal(store.lootById('old').item,'Gasoline');
 });
-test('fast dialogs separate after one absent frame and after a confirmed in-place prompt change',()=>{
+test('dialog identity survives brief detection flicker but separates after a real absence and stable prompt change',()=>{
  let id=0;const queue=new LootSnapshotQueue({id:()=>String(++id)}),a=Uint8Array.from({length:60},(_,i)=>i<25?1:0),b=Uint8Array.from({length:60},(_,i)=>i>=25&&i<50?1:0);
- const first=queue.offer({},1000,true,a);queue.offer({},1016,false);const second=queue.offer({},1032,true,a);assert.notEqual(first,second);
- assert.equal(queue.offer({},1050,true,b),null);const third=queue.offer({},1066,true,b);assert.notEqual(second,third);assert.equal(queue.created.capturedAt,1050);
+ const first=queue.offer({},1000,true,a);queue.offer({},1016,false);const second=queue.offer({},1032,true,a);assert.equal(first,second);queue.offer({},1150,false);const separate=queue.offer({},1166,true,a);assert.notEqual(first,separate);
+ assert.equal(queue.offer({},1182,true,b),null);assert.equal(queue.offer({},1198,true,b),null);const third=queue.offer({},1246,true,b);assert.notEqual(separate,third);assert.equal(queue.created.capturedAt,1182);
 });
 test('queue overflow retains a capture identity for later image review instead of silently losing the event',()=>{
- let id=0;const queue=new LootSnapshotQueue({limit:1,id:()=>String(++id)});queue.offer({},1000,true);queue.offer({},1030,false);const overflow=queue.offer({},1040,true);assert.equal(overflow,'2');assert.equal(queue.created.queued,false);assert.equal(queue.created.eventId,'2');assert.equal(queue.dropped,1);
+ let id=0;const queue=new LootSnapshotQueue({limit:1,id:()=>String(++id)});queue.offer({},1000,true);queue.offer({},1150,false);const overflow=queue.offer({},1166,true);assert.equal(overflow,'2');assert.equal(queue.created.queued,false);assert.equal(queue.created.eventId,'2');assert.equal(queue.dropped,1);
+});
+
+test('single items default to one, while ammunition and fuel retain quantity validation',t=>{
+ const store=setup(t),journal=new LootJournal(store);
+ const read=(id,text)=>journal.observe({eventId:id,capturedAt:1000,frameAt:1010,text:'YOU HAVE FOUND SOME '+text+'. WILL YOU TAKE IT?',confidence:95},'run',2000);
+ read('single','WHISKEY');assert.equal(store.lootById('single').quantity,1);
+ read('ammo','12.7MM RIFLE BULLETS (880)');assert.equal(store.lootById('ammo').quantity,undefined);assert.equal(store.lootById('ammo').quantityUncertain,true);
+ read('fuel','GASOLINE');assert.equal(store.lootById('fuel').quantity,undefined);
+ correctLoot(store,{id:'single',itemId:'whiskey',quantity:null});assert.equal(store.lootById('single').quantity,1);
+});
+
+test('non-dialog captures are hidden without deleting original data or valid unreadable loot',t=>{
+ const store=setup(t);for(const id of ['valid','scenery'])store.saveCapture({eventId:id,capturedAt:1000,imageData:image},'run',true,2000);
+ let checks=0;store.rejectNonLootCaptures(()=>++checks===1);
+ assert.equal(store.sessionLoot('run').total,1);assert.equal(store.lootHistory().length,1);assert.equal(store.lootById('valid').status,'ocrPending');assert.equal(store.lootById('scenery').status,'notLoot');assert.ok(store.lootImage('scenery'));
+ store.rejectNonLootCaptures(()=>{throw Error('Must not rerun');});
+});
+
+test('a later sharp catalogue reading refines an unknown name in the same dialog',t=>{
+ const store=setup(t),journal=new LootJournal(store),base={eventId:'one',capturedAt:1000,confidence:90};
+ journal.observe({...base,frameAt:1010,text:'YOU HAVE FOUND A WHESKE. WILL YOU TAKE IT?'},'run',2000);
+ journal.observe({...base,frameAt:1250,confidence:95,text:'YOU HAVE FOUND A WHISKEY. WILL YOU TAKE IT?'},'run',2300);
+ assert.equal(store.lootHistory().length,1);assert.equal(store.lootById('one').item,'Whiskey');
+});
+
+test('completed OCR still gets later sharp crops of the same translucent dialog',()=>{
+ const queue=new LootSnapshotQueue({id:()=> 'dialog'});queue.offer({},1000,true);queue.next();queue.complete('dialog');
+ assert.equal(queue.offer({},1220,true),'dialog');assert.equal(queue.next().eventId,'dialog');queue.complete('dialog');
+ assert.equal(queue.offer({},1440,true),'dialog');assert.equal(queue.next().eventId,'dialog');
 });

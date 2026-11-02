@@ -23,7 +23,7 @@ function crop(canvas,x,y,w,h){const out=document.createElement('canvas');out.wid
 function captureLoot(){
  if(!video.videoWidth)return;
  const area=lootRegion(video.videoWidth,video.videoHeight),canvas=document.createElement('canvas');canvas.width=350;canvas.height=310;const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(video,area.x*video.videoWidth,area.y*video.videoHeight,area.width*video.videoWidth,area.height*video.videoHeight,0,0,350,310);
- const pixels=ctx.getImageData(0,0,350,310).data;const at=Date.now(),frame=recent.push(canvas,at);frame.eventId=queue.offer(canvas,at,looksLikeLoot(pixels,350,310),lootFingerprint(pixels));persistCapture();if(queue.size)lootWake?.();
+ const pixels=ctx.getImageData(0,0,350,310).data;const at=Date.now(),frame=recent.push(canvas,at);frame.present=looksLikeLoot(pixels,350,310);frame.eventId=queue.offer(canvas,at,frame.present,lootFingerprint(pixels));persistCapture();if(queue.size)lootWake?.();
 }
 function persistCapture(){const item=queue.created;if(!item||persisted.has(item.eventId))return;persisted.add(item.eventId);while(persisted.size>1000)persisted.delete(persisted.values().next().value);bridge.loot({token:config.token,reading:{kind:'capture',eventId:item.eventId,capturedAt:item.capturedAt,frameAt:item.frameAt,queued:item.queued,manual:item.manual,...(config.saveImages?{imageData:item.canvas.toDataURL('image/jpeg',.85)}:{})}});}
 bridge.subscribe(update=>{
@@ -31,7 +31,7 @@ bridge.subscribe(update=>{
  if(update.type==='imageSetting'){config.saveImages=update.enabled;return;}
  if(update.type==='drain'){draining=true;clearInterval(frameTimer);recent.clear();stream?.getTracks().forEach(track=>track.stop());if(queue.size)void readLoot();else if(!lootBusy)bridge.loot({token:config.token,reading:{kind:'queue',pending:0,dropped:queue.dropped}});return;}
  if(update.type==='lootCapture'){
-  const at=update.at,frames=recent.frames.filter(f=>f.at<=at&&at-f.at<=200);
+  const at=update.at,frames=recent.frames.filter(f=>f.present&&f.at<=at&&at-f.at<=200);
   const eventId=frames.findLast(f=>f.eventId)?.eventId;
   const eligible=frames.filter(f=>f.eventId===eventId&&eventId),selected=eligible.length?eligible.slice(-3):[frames[0],frames[Math.floor(frames.length/2)],frames.at(-1)].filter(Boolean);
   const queued=queue.capture(selected,eventId);persistCapture();if(queued)lootWake?.();return;
@@ -48,13 +48,16 @@ async function readLoot(ocr=lootWorker){
  try{
   let job;while(job=queue.next()){
    bridge.loot({token:config.token,reading:{kind:'queue',pending:queue.size+1,dropped:queue.dropped}});
-   const prompt=crop(job.canvas,35,30,280,65),large=document.createElement('canvas');large.width=1120;large.height=260;const ctx=large.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.drawImage(prompt,0,0,large.width,large.height);
    let best=null,lastText='';const quantities=[];
+   for(const height of [42,65]){
+   const prompt=crop(job.canvas,35,30,280,height),large=document.createElement('canvas');large.width=1120;large.height=height*4;const ctx=large.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.drawImage(prompt,0,0,large.width,large.height);
    for(const threshold of [null,80,110]){
     const result=await ocr.recognize(await bytes(filter(large,threshold))),text=result.data.text,parsed=parseLootPrompt(text);lastText=text;if(!parsed)continue;
     if(parsed.quantity)quantities.push(parsed.quantity);
     if(!best||result.data.confidence>best.confidence)best={text,confidence:result.data.confidence};
     if(result.data.confidence>=85&&!parsed.quantity)break;
+   }
+   if(best)break;
    }
    if(job.generation!==queue.generation)continue;
    if(best){const parsed=parseLootPrompt(best.text);bridge.loot({token:config.token,reading:{kind:'snapshot',manual:job.manual,eventId:job.eventId,capturedAt:job.capturedAt,frameAt:job.at,...best,...(config.saveImages?{imageData:job.canvas.toDataURL('image/jpeg',.85)}:{}),quantityConfidence:parsed?.quantity&&quantities.filter(q=>q===parsed.quantity).length>=2?95:0}});}

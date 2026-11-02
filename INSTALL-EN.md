@@ -17,9 +17,9 @@ These are the published builds used in this guide:
 | --- | --- | --- |
 | [Chrome extension](https://github.com/raryson/deadfrontier-overview/releases/download/v0.9.6/deadfrontier-overview-chrome.zip) | 0.9.6 | `deadfrontier-overview-chrome.zip` |
 | [Firefox extension](https://github.com/raryson/deadfrontier-overview/releases/download/v0.9.6/deadfrontier-overview.zip) | 0.9.6 | `deadfrontier-overview.zip` |
-| [Windows app (x64)](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.8.0/deadfrontier-overview-windows-0.8.0.zip) | 0.8.0 | `deadfrontier-overview-windows-0.8.0.zip` |
+| [Windows app (x64)](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.8.1/deadfrontier-overview-windows-0.8.1.zip) | 0.8.1 | `deadfrontier-overview-windows-0.8.1.zip` |
 
-Check the [Releases page](https://github.com/raryson/deadfrontier-overview/releases) for newer builds. Extension releases use tags such as `v0.9.6`; Windows releases use tags such as `desktop-v0.8.0`. Each component has its own version number.
+Check the [Releases page](https://github.com/raryson/deadfrontier-overview/releases) for newer builds. Extension releases use tags such as `v0.9.6`; Windows releases use tags such as `desktop-v0.8.1`. Each component has its own version number.
 
 You do not need Node.js, npm or developer tools to run the downloaded Windows app or install the packaged extension.
 
@@ -115,7 +115,7 @@ Loot OCR runs in the background on small dialog crops, sampled at up to 60 fps. 
 - Custom/GC/NGC equipment requires an explicit manual query and exact variant selection.
 - **Secronom Bunker / Outposts** is the default market region. Change it under **Market prices**.
 - Public price lookup does **not** require a browser, login or pairing code. The extension connection under Preferences is optional and can update the public catalog.
-- Unknown quantities remain editable and are excluded from totals until resolved. Prices are estimates and quotes expire after 15 minutes.
+- Ordinary items default to quantity 1. Ammunition and Gasoline require a validated quantity and remain excluded from totals until it is known. Prices are estimates and quotes expire after 15 minutes.
 
 If a name is wrong or the app says **Waiting for game catalog**, open **Item mappings**, choose the OCR name and the matching original item, then click **Save mapping**. The mapping is stored on this computer and reused when OCR reads that same name again. Item names remain in their original language.
 

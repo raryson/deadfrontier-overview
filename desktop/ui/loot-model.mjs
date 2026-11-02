@@ -1,5 +1,6 @@
 // Pure screen interpretation. A disappearing dialog alone never means pickup.
 export function lootRegion(width,height){const s=Math.min(width/1920,height/1080);return{x:(width/2-175*s)/width,y:(height/2-115*s)/height,width:350*s/width,height:310*s/height};}
+export function isStackLoot(entry,definition){return definition?.kind==='round'||entry.unit==='ml'||entry.unit==='round'||/\b(?:GASOLINE|BULLETS|SHELLS|GRENADES|AMMO|ARROWS|BOLTS)\b/i.test(entry.item??'');}
 export function parseLootItem(value){
   let item=String(value).replace(/\s+/g,' ').trim().replace(/[.!?,]+$/,'').trim();
   const cash=/^\$\s*(\d{1,3}(?:[ ,.]\d{3})*|\d+)\s*$/.exec(item);

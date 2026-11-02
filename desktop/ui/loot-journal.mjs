@@ -1,8 +1,10 @@
-import {parseLootItem} from './loot-model.mjs';
+import {parseLootItem,isStackLoot} from './loot-model.mjs';
 const key=value=>String(value).toUpperCase().replace(/[^A-Z0-9]/g,'');
 const distance=(a,b)=>{const row=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){let prev=row[0];row[0]=i;for(let j=1;j<=b.length;j++){const old=row[j];row[j]=Math.min(row[j]+1,row[j-1]+1,prev+(a[i-1]===b[j-1]?0:1));prev=old;}}return row[b.length];};
 export function canonicalLootName(name,catalog){
   const exact=catalog.filter(item=>key(item.name)===key(name));if(exact.length===1)return exact[0].name;
+  const uncoloured=String(name).replace(/^(?:GREY|GRAY)\s+/i,'');
+  if(uncoloured!==name){const armour=catalog.filter(item=>item.kind==='equipment'&&key(item.name)===key(uncoloured));if(armour.length===1)return armour[0].name;}
   // Calibres must match exactly; only one spelling edit in ammunition words.
   const numbers=String(name).replace(/[.,]/g,'').match(/\d+/g)?.join(':');
   if(!numbers||!/(?:BULLETS|SHELLS|AMMO|GRENADES)$/i.test(name))return name;
@@ -27,9 +29,10 @@ export class LootJournal{
   if(parsed.quantity){const votes=event.quantities.get(parsed.quantity)??new Set();votes.add(reading.frameAt??reading.capturedAt);event.quantities.set(parsed.quantity,votes);}
   const known=this.store.itemCatalog().some(item=>key(item.name)===signature);
   if(seen.size<2&&reading.confidence<(known?75:85))return false;
-  if(event.saved&&key(event.saved.item)!==signature)return false;
-  const verifiedQuantity=parsed.quantity&&(event.quantities.get(parsed.quantity).size>=2||reading.quantityConfidence>=90)?parsed.quantity:event.saved?.quantity;
+  if(event.saved&&key(event.saved.item)!==signature){const priorKnown=this.store.itemCatalog().some(item=>key(item.name)===key(event.saved.item));if(priorKnown||!known)return false;}
+  const verifiedQuantity=parsed.quantity&&(event.quantities.get(parsed.quantity).size>=2||reading.quantityConfidence>=90)?parsed.quantity:event.saved?.quantitySource==='single-item'?undefined:event.saved?.quantity;
   const entry={...existing,...event.saved,ocrText:reading.text.slice(0,1200),ocrConfidence:reading.confidence,id:event.id,sessionId:event.sessionId??null,item:parsed.item,rawItem:original,foundAt:event.foundAt,readAt:now,status:'observed',captureMode:reading.manual?'shortcut':'snapshot',...(parsed.cash?{cash:parsed.cash}:{}),...(parsed.unit?{unit:parsed.unit}:{}),...(verifiedQuantity?{quantity:verifiedQuantity,quantityUncertain:false}:parsed.quantity||parsed.quantityUncertain?{quantityUncertain:true}:{})};
+  if(!parsed.cash){if(!isStackLoot(entry,this.store.itemCatalog().find(item=>key(item.name)===signature))){entry.quantity=1;entry.quantityUncertain=false;entry.quantitySource='single-item';}else{delete entry.quantitySource;if(!verifiedQuantity){delete entry.quantity;entry.quantityUncertain=true;}}}
   event.saved=entry;this.store.saveLoot(entry);return true;
  }
 }

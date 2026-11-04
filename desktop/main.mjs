@@ -13,6 +13,7 @@ import {correctLoot,correctCash} from './loot-review.mjs';
 import {looksLikeLoot} from './ui/loot-snapshots.mjs';
 import {LootFlow} from './ui/loot-model.mjs';
 import {LootJournal,canonicalLootName} from './ui/loot-journal.mjs';
+import {nativeWindowGeometry} from './ui/capture-layout.mjs';
 import {selectGameWindow,sourceForWindow,validRegion,csvOfSessions} from './selection.mjs';
 import {PriceBridge} from './price-bridge.mjs';
 import {MarketClient,MARKET_OPTIONS,validMarket} from './market-client.mjs';
@@ -157,7 +158,7 @@ async function updateWindows(next,clients=next){
     if(source){
       const active=windows.find(window=>window.handle===target?.handle&&clientSession.matches(window));
       if(!active){finishCapture('windowChanged',false);}
-      else {target=active;positionOverlay();}
+      else {const before=JSON.stringify(nativeWindowGeometry(target));target=active;if(before!==JSON.stringify(nativeWindowGeometry(active)))captureWindow?.webContents.send('capture:update',{type:'geometry',token,geometry:nativeWindowGeometry(active)});positionOverlay();}
     }
     if(!source&&tracker.settings.autoTrack){
       const candidates=clientSession.client?windows.filter(window=>clientSession.matches(window)):windows;
@@ -335,7 +336,7 @@ else {
     });
     ipcMain.handle('capture:config',event=>{
       if(!ownRenderer(event,captureURL)||event.sender!==captureWindow?.webContents)throw Error('Origem inválida');
-      return{token,region:tracker.settings.region,diagnostics:!!diagnosticFile,saveImages:tracker.settings.saveLootImages!==false,lootCatalog:store.itemCatalog().map(({name,kind})=>({name,kind}))};
+      return{token,region:tracker.settings.region,windowGeometry:nativeWindowGeometry(target),diagnostics:!!diagnosticFile,saveImages:tracker.settings.saveLootImages!==false,lootCatalog:store.itemCatalog().map(({name,kind})=>({name,kind}))};
     });
     ipcMain.on('capture:sample',(event,message)=>{
       if(!ownRenderer(event,captureURL)||event.sender!==captureWindow?.webContents||message?.token!==token||!source||target?.minimized||message.confidence<60)return;
@@ -344,7 +345,7 @@ else {
     ipcMain.on('capture:status',(event,message)=>{
       if(!ownRenderer(event,captureURL)||event.sender!==captureWindow?.webContents||message?.token!==token)return;
       lastCaptureMessage=Date.now();phase=String(message.phase);detail=String(message.detail??'').slice(0,200);
-      if(diagnosticFile&&Array.isArray(message.diagnostic))try{fsSync.writeFileSync(diagnosticFile,JSON.stringify({phase,readAt:Date.now(),attempts:message.diagnostic.slice(0,4)}));}catch{}
+      if(diagnosticFile&&Array.isArray(message.diagnostic))try{fsSync.writeFileSync(diagnosticFile,JSON.stringify({phase,readAt:Date.now(),frame:message.frame,geometry:nativeWindowGeometry(target),attempts:message.diagnostic.slice(0,4)}));}catch{}
       if(phase==='ended')finishCapture('captureEnded',false);
       else if(phase==='resolution'){broadcast();}
       else broadcast();

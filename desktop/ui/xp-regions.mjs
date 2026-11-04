@@ -1,6 +1,7 @@
 import {defaultHudRegion} from '../../ocr-parser.js';
+import {hudStrokeRegions} from './capture-layout.mjs';
 
-export function hudReadRegions(width,height,saved=null){
+export function hudReadRegions(width,height,saved=null,geometry=null){
  if(saved)return[saved];
  const base=defaultHudRegion(width,height);
  const fit=(area,offset,pixelsWide,pixelsHigh)=>{const h=Math.min(area.height,pixelsHigh/height);return{...area,y:Math.min(1-h,area.y+offset/height),width:Math.min(area.width,pixelsWide/width),height:h};};
@@ -14,5 +15,6 @@ export function hudReadRegions(width,height,saved=null){
   const scaled=[0,32*scale].map(inset=>({x:0,y:(83*scale+inset)/height,width:Math.min(1,320*scale/width),height:21*scale/height})).filter(r=>r.y+r.height<=1);
   if(scale>1.4)regions.unshift(...scaled);else regions.push(...scaled);
  }
- return regions;
+ const native=geometry?hudStrokeRegions(width,height,geometry).filter(r=>r.native).map(({scale,...r})=>({...r,y:r.y+scale/height,height:21*scale/height})):[];
+ return [...native,...regions];
 }

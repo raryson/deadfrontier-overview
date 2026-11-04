@@ -30,7 +30,7 @@ function crop(canvas,x,y,w,h){const out=document.createElement('canvas');out.wid
 function captureLoot(){
  if(!video.videoWidth)return;
  const at=Date.now();let pixels,present=false;
- for(const area of lootLayout.candidates(video.videoWidth,video.videoHeight,at)){
+ for(const area of lootLayout.candidates(video.videoWidth,video.videoHeight,at,config?.windowGeometry)){
   detectorContext.drawImage(video,area.x*video.videoWidth,area.y*video.videoHeight,area.width*video.videoWidth,area.height*video.videoHeight,0,0,350,310);
   pixels=detectorContext.getImageData(0,0,350,310).data;if(looksLikeLoot(pixels,350,310)){present=true;lootLayout.found(area);break;}
  }
@@ -41,6 +41,7 @@ function persistCapture(){const item=queue.created;if(!item||persisted.has(item.
 bridge.subscribe(update=>{
  if(!['reset','region','clear'].includes(update.type)&&update.token!==config?.token)return;
  if(update.type==='imageSetting'){config.saveImages=update.enabled;return;}
+ if(update.type==='geometry'){config.windowGeometry=update.geometry;config.region=null;region=defaultHudRegion(video.videoWidth,video.videoHeight);gate.reset();scanBudget.reset();lootLayout.reset();lastScan=null;lastSample=null;epoch++;return;}
  if(update.type==='lootResolved'){queue.resolve(update.eventId);return;}
  if(update.type==='drain'){draining=true;clearInterval(frameTimer);recent.clear();stream?.getTracks().forEach(track=>track.stop());if(queue.size)void readLoot();else if(!lootBusy)bridge.loot({token:config.token,reading:{kind:'queue',pending:0,dropped:queue.dropped}});return;}
  if(update.type==='lootCapture'){
@@ -102,12 +103,12 @@ window.startCapture=async()=>{
     if(frameWidth!==video.videoWidth||frameHeight!==video.videoHeight){frameWidth=video.videoWidth;frameHeight=video.videoHeight;config.region=null;region=defaultHudRegion(frameWidth,frameHeight);gate.reset();scanBudget.reset();lastScan=null;lastSample=null;epoch++;sendStatus('resolution');}
     checkCtx.drawImage(video,0,0,48,27);const black=frameIsBlack(checkCtx.getImageData(0,0,48,27).data);
     if(black){missingSince=0;sendStatus(firstRead?'transition':'waitingHud');return;}
-    const revision=epoch,candidates=hudReadRegions(frameWidth,frameHeight,config.region?region:null);
+    const revision=epoch,candidates=hudReadRegions(frameWidth,frameHeight,config.region?region:null,config.windowGeometry);
     let best=null,diagnostic=[];
     if(lastScan&&Date.now()-lastScan.at<CAPTURE_LIMITS.cacheMs&&signature(lastScan.best.candidate)===lastScan.signature)best=lastScan.best;
     else{
      if(!config.region&&frameWidth>=320&&frameHeight>=136){
-      for(const candidate of hudStrokeRegions(frameWidth,frameHeight)){
+      for(const candidate of hudStrokeRegions(frameWidth,frameHeight,config.windowGeometry)){
        stamp.width=320;stamp.height=22;stampCtx.imageSmoothingEnabled=false;stampCtx.drawImage(video,candidate.x*frameWidth,candidate.y*frameHeight,candidate.width*frameWidth,candidate.height*frameHeight,0,0,320,22);const pixels=stampCtx.getImageData(0,0,320,22).data;
        const reading=readHudStrokes(pixels,320,22);if(reading){best={...reading,candidate,signature:signature(candidate)};diagnostic.push({text:reading.text,confidence:reading.confidence,method:reading.method,scale:candidate.scale});break;}
       }
@@ -122,7 +123,7 @@ window.startCapture=async()=>{
     if(accepted){region=best.candidate;lastSample=accepted;firstRead=true;missingSince=0;bridge.sample({token:config.token,sample:accepted,confidence:best.confidence});}
     if(!best)missingSince ||=Date.now();else missingSince=0;
     const phase=accepted?'reading':best?'confirming':!firstRead?'waitingHud':Date.now()-missingSince<15000?'transition':'unreadable';
-    bridge.status({token:config.token,phase,...(config.diagnostics?{diagnostic}:{})});
+    bridge.status({token:config.token,phase,...(config.diagnostics?{diagnostic,frame:{width:frameWidth,height:frameHeight}}:{})});
    }catch(error){sendStatus('error',error.message);}
    finally{
     if(previewRequested&&video.videoWidth){previewRequested=false;const canvas=document.createElement('canvas');canvas.width=Math.min(video.videoWidth,960);canvas.height=Math.round(canvas.width*video.videoHeight/video.videoWidth);canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);bridge.preview({token:config.token,image:canvas.toDataURL('image/jpeg',.6),width:video.videoWidth,height:video.videoHeight,region});}

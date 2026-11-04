@@ -1,7 +1,8 @@
-## Desktop 0.9.3 — white-text isolation on red loot dialogs
+## Desktop 0.9.4 — native client-area geometry for windowed capture
 
-- Add a colour-aware OCR fallback that suppresses the red tint and saturated scenery behind the translucent loot panel, then expands contrast around the neutral white letters.
-- Keep the original and contrast readings first, so an already agreed item name does not get replaced by a less accurate filtered reading with higher confidence.
-- Keep text-only crops, quantity/conflict checks, the eight-attempt encounter cap and capture FPS unchanged.
+- Use the detected client-area origin and size for HUD and loot crops. Windowed clients no longer depend only on fixed 0/32-pixel title-bar guesses.
+- Support full-window, visible-border, client-only and downscaled capture candidates, while retaining legacy fallbacks when native geometry is unavailable.
+- Refresh crop geometry when borders, DPI or client dimensions change, including when capture-frame dimensions stay the same. Moving a window without changing its client geometry does not reset calibration.
+- Include capture-frame dimensions and native client geometry in explicitly enabled local diagnostics. No screenshot uploads or additional capture FPS.
 
-Validation: targeted OCR/review tests passed and four private saved game crops retained the expected item names through OCR and journaling. One armour crop needed three passes instead of four in this small sample. This does not establish general OCR accuracy; other loot, lighting and UI scales still need testing. No private crops or session data are included.
+Validation: 86 desktop tests passed on Windows with one Unix-native test skipped locally. The real client at 1600×1024 was captured at 1602×1050; the corrected reader accepted its HUD and automatically started a session. Live XP gain and additional window/DPI configurations remain to be checked. Linux/macOS retain experimental status.

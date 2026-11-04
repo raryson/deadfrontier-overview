@@ -133,3 +133,7 @@ The live loot list has been removed. Use **Review session OCR** on the overview 
 For an explicitly separate live-test profile, start the app with `--data-dir ABSOLUTE_DIRECTORY`. It has its own history and preferences and leaves the default profile untouched. This option is independent of the fictional-data demo.
 
 The red/white pass suppresses red tint and saturated scenery while preserving neutral white glyphs. It runs as a bounded fallback after the original and contrast passes; it never replaces an already agreed name just because its confidence is higher. Four private saved crops retained the expected item names in a local end-to-end check. The same eight-attempt encounter cap applies.
+
+### Native client-area geometry (0.9.4)
+
+Windowed capture uses the detected client-area origin and dimensions instead of assuming that the title bar is 32 pixels high. The reader accounts for visible/invisible borders, client-only captures and capture scaling, and refreshes its candidates when client geometry changes. A real 1600×1024 client window successfully started a session with this correction. Explicit local diagnostic mode includes frame dimensions and geometry without uploading images.

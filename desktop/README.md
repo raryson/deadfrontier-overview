@@ -122,12 +122,14 @@ O painel tem navegação lateral, XP em destaque e loot antes do histórico. As 
 
 Para começar do zero, use Preferências → Limpar histórico. O app solicita confirmação e apaga sessões de XP e registros de loot, preservando preferências, pareamento, catálogo e preços. Também existe a opção local de manutenção --clear-history, que limpa esse histórico ao iniciar. Não há rota HTTP para apagar dados.
 
-## Adaptive capture and text OCR (0.9.2)
+## Adaptive capture and text OCR (0.9.3)
 
 The app uses the captured window's dimensions rather than assuming the monitor is 1920×1080. It tests proportional and common HUD scales, checks the loot dialog frame, remembers the matching crop and resets its geometry when the captured window is resized. A small extra detector crop runs at most every 200 ms during the scale search; capture remains capped at 15 FPS. Manual HUD calibration remains available for unusual layouts. Resolution/DPI changes on real clients still need validation beyond the tested geometries.
 
-Loot recognition starts with the first text line, then tries local contrast, sharpening and wider text strips for wrapped names/quantities. It does not OCR the item artwork. Known leading equipment colours are ignored for catalog matching; the original crop and OCR text remain local. There are at most four recognition passes per crop and eight per encounter, reduced when the queue is busy. Conflicting names or quantities remain reviewable. Four private game crops were checked through parsing and journaling; this is a small regression sample, not a general accuracy guarantee.
+Loot recognition starts with the first text line, then tries local contrast, red-background suppression and wider text strips for wrapped names/quantities. It does not OCR the item artwork. Known leading equipment colours are ignored for catalog matching; the original crop and OCR text remain local. There are at most four recognition passes per crop and eight per encounter, reduced when the queue is busy. Conflicting names or quantities remain reviewable. Four private game crops were checked through parsing and journaling; this is a small regression sample, not a general accuracy guarantee.
 
 The live loot list has been removed. Use **Review session OCR** on the overview to review the latest session, or **History → Session details** for earlier sessions. Unassigned captures remain accessible from History.
 
 For an explicitly separate live-test profile, start the app with `--data-dir ABSOLUTE_DIRECTORY`. It has its own history and preferences and leaves the default profile untouched. This option is independent of the fictional-data demo.
+
+The red/white pass suppresses red tint and saturated scenery while preserving neutral white glyphs. It runs as a bounded fallback after the original and contrast passes; it never replaces an already agreed name just because its confidence is higher. Four private saved crops retained the expected item names in a local end-to-end check. The same eight-attempt encounter cap applies.

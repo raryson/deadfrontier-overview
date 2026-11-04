@@ -3,7 +3,7 @@ export const LOOT_OCR_LIMITS=Object.freeze({perFrame:4,perEvent:8,backlogFrame:2
 export const LOOT_TEXT_PASSES=Object.freeze([
  {y:33,height:16,mode:'original',line:true},
  {y:33,height:16,mode:'contrast',line:true},
- {y:30,height:32,mode:'sharp',line:false},
+ {y:30,height:32,mode:'red-white',line:false},
  {y:30,height:48,mode:'contrast',line:false}
 ]);
 // Enhance only the saved text strip, never the whole game frame. Min-channel
@@ -11,7 +11,13 @@ export const LOOT_TEXT_PASSES=Object.freeze([
 export function enhanceLootText(pixels,width,height,mode='contrast'){
  if(pixels.length!==width*height*4||width<1||height<1)throw Error('Invalid text pixels');
  const gray=new Uint8Array(width*height),hist=new Uint32Array(256);
- for(let i=0;i<gray.length;i++){const j=i*4;gray[i]=Math.min(pixels[j],pixels[j+1],pixels[j+2]);hist[gray[i]]++;}
+ for(let i=0;i<gray.length;i++){
+  const j=i*4,r=pixels[j],g=pixels[j+1],b=pixels[j+2],minimum=Math.min(r,g,b),maximum=Math.max(r,g,b);
+  // Neutral white glyphs survive; red tint and saturated scenery are pushed
+  // toward the background before contrast expansion. Output is inverted for OCR.
+  gray[i]=mode==='red-white'?Math.max(0,minimum-.65*Math.max(0,r-Math.max(g,b))-.15*(maximum-minimum)):minimum;
+  hist[gray[i]]++;
+ }
  const percentile=f=>{let sum=0;for(let n=0;n<256;n++){sum+=hist[n];if(sum>=gray.length*f)return n;}return 255;};
  const low=percentile(.02),high=Math.max(low+32,percentile(.99));
  const out=new Uint8ClampedArray(pixels.length);

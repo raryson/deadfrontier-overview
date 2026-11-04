@@ -1,10 +1,7 @@
-## Desktop 0.9.2 — adaptive crops and item-focused OCR
+## Desktop 0.9.3 — white-text isolation on red loot dialogs
 
-- Use actual captured-window dimensions with proportional/common HUD scales and bounded loot-panel geometry search; reset calibration after resize. Keep capture at 15 FPS.
-- Focus loot OCR on the item text rather than artwork. Try line recognition, local contrast, sharpening and wrapped text crops, bounded to four passes per crop and eight per encounter; reduce work under backlog.
-- Ignore known leading equipment colours when matching catalog entries. Exact catalog names can survive damaged choice text; ambiguous names and quantities remain reviewable.
-- Remove the live loot list and add direct access to latest-session review. Preserve review of historical and unassigned captures.
-- Keep the 0.9.1 fix for yellow/over-target XP and manual market sync limits.
-- Allow a separate live profile through --data-dir ABSOLUTE_DIRECTORY for isolated testing.
+- Add a colour-aware OCR fallback that suppresses the red tint and saturated scenery behind the translucent loot panel, then expands contrast around the neutral white letters.
+- Keep the original and contrast readings first, so an already agreed item name does not get replaced by a less accurate filtered reading with higher confidence.
+- Keep text-only crops, quantity/conflict checks, the eight-attempt encounter cap and capture FPS unchanged.
 
-Validation: 87 shared tests and 82 desktop tests passed on Windows, with one Unix-native test skipped locally. Four private game crops were recognized and journaled with the expected item names; images and databases are excluded from packages. Real-client resizing, DPI changes and additional loot types still need community testing. Linux/macOS remain experimental with the existing X11, Screen Recording and signing limitations.
+Validation: targeted OCR/review tests passed and four private saved game crops retained the expected item names through OCR and journaling. One armour crop needed three passes instead of four in this small sample. This does not establish general OCR accuracy; other loot, lighting and UI scales still need testing. No private crops or session data are included.

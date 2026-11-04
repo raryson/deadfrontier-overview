@@ -31,3 +31,15 @@ test('text contrast and sharpening preserve dimensions and avoid bogus text on f
  for(const mode of ['contrast','sharp']){const output=enhanceLootText(pixels,20,20,mode);assert.equal(output.length,pixels.length);for(let i=0;i<output.length;i+=4){assert.equal(output[i],255);assert.equal(output[i+3],255);}}
  assert.throws(()=>enhanceLootText(new Uint8Array(4),20,20));
 });
+
+test('red panel suppression separates white text from a bright red background',()=>{
+ const width=40,height=16,pixels=new Uint8ClampedArray(width*height*4);
+ for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+  const white=x>=16&&x<=19&&y>=3&&y<=12,i=(y*width+x)*4;
+  pixels[i]=210;pixels[i+1]=white?210:95;pixels[i+2]=white?210:70;pixels[i+3]=255;
+ }
+ const out=enhanceLootText(pixels,width,height,'red-white');
+ assert.equal(out[(7*width+17)*4],0);assert.equal(out[(7*width+5)*4],255);
+ const selected=chooseLootRead([{text:'YOU HAVE FOUND A VSE VINTOREZ. WRL YOU TAKE',confidence:95},{text:'YOU HAVE FOUND A VSS VINTOREZ. WILL YOU TAKE IT?',confidence:79}],catalog);
+ assert.equal(selected.known,true);assert.match(selected.text,/A VSS VINTOREZ/);
+});

@@ -1,8 +1,6 @@
-## Desktop 0.9.4 — native client-area geometry for windowed capture
+## Desktop 0.9.5 — distinguish outlined HUD digits 3 and 8
 
-- Use the detected client-area origin and size for HUD and loot crops. Windowed clients no longer depend only on fixed 0/32-pixel title-bar guesses.
-- Support full-window, visible-border, client-only and downscaled capture candidates, while retaining legacy fallbacks when native geometry is unavailable.
-- Refresh crop geometry when borders, DPI or client dimensions change, including when capture-frame dimensions stay the same. Moving a window without changing its client geometry does not reset calibration.
-- Include capture-frame dimensions and native client geometry in explicitly enabled local diagnostics. No screenshot uploads or additional capture FPS.
+- Correct the digit-3 outline constraints so the closed left strokes of an 8 are not mistaken for a 3 in the lightweight HUD reader.
+- Keep the native client-area geometry correction from 0.9.4 and the existing capture/OCR budgets.
 
-Validation: 86 desktop tests passed on Windows with one Unix-native test skipped locally. The real client at 1600×1024 was captured at 1602×1050; the corrected reader accepted its HUD and automatically started a session. Live XP gain and additional window/DPI configurations remain to be checked. Linux/macOS retain experimental status.
+Validation: the live window's exact XP readout was checked against a private local crop, including adjacent vertical crop offsets. Earlier raw-XP, bright-background and over-target Onslaught crops retained their expected readings. All 86 desktop tests passed on Windows with one Unix-native test skipped locally. No screenshots, session databases or credentials are included.

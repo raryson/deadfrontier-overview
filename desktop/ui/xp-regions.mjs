@@ -9,5 +9,10 @@ export function hudReadRegions(width,height,saved=null){
  const variants=area=>[fit(area,5,220,17),fit(area,3,280,21),area];
  const regions=variants(base);
  if(base.y*height<85)regions.push(...variants({...base,y:Math.min(112/height,1-base.height)}));
+ const scale=Math.min(width/1920,height/1080);
+ if(Math.abs(scale-1)>.05&&scale>=.25&&scale<=3){
+  const scaled=[0,32*scale].map(inset=>({x:0,y:(83*scale+inset)/height,width:Math.min(1,320*scale/width),height:21*scale/height})).filter(r=>r.y+r.height<=1);
+  if(scale>1.4)regions.unshift(...scaled);else regions.push(...scaled);
+ }
  return regions;
 }

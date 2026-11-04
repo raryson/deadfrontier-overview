@@ -41,37 +41,10 @@ function render(){
     const values=[date.toLocaleDateString(language.locale)+'\n'+date.toLocaleTimeString(language.locale,{hour:'2-digit',minute:'2-digit'}),number(entry.gained),number(entry.perHour),duration(entry.elapsed),entry.baseAvailable?number(entry.baseGained):'—',entry.baseAvailable?number(entry.basePerHour):'—',number(entry.lost),number(state.lootCounts?.find(row=>row.sessionId===entry.id)?.identified??0),priceSummary(state.pricing?.sessions?.[entry.id]),[language.t(entry.running?'running':'stopped'),!entry.running&&entry.reason==='gameClosed'?language.t('clientClosedReason'):'',entry.basePartial?language.t('partial'):'',entry.gap?language.t('gap'):''].filter(Boolean).join(' · ')];
     for(const text of values){const cell=document.createElement('td');cell.textContent=text;row.append(cell);}const action=document.createElement('td'),button=document.createElement('button');button.textContent=language.t('sessionDetails');button.onclick=()=>sessionView.open(entry.id);action.append(button);row.prepend(action);$('sessions').append(row);
   }
-  const accepted=state.lootCounts?.find(row=>row.sessionId===(xp?.session?.id??null))?.identified??0;
-  $('loot-count').textContent=language.t(xp?.session?.id?'lootAccepted':'lootUnassignedAccepted',{count:number(accepted)});
-  $('loot-pending').textContent=state.lootQueueDropped?language.t('lootQueueDropped',{count:state.lootQueueDropped}):Date.now()-(state.lootManualAt??0)<4000?language.t('lootManualQueued'):state.pendingLoot?language.t('lootPending',{item:state.pendingLoot.item}):state.lootProcessing?language.t('lootQueue',{count:state.lootQueueSize??0}):state.lootCaptureWarning?language.t('lootReadMissed'):state.lootSearching?language.t('lootAnticipating'):'';
   const summary=state.pricing?.sessions?.[xp?.session?.id??'unassigned'];
-  $('overview-loot-value').textContent=money((summary?.cash??0)+(summary?.estimated??0));$('overview-history-count').textContent=number(state.sessionCount);$('overview-unpriced').textContent=number(summary?.unpriced??0);
-  $('loot-cash').textContent=money(summary?.cash??0);$('loot-estimate').textContent=money(summary?.estimated??0);$('loot-unpriced').textContent=number(summary?.unpriced??0);
-  $('loot-empty').hidden=!!state.loot?.length;
-  if(!$('loot-rows').contains(document.activeElement)){
-    $('loot-rows').replaceChildren();
-    for(const entry of state.loot??[]){
-      const row=document.createElement('tr');for(const value of [new Date(entry.foundAt).toLocaleString(language.locale),(entry.item||language.t(entry.status))+(entry.quantity?' · '+number(entry.quantity)+(entry.unit==='ml'?' ml':' ×'):''),language.t(entry.pickupEvidence==='user-confirmed'?'lootUserConfirmed':entry.status)]){const cell=document.createElement('td');cell.textContent=value;row.append(cell);}
-      if(entry.hasImage){const image=document.createElement('img');image.src=sessionView.image(entry);image.className='loot-thumb';image.loading='lazy';image.alt=language.t('lootImage');image.onclick=()=>sessionView.open(entry.sessionId??'unassigned',0,entry);row.children[1].prepend(image);}
-      if(entry.rawItem&&row.children[1])row.children[1].title='OCR: '+entry.rawItem;
-      const valuation=entry.valuation,cell=document.createElement('td');cell.textContent=valuation?.value!=null?money(valuation.value)+(valuation.reason==='yard'?' · Yard':valuation.reason==='estimated'?' · '+language.t('priceMarketSource'):''):language.t('priceReason_'+(valuation?.reason??'noQuote'));
-      if(valuation?.quote)cell.title=`${valuation.quote.market.label} · ${new Date(valuation.quote.observedAt).toLocaleString(language.locale)} · ${valuation.quote.samples} · ${valuation.quote.name}`;
-      if(entry.status==='unconfirmed'||entry.pickupEvidence==='user-confirmed'){
-        const button=document.createElement('button');button.textContent=language.t(entry.pickupEvidence==='user-confirmed'?'lootUndoConfirm':'lootConfirm');button.onclick=()=>act(entry.pickupEvidence==='user-confirmed'?'lootUndoConfirm':'lootConfirm',{id:entry.id});cell.append(document.createElement('br'),button);
-      }
-      if(entry.quantity||entry.quantityUncertain||valuation?.reason==='quantityUnknown'||!entry.cash&&(entry.status==='unconfirmed'||entry.pickupEvidence==='user-confirmed')){
-        const form=document.createElement('form'),input=document.createElement('input'),button=document.createElement('button');form.className='quantity-form';input.type='number';input.min='1';input.max='1000000000';input.required=true;input.setAttribute('aria-label',language.t('priceQuantity'));button.textContent=language.t('priceQuantitySave');
-        input.value=entry.quantity??'';form.append(input,button);form.onsubmit=async event=>{event.preventDefault();await act('priceQuantity',{id:entry.id,quantity:Number(input.value)});document.activeElement?.blur();render();};cell.append(form);
-      }
-      if(valuation?.equipment){
-        const select=document.createElement('select');select.setAttribute('aria-label',language.t('priceEquipmentSource'));select.append(new Option('Yard / NPC',''));
-        for(const quote of state.pricing.catalog.filter(q=>q.source==='market'&&q.itemId.startsWith(valuation.equipment.itemId+'_')))select.append(new Option(`${language.t('priceCustomMarket')} · ${quote.itemId}`,quote.itemId));
-        select.value=entry.priceMode==='market'?entry.priceItemId:'';
-        select.title=language.t('priceCustomHint');select.onchange=async()=>{await act('priceEquipmentVariant',{id:entry.id,itemId:select.value||null});document.activeElement?.blur();render();};cell.append(select);
-      }
-      const review=document.createElement('button');review.textContent=language.t('reviewLoot');review.onclick=()=>sessionView.open(entry.sessionId??'unassigned',0,entry);cell.append(document.createElement('br'),review);row.append(cell);$('loot-rows').append(row);
-    }
-  }
+  $('overview-history-count').textContent=number(state.sessionCount);$('overview-unpriced').textContent=number(summary?.unpriced??0);
+  $('overview-review').disabled=!state.history.length&&!state.loot?.length;
+  $('review-unassigned').hidden=!(state.lootCounts??[]).some(row=>row.sessionId==null&&row.found>0);
   renderPrices();sessionView.update();
   if(state.preview&&state.preview.image!==previewImage?.src){const generation=++drawGeneration;const image=new Image();image.onload=()=>{if(drawGeneration!==generation)return;previewImage=image;drawPreview();};image.src=state.preview.image;}
 }
@@ -117,13 +90,13 @@ $('price-alias-form').onsubmit=event=>{event.preventDefault();act('priceAlias',{
 api.subscribe(value=>{state=value;render();});state=await api.read();render();
 setInterval(()=>{if(state?.experience?.session?.running){const stats=experienceStats(state.experience);$('elapsed').textContent=duration(stats.elapsed);$('rate').textContent=number(stats.perHour);if(state.experience.multiplier||stats.baseGained>0)$('base-rate').textContent=number(stats.basePerHour);}},1000);
 
-const pages={overview:['navOverview','pageOverviewHint'],loot:['navLoot','pageLootHint'],history:['history','pageHistoryHint'],market:['priceTitle','pageMarketHint'],aliases:['navAliases','pageAliasesHint'],settings:['navSettings','pageSettingsHint'],session:['sessionDetails','sessionDetailsHint']};
+const pages={overview:['navOverview','pageOverviewHint'],history:['history','pageHistoryHint'],market:['priceTitle','pageMarketHint'],aliases:['navAliases','pageAliasesHint'],settings:['navSettings','pageSettingsHint'],session:['sessionDetails','sessionDetailsHint']};
 function navigate(page,focus=false){
- if(!Object.hasOwn(pages,page))page='overview';
+ if(page==='loot')page='history';if(!Object.hasOwn(pages,page))page='overview';
  for(const view of document.querySelectorAll('[data-view]'))view.hidden=view.dataset.view!==page;
  for(const button of document.querySelectorAll('.nav-button')){const active=button.dataset.page===(page==='session'?'history':page);button.classList.toggle('active',active);if(active)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');}
  $('view-title').dataset.text=pages[page][0];$('view-description').dataset.text=pages[page][1];
- $('view-title').textContent=language.t(pages[page][0]);$('view-description').textContent=language.t(pages[page][1]);$('view-number').textContent=String(Object.keys(pages).indexOf(page==='session'?'history':page)+1).padStart(2,'0')+' / 06';
+ $('view-title').textContent=language.t(pages[page][0]);$('view-description').textContent=language.t(pages[page][1]);$('view-number').textContent=String(Object.keys(pages).indexOf(page==='session'?'history':page)+1).padStart(2,'0')+' / 05';
  try{localStorage.setItem('overview.page',page==='session'?'history':page);}catch{}
  window.scrollTo({top:0,behavior:'instant'});if(focus)$('view-title').focus({preventScroll:true});
 }
@@ -135,3 +108,7 @@ $('price-query-form').onsubmit=event=>{event.preventDefault();act('priceQuery',{
 $('price-refresh').onclick=()=>act('priceRefresh');
 
 $('save-images').onchange=()=>act('saveLootImages',$('save-images').checked);
+
+$('overview-review').onclick=async()=>{await sessionView.open(state.history[0]?.id??'unassigned');await sessionView.startBatch();};
+
+$('review-unassigned').onclick=()=>sessionView.open('unassigned');

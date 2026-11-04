@@ -4,7 +4,7 @@
 
 Prévia **0.9.0** do aplicativo desktop. O addon da cidade continua separado e funcionando; esta etapa migra o acompanhamento de XP e sessões para uma aplicação Windows independente do navegador.
 
-[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.9.0/deadfrontier-overview-windows-0.9.0.zip)
+[Baixar o app Windows portátil](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.9.1/deadfrontier-overview-windows-0.9.1.zip)
 
 ## Linux e macOS experimentais
 
@@ -24,11 +24,11 @@ Atalhos: **Alt+Shift+D** abre/oculta o painel; **Alt+Shift+O** liga/desliga o ov
 
 ## Preços e loot
 
-Em **Preços do mercado**, Secronom Bunker / Outposts é o padrão. Escolha outra região no próprio app. Não precisa de código, login ou navegador para consultar. Equipamentos comuns usam Yard/NPC; consumíveis e munição usam anúncios públicos. Gasoline usa ml. Para testar, consulte **Gasoline** manualmente e abra as referências. O app prepara cotações ao reconhecer os loots e soma o valor potencial dos itens identificados com quantidade conhecida. Veja o [guia de preços](../docs/prices.md).
+Em **Preços do mercado**, Secronom Bunker / Outposts é o padrão. Escolha outra região no próprio app. Não precisa de código, login ou navegador para consultar. Equipamentos comuns usam Yard/NPC; consumíveis e munição usam anúncios públicos. Gasoline usa ml. Para testar, consulte **Gasoline** manualmente e abra as referências. As cotações são consultadas somente ao clicar, para a sessão escolhida dos últimos sete dias. O app soma o valor potencial dos itens identificados com quantidade conhecida. Veja o [guia de preços](../docs/prices.md).
 
 ## Navegação
 
-O menu lateral abre uma tela por vez: **Visão geral**, **Loot ao vivo**, **Histórico de sessões**, **Preços do mercado**, **Associações** e **Preferências**. A visão geral reúne XP e atalhos para as outras telas. A página de associações lista os nomes já salvos; a integração opcional com a extensão fica em Preferências.
+O menu lateral abre uma tela por vez: **Visão geral**, **Histórico de sessões**, **Preços do mercado**, **Associações** e **Preferências**. A visão geral reúne XP e atalhos para as outras telas. A página de associações lista os nomes já salvos; a integração opcional com a extensão fica em Preferências.
 
 A última tela usada fica lembrada neste computador. Trocar de tela mantém o acompanhamento e os formulários; não reinicia a captura nem a sessão. A indicação de leitura permanece no rodapé do menu.
 
@@ -121,3 +121,13 @@ Veja [o guia de conexão com a extensão](../docs/prices.md). Equipamentos comun
 O painel tem navegação lateral, XP em destaque e loot antes do histórico. As cores permanecem em carvão, cobre/laranja e vermelho escuro. O overlay continua no canto inferior direito.
 
 Para começar do zero, use Preferências → Limpar histórico. O app solicita confirmação e apaga sessões de XP e registros de loot, preservando preferências, pareamento, catálogo e preços. Também existe a opção local de manutenção --clear-history, que limpa esse histórico ao iniciar. Não há rota HTTP para apagar dados.
+
+## Adaptive capture and text OCR (0.9.2)
+
+The app uses the captured window's dimensions rather than assuming the monitor is 1920×1080. It tests proportional and common HUD scales, checks the loot dialog frame, remembers the matching crop and resets its geometry when the captured window is resized. A small extra detector crop runs at most every 200 ms during the scale search; capture remains capped at 15 FPS. Manual HUD calibration remains available for unusual layouts. Resolution/DPI changes on real clients still need validation beyond the tested geometries.
+
+Loot recognition starts with the first text line, then tries local contrast, sharpening and wider text strips for wrapped names/quantities. It does not OCR the item artwork. Known leading equipment colours are ignored for catalog matching; the original crop and OCR text remain local. There are at most four recognition passes per crop and eight per encounter, reduced when the queue is busy. Conflicting names or quantities remain reviewable. Four private game crops were checked through parsing and journaling; this is a small regression sample, not a general accuracy guarantee.
+
+The live loot list has been removed. Use **Review session OCR** on the overview to review the latest session, or **History → Session details** for earlier sessions. Unassigned captures remain accessible from History.
+
+For an explicitly separate live-test profile, start the app with `--data-dir ABSOLUTE_DIRECTORY`. It has its own history and preferences and leaves the default profile untouched. This option is independent of the fictional-data demo.

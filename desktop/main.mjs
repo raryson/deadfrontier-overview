@@ -26,6 +26,8 @@ const localTest=demo||selfTest;
 const diagnosticArgument=process.argv.indexOf('--diagnostic-file');
 const diagnosticFile=diagnosticArgument>=0&&path.isAbsolute(process.argv[diagnosticArgument+1]??'')?process.argv[diagnosticArgument+1]:null;
 app.setName('DeadFrontier Overview');
+const profileArgument=process.argv.indexOf('--data-dir');
+if(!localTest&&profileArgument>=0){const profileDirectory=process.argv[profileArgument+1];if(!path.isAbsolute(profileDirectory??''))throw Error('--data-dir requires an absolute path');fsSync.mkdirSync(profileDirectory,{recursive:true});app.setPath('userData',profileDirectory);}
 if(localTest){
   const argument=process.argv.indexOf('--test-data');
   const testDirectory=argument>=0&&path.isAbsolute(process.argv[argument+1]??'')?process.argv[argument+1]:
@@ -333,7 +335,7 @@ else {
     });
     ipcMain.handle('capture:config',event=>{
       if(!ownRenderer(event,captureURL)||event.sender!==captureWindow?.webContents)throw Error('Origem inválida');
-      return{token,region:tracker.settings.region,diagnostics:!!diagnosticFile,saveImages:tracker.settings.saveLootImages!==false};
+      return{token,region:tracker.settings.region,diagnostics:!!diagnosticFile,saveImages:tracker.settings.saveLootImages!==false,lootCatalog:store.itemCatalog().map(({name,kind})=>({name,kind}))};
     });
     ipcMain.on('capture:sample',(event,message)=>{
       if(!ownRenderer(event,captureURL)||event.sender!==captureWindow?.webContents||message?.token!==token||!source||target?.minimized||message.confidence<60)return;

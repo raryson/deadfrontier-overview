@@ -1,14 +1,17 @@
 import Tesseract from '../../vendor/ocr/tesseract.esm.min.js';
 import {parseHudXp,createOcrGate,defaultHudRegion} from '../../ocr-parser.js';
-import {lootRegion} from './loot-model.mjs';
+import {isStackLoot} from './loot-model.mjs';
 import {LootFrames} from './loot-frames.mjs';
-import {parseLootPrompt} from './loot-journal.mjs';
+import {parseLootReading} from './loot-journal.mjs';
 import {LootSnapshotQueue,frameIsBlack,looksLikeLoot,lootFingerprint} from './loot-snapshots.mjs';
 import {hudReadRegions} from './xp-regions.mjs';
 import {CAPTURE_LIMITS,HudScanBudget,pixelSignature} from './capture-budget.mjs';
 import {readHudStrokes} from './hud-strokes.mjs';
+import {LootLayoutSearch,hudStrokeRegions} from './capture-layout.mjs';
+import {enhanceLootText,chooseLootRead,LOOT_OCR_LIMITS,LOOT_TEXT_PASSES} from './loot-ocr.mjs';
 const bridge=window.captureBridge,video=document.getElementById('game'),gate=createOcrGate(),queue=new LootSnapshotQueue(),recent=new LootFrames(CAPTURE_LIMITS.recentFrames),persisted=new Set(),scanBudget=new HudScanBudget();
 const detector=document.createElement('canvas');detector.width=350;detector.height=310;const detectorContext=detector.getContext('2d',{willReadFrequently:true});
+const lootLayout=new LootLayoutSearch(),lootAttempts=new Map();
 let lootWorkers=[];
 let draining=false,config,region,worker,lootWorker,lootInitializing=false,lootIdleTimer=null,stream,frameTimer,frameWidth=0,frameHeight=0,epoch=0,previewRequested=false,lootBusy=0,lootWake,firstRead=false,missingSince=0,lastSample=null,lastScan=null;
 const sendStatus=(phase,detail='')=>bridge.status({token:config?.token,phase,detail:String(detail).slice(0,200)});
@@ -26,8 +29,11 @@ const bytes=canvas=>new Promise((resolve,reject)=>canvas.toBlob(async blob=>{if(
 function crop(canvas,x,y,w,h){const out=document.createElement('canvas');out.width=Math.round(w);out.height=Math.round(h);out.getContext('2d').drawImage(canvas,x,y,w,h,0,0,out.width,out.height);return out;}
 function captureLoot(){
  if(!video.videoWidth)return;
- const area=lootRegion(video.videoWidth,video.videoHeight);detectorContext.drawImage(video,area.x*video.videoWidth,area.y*video.videoHeight,area.width*video.videoWidth,area.height*video.videoHeight,0,0,350,310);
- const pixels=detectorContext.getImageData(0,0,350,310).data,at=Date.now(),present=looksLikeLoot(pixels,350,310);
+ const at=Date.now();let pixels,present=false;
+ for(const area of lootLayout.candidates(video.videoWidth,video.videoHeight,at)){
+  detectorContext.drawImage(video,area.x*video.videoWidth,area.y*video.videoHeight,area.width*video.videoWidth,area.height*video.videoHeight,0,0,350,310);
+  pixels=detectorContext.getImageData(0,0,350,310).data;if(looksLikeLoot(pixels,350,310)){present=true;lootLayout.found(area);break;}
+ }
  if(!present){queue.offer(null,at,false);return;}
  const canvas=crop(detector,0,0,350,310),frame=recent.push(canvas,at);frame.present=true;frame.eventId=queue.offer(canvas,at,true,lootFingerprint(pixels));persistCapture();if(queue.size)lootWake?.();
 }
@@ -55,20 +61,20 @@ async function readLoot(ocr=lootWorker){
  try{
   let job;while(job=queue.next()){
    bridge.loot({token:config.token,reading:{kind:'queue',pending:queue.size+1,dropped:queue.dropped}});
-   let best=null,lastText='';const quantities=[];
-   const height=job.at-job.capturedAt>=120?65:42;
-   const prompt=crop(job.canvas,35,30,280,height),large=document.createElement('canvas');large.width=1120;large.height=height*4;const ctx=large.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.drawImage(prompt,0,0,large.width,large.height);
-   for(const threshold of [null,80,110]){
-    if(threshold===110&&!quantities.length)break;
-    const result=await ocr.recognize(await bytes(filter(large,threshold))),text=result.data.text,parsed=parseLootPrompt(text);lastText=text;if(!parsed)continue;
-    if(parsed.quantity)quantities.push(parsed.quantity);
-    if(!best||result.data.confidence>best.confidence)best={text,confidence:result.data.confidence};
-    if(result.data.confidence>=85&&!parsed.quantity)break;
+   let best=null,lastText='';const reads=[],limit=queue.size>6?LOOT_OCR_LIMITS.backlogFrame:LOOT_OCR_LIMITS.perFrame;
+   for(const pass of LOOT_TEXT_PASSES.slice(0,limit)){
+    const count=lootAttempts.get(job.eventId)??0;if(count>=LOOT_OCR_LIMITS.perEvent)break;lootAttempts.set(job.eventId,count+1);while(lootAttempts.size>200)lootAttempts.delete(lootAttempts.keys().next().value);
+    const prompt=crop(job.canvas,35,pass.y,280,pass.height),pc=prompt.getContext('2d',{willReadFrequently:true});
+    if(pass.mode!=='original'){const image=pc.getImageData(0,0,prompt.width,prompt.height);image.data.set(enhanceLootText(image.data,prompt.width,prompt.height,pass.mode));pc.putImageData(image,0,0);}
+    const large=document.createElement('canvas');large.width=1120;large.height=pass.height*4;const ctx=large.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.drawImage(prompt,0,0,large.width,large.height);
+    await ocr.setParameters({tessedit_pageseg_mode:pass.line?Tesseract.PSM.SINGLE_LINE:Tesseract.PSM.SINGLE_BLOCK});
+    const result=await ocr.recognize(await bytes(large));lastText=result.data.text;reads.push({text:lastText,confidence:result.data.confidence});best=chooseLootRead(reads,config.lootCatalog);
+    const parsed=best&&parseLootReading(best.text,config.lootCatalog);
+    if(best?.known&&best.agreement>=2&&best.confidence>=75&&!best.nameConflict&&(!isStackLoot(parsed)||best.quantityConfidence>=90&&!best.quantityConflict))break;
    }
    if(job.generation!==queue.generation)continue;
-   const quantityConflict=new Set(quantities).size>1;
-   if(best){const parsed=parseLootPrompt(best.text);bridge.loot({token:config.token,reading:{kind:'snapshot',manual:job.manual,eventId:job.eventId,capturedAt:job.capturedAt,frameAt:job.at,...best,...(config.saveImages?{imageData:job.canvas.toDataURL('image/jpeg',.85)}:{}),quantityConflict,quantityConfidence:!quantityConflict&&parsed?.quantity&&quantities.filter(q=>q===parsed.quantity).length>=2?95:0}});}
-   if(best?.confidence>=85&&(!parseLootPrompt(best.text)?.quantity||!quantityConflict&&quantities.filter(q=>q===parseLootPrompt(best.text)?.quantity).length>=2))queue.complete(job.eventId);
+   if(best)bridge.loot({token:config.token,reading:{kind:'snapshot',manual:job.manual,eventId:job.eventId,capturedAt:job.capturedAt,frameAt:job.at,...best,...(config.saveImages?{imageData:job.canvas.toDataURL('image/jpeg',.85)}:{})}});
+   if(best?.known&&best.agreement>=2&&!best.nameConflict&&best.confidence>=85&&(!isStackLoot(parseLootReading(best.text,config.lootCatalog))||best.quantityConfidence>=90&&!best.quantityConflict))queue.complete(job.eventId);
    if(!best)bridge.loot({token:config.token,reading:{kind:'ocrFailed',eventId:job.eventId,capturedAt:job.capturedAt,text:lastText.slice(0,1200)}});
    bridge.loot({token:config.token,reading:{kind:'queue',pending:queue.size+lootBusy-1,dropped:queue.dropped}});
   }
@@ -79,6 +85,7 @@ window.startCapture=async()=>{
  try{
   config=await bridge.config();stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:{ideal:CAPTURE_LIMITS.fps,max:CAPTURE_LIMITS.fps}},audio:false});stream.getVideoTracks()[0].addEventListener('ended',()=>{if(!draining)sendStatus('ended');});video.srcObject=stream;await video.play();
   frameWidth=video.videoWidth;frameHeight=video.videoHeight;const saved=config.region;region=saved&&saved.sourceWidth===frameWidth&&saved.sourceHeight===frameHeight?saved:defaultHudRegion(frameWidth,frameHeight);
+  if(saved&&(saved.sourceWidth!==frameWidth||saved.sourceHeight!==frameHeight))config.region=null;
   // Capture starts before WASM initialization. The FIFO owns frozen crops;
   // closing a dialog or holding F never cancels its asynchronous OCR.
   const initializeLoot=async()=>{if(lootWorker||lootInitializing)return;lootInitializing=true;try{const reader=await Tesseract.createWorker('eng',1,workerOptions);await reader.setParameters({tessedit_pageseg_mode:Tesseract.PSM.SINGLE_BLOCK,user_defined_dpi:'300'});lootWorker=reader;lootWorkers.push(reader);void readLoot(reader);}catch{sendStatus('error','Não foi possível iniciar o leitor de itens.');}finally{lootInitializing=false;}};
@@ -100,10 +107,9 @@ window.startCapture=async()=>{
     if(lastScan&&Date.now()-lastScan.at<CAPTURE_LIMITS.cacheMs&&signature(lastScan.best.candidate)===lastScan.signature)best=lastScan.best;
     else{
      if(!config.region&&frameWidth>=320&&frameHeight>=136){
-      for(const y of [82,114]){
-       const candidate={x:0,y:y/frameHeight,width:320/frameWidth,height:22/frameHeight};
-       stamp.width=320;stamp.height=22;stampCtx.drawImage(video,0,y,320,22,0,0,320,22);const pixels=stampCtx.getImageData(0,0,320,22).data;
-       const reading=readHudStrokes(pixels,320,22);if(reading){best={...reading,candidate,signature:pixelSignature(pixels)};diagnostic.push({text:reading.text,confidence:reading.confidence,method:reading.method});break;}
+      for(const candidate of hudStrokeRegions(frameWidth,frameHeight)){
+       stamp.width=320;stamp.height=22;stampCtx.imageSmoothingEnabled=false;stampCtx.drawImage(video,candidate.x*frameWidth,candidate.y*frameHeight,candidate.width*frameWidth,candidate.height*frameHeight,0,0,320,22);const pixels=stampCtx.getImageData(0,0,320,22).data;
+       const reading=readHudStrokes(pixels,320,22);if(reading){best={...reading,candidate,signature:signature(candidate)};diagnostic.push({text:reading.text,confidence:reading.confidence,method:reading.method,scale:candidate.scale});break;}
       }
      }
      if(!best)for(const {area:candidate,threshold} of scanBudget.attempts(candidates)){

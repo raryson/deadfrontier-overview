@@ -28,7 +28,14 @@
       return credentials;
     } finally { clearTimeout(timeout); }
   }
-  const actions = { 'deposit-all': ['deposit', '9999999999999'], 'withdraw-all': ['withdraw', '100000000000000000'], balances: [] };
+  const actions = {
+    'deposit-all': ['deposit', '9999999999999'],
+    'withdraw-all': ['withdraw', '100000000000000000'],
+    'withdraw-10000': ['withdraw', '10000'],
+    'withdraw-50000': ['withdraw', '50000'],
+    'withdraw-100000': ['withdraw', '100000'],
+    balances: []
+  };
   const respond = (requestId, result) => window.postMessage({ type: 'fairview-bank-result', requestId, ...result }, location.origin);
   window.addEventListener('message', async event => {
     // Firefox sets source=null for postMessage sent by a privileged content script.

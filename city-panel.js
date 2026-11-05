@@ -11,7 +11,7 @@ export async function mountCityPanel(api,onBank) {
   const preferences=await api.storage.local.get(['language','cityPanel']);
   let lang=resolveLanguage(preferences.language,navigator.languages), c=copy[lang]??copy.en;
   let state={}, balances=null, quickBusy=false, activeQuote=null, quoteTimer, selectedButton;
-  const settings={collapsed:false,mapOpen:window.innerWidth>=1700,...preferences.cityPanel};
+  const settings={collapsed:false,mapOpen:window.innerWidth>=1780,...preferences.cityPanel};
   const host=document.createElement('div');host.id='df-overview-city';
   const shadow=host.attachShadow({mode:'closed'});
   const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href=api.runtime.getURL('city-panel.css');shadow.append(stylesheet);
@@ -26,6 +26,9 @@ export async function mountCityPanel(api,onBank) {
   const section=title=>{const node=el('section');node.append(el('h2',title));body.append(node);return node;};
   const bank=section(c.bank),bankGrid=el('div',null,'grid');
   bankGrid.append(button(c.deposit,()=>onBank('deposit-all'),'primary'),button(c.withdraw,()=>onBank('withdraw-all')));bank.append(bankGrid);
+  const fixedWithdrawals=el('div',null,'withdrawals');
+  for(const amount of [10000,50000,100000])fixedWithdrawals.append(button(`${lang==='pt'?'Sacar':'Withdraw'} ${money(amount)}`,()=>onBank(`withdraw-${amount}`)));
+  bank.append(fixedWithdrawals);
   bank.append(button(c.balance,()=>onBank('balances'),'text-button'));
   const bankBalances=el('p',null,'balances'),bankStatus=el('p',null,'status');bankStatus.setAttribute('role','status');bank.append(bankBalances,bankStatus);
   const buffs=section(c.buffs),buffList=el('div',null,'buffs');buffs.append(buffList);
@@ -51,13 +54,13 @@ export async function mountCityPanel(api,onBank) {
   dialog.addEventListener('close',()=>{clearTimeout(quoteTimer);selectedButton?.focus();});
   shadow.append(panel,map,tools,dialog);document.documentElement.append(host);
   // Reserve space only when there is enough width for the original fixed-width game.
-  const layoutStyle=el('style');layoutStyle.textContent='@media(min-width:1400px){html.dfov-city-open body{box-sizing:border-box;padding-right:320px!important}html.dfov-city-map body{padding-left:330px!important}}';document.documentElement.append(layoutStyle);
+  const layoutStyle=el('style');layoutStyle.textContent='@media(min-width:1400px){html.dfov-city-open body{box-sizing:border-box;padding-right:320px!important}html.dfov-city-map body{padding-left:410px!important}}';document.documentElement.append(layoutStyle);
   function layout() {
     body.hidden=settings.collapsed;collapse.textContent=settings.collapsed?'+':'−';collapse.title=settings.collapsed?c.show:c.hide;collapse.setAttribute('aria-expanded',String(!settings.collapsed));
     panel.classList.toggle('collapsed',settings.collapsed);map.hidden=!settings.mapOpen;
     if(settings.mapOpen && !mapFrame.getAttribute('src'))mapFrame.src='https://www.dfprofiler.com/bossmap#dfov-east';
     document.documentElement.classList.toggle('dfov-city-open',!settings.collapsed);
-    document.documentElement.classList.toggle('dfov-city-map',settings.mapOpen && window.innerWidth>=1700);
+    document.documentElement.classList.toggle('dfov-city-map',settings.mapOpen && window.innerWidth>=1780);
   }
   layout();window.addEventListener('resize',layout);
   const pending=new Map();

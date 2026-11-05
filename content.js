@@ -51,7 +51,7 @@
   });
   function bankAction(action) {
       if (bankBusy) { send({ type: 'fairview-feedback', message: 'Aguarde a resposta da operação anterior.' }); return; }
-      if (!['deposit-all', 'withdraw-all', 'balances'].includes(action)) return;
+      if (!['deposit-all', 'withdraw-all', 'withdraw-10000', 'withdraw-50000', 'withdraw-100000', 'balances'].includes(action)) return;
       bankBusy = true;
       pendingBank = crypto.randomUUID();
       bankTimeout = setTimeout(() => {

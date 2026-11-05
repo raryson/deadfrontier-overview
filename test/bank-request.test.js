@@ -44,6 +44,26 @@ test('saque total utiliza o parâmetro do jogo e atualiza saldos confirmados', a
   h.sent[0].complete('df_cash=12345&df_bankcash=0');
   assert.equal(h.emitted[0].cash,12345); assert.equal(h.emitted[0].bank,0);
 });
+
+test('saques rápidos enviam o valor fixo escolhido e mantêm a trava até confirmar', async () => {
+  for (const amount of [10000,50000,100000]) {
+    const h=harness();await h.action(`withdraw-${amount}`);
+    assert.equal(h.sent.length,1);
+    const params=new URLSearchParams(h.sent[0].body);
+    assert.equal(params.get('withdraw'),String(amount));assert.equal(params.has('deposit'),false);
+    assert.equal(h.sent[0].url,'/onlinezombiemmo/bank.php');assert.equal(h.context.pageLock,true);
+    await h.action(`withdraw-${amount}`);assert.equal(h.sent.length,1);
+    h.sent[0].complete(`df_cash=${amount}&df_bankcash=500000`);
+    assert.equal(h.emitted.at(-1).ok,true);assert.equal(h.emitted.at(-1).cash,amount);assert.equal(h.context.pageLock,false);
+  }
+});
+
+test('saque rápido não aceita valores fora dos atalhos nem valor sobrescrito na mensagem',async()=>{
+  const h=harness();await h.action('withdraw-999999');assert.equal(h.sent.length,0);
+  await h.action('withdraw-10000',{data:{type:'fairview-bank-request',requestId:'test-2',action:'withdraw-10000',amount:999999}});
+  assert.equal(new URLSearchParams(h.sent[0].body).get('withdraw'),'10000');
+  h.sent[0].complete('df_cash=10000&df_bankcash=100');
+});
 test('Firefox aceita mensagem do content script com source nulo e origem correta', async () => {
   const h = harness(); await h.action('deposit-all', { source: null });
   assert.equal(h.sent.length, 1);

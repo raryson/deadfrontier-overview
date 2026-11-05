@@ -31,6 +31,8 @@ You do not need Node.js, npm or developer tools to run the downloaded desktop ap
 
 ### City panel in extension 0.10.0
 
+**0.10.1:** the map is now 390 pixels wide (previously 310). Quick bank also includes **$10,000**, **$50,000** and **$100,000** withdrawal buttons, alongside Withdraw all.
+
 Reload the game after updating the extension. The panel opens on the right, with **Quick bank** and **Active buffs** first. **− / +** collapses or expands it and remembers your choice. **More tools** opens the previous tools and settings. Reload the city after changing the language setting.
 
 On wide screens, the embedded **DFProfiler Bossmap** opens on the left, initially scrolled to the eastern region. Scroll horizontally to explore other regions. **Map** toggles it; it starts closed on smaller screens. The footer links to the original public map. Loading the map connects directly to this third-party service.

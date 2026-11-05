@@ -4,12 +4,14 @@ DeadFrontier Overview has two separate components. You can use either one on its
 
 | Component | What it does |
 | --- | --- |
-| Browser extension | Quick bank actions and buff timers on the Dead Frontier website. |
+| Browser extension | Persistent city panel, quick bank, buff timers, full-stack purchases and an eastern-region boss map. |
 | Desktop companion app | In-game overlay, XP/hour, session history, background loot OCR and estimated item values. |
 
 The interface supports **English and Portuguese**. Select **English** from the language menu if needed.
 
 ## 1. Download
+
+The new **0.10.0 city panel** is also available by building the current source with `scripts/package-chrome.ps1` / `scripts/package.ps1`. The pinned release links below remain the previously published downloads until the new release is available.
 
 These are the published builds used in this guide:
 
@@ -26,6 +28,16 @@ These are the published builds used in this guide:
 Check the [Releases page](https://github.com/raryson/deadfrontier-overview/releases) for newer builds. Extension releases use tags such as `v0.9.6`; Desktop releases use tags such as `desktop-v0.9.1`. Each component has its own version number.
 
 You do not need Node.js, npm or developer tools to run the downloaded desktop app or install the packaged extension.
+
+### City panel in extension 0.10.0
+
+Reload the game after updating the extension. The panel opens on the right, with **Quick bank** and **Active buffs** first. **− / +** collapses or expands it and remembers your choice. **More tools** opens the previous tools and settings. Reload the city after changing the language setting.
+
+On wide screens, the embedded **DFProfiler Bossmap** opens on the left, initially scrolled to the eastern region. Scroll horizontally to explore other regions. **Map** toggles it; it starts closed on smaller screens. The footer links to the original public map. Loading the map connects directly to this third-party service.
+
+Under **Quick buys**, select an item to look for an exact full stack in the current city's market. The extension chooses the lowest total price among the full stacks in the returned results. Ammo and Gasoline quantities come from the game's current catalog; food and medical items are bought individually. Check the item, quantity and price, then click **Confirm purchase**. Keep enough cash on hand and an empty inventory slot. Offers expire after 30 seconds. Sold listings are not replaced automatically. There are no purchase loops, automatic withdrawals or purchases assembled from partial stacks. Searches are limited to six per minute per page.
+
+When updating an unpacked Chrome installation, replace the files in its existing folder, click **Reload** at `chrome://extensions`, then reload the game. Firefox folder installations likewise require **Reload** at `about:debugging`. The added `dfprofiler.com/bossmap` access only styles the embedded provider page; the browser may ask you to accept this permission. Automated purchase tests use simulated server responses; real-account purchase validation is still pending.
 
 ### Platform support
 

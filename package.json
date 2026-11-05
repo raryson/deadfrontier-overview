@@ -1,11 +1,11 @@
 {
   "name": "deadfrontier-overview",
-  "version": "0.9.6",
+  "version": "0.10.0",
   "private": true,
   "type": "module",
   "scripts": {
     "test": "node --test test/*.test.js",
-    "check": "node --check background.js && node --check content.js && node --check dashboard.js && node --check page-observer.js && node --check server-sync.js && node --check bank-request.js && node --check i18n.js && node --check experience.js && node --check xp-protocol.js && node --check xp-request.js && node --check ocr-parser.js && node --check capture-controller.js && node --check ocr-environment.js && node --check catalog-observer.js && node --check desktop-connect-ui.js && node --check extension-desktop.js && node --check market-prices.js && node --check market-search.js && node --check item-catalog.js",
+    "check": "node --check background.js && node --check content.js && node --check dashboard.js && node --check page-observer.js && node --check server-sync.js && node --check bank-request.js && node --check i18n.js && node --check experience.js && node --check xp-protocol.js && node --check xp-request.js && node --check ocr-parser.js && node --check capture-controller.js && node --check ocr-environment.js && node --check catalog-observer.js && node --check desktop-connect-ui.js && node --check extension-desktop.js && node --check market-prices.js && node --check market-search.js && node --check item-catalog.js && node --check city-panel.js && node --check bossmap-embed.js && node --check quick-buy-model.js && node --check quick-buy-request.js",
     "vendor:ocr": "node scripts/vendor-ocr.mjs"
   },
   "devDependencies": {

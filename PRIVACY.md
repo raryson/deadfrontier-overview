@@ -1,8 +1,10 @@
 # DeadFrontier Overview — Política de privacidade / Privacy policy
 
-Atualizada em / Updated: 2026-10-30
+Atualizada em / Updated: 2026-11-04
 
 ## Português
+
+**Painel da cidade e mapa (0.10.0).** A extensão consulta ofertas e compra um anúncio específico somente após ações do usuário. As compras usam a autenticação já presente no contexto do jogo e enviam esses dados exclusivamente ao próprio jogo. Cotações de compra ficam temporariamente em memória; não incluem credenciais no painel. Preferências de recolhimento e visibilidade do mapa são salvas localmente. O mapa incorporado carrega a página pública `https://www.dfprofiler.com/bossmap`, inicialmente aberta em telas largas. Ao carregar, o navegador se conecta diretamente ao DFProfiler, que pode receber os dados normais da conexão e seus próprios cookies, conforme suas políticas. O addon não envia dados da conta, inventário, saldos, XP ou credenciais ao DFProfiler. É possível fechar o mapa pelo botão **Mapa**; a escolha é lembrada. O código remoto dessa página roda no iframe do próprio serviço, separado do contexto da extensão.
 
 DeadFrontier Overview é uma extensão independente para acompanhar a sessão do jogador em Dead Frontier. Não é um produto oficial do jogo.
 
@@ -23,6 +25,8 @@ O histórico local mantém as últimas 100 sessões, incluindo o progresso da se
 **Contato.** Para dúvidas sobre privacidade: https://github.com/raryson/deadfrontier-overview/issues . Não publique senhas, cookies, tokens, capturas privadas ou arquivos HAR.
 
 ## English
+
+**City panel and map (0.10.0).** The extension searches listings and purchases a specific offer only after user actions. Purchases reuse authentication already in the game's page context and send it exclusively to the game itself. Purchase quotes stay temporarily in memory; credentials are not included in panel messages. Collapse and map visibility preferences are stored locally. The embedded map loads the public `https://www.dfprofiler.com/bossmap` page, initially open on wide screens. Loading it connects the browser directly to DFProfiler, which may receive normal connection data and its own cookies according to its policies. The addon does not send account information, inventory, balances, XP or game credentials to DFProfiler. Close it with **Map**; this choice is remembered. The provider's remote page code runs inside its own iframe, separate from the extension context.
 
 DeadFrontier Overview is an independent extension for tracking a player's Dead Frontier session. It is not an official game product.
 

@@ -12,6 +12,8 @@ O [app Windows em Electron](desktop/README.md) está em desenvolvimento separado
 
 ## Recursos
 
+- **Painel fixo da cidade (0.10.0):** banco e buffs no topo, aberto por padrão; mapa leste do DFProfiler à esquerda em telas largas e ferramentas à direita.
+- **Compras rápidas:** busca de stacks completas de munição/Gasoline e unidades de comida/medicina, com quantidade, preço e confirmação antes de comprar. Testes de protocolo simulados passaram; validação de compra real pendente.
 - **Banco rápido:** consultar saldo, depositar tudo e sacar tudo pelo painel do inventário, mercado ou outra página da cidade.
 - **Buffs automáticos:** acompanha os prazos de EXP, dano e velocidade informados pelo jogo, com relógios separados para efeitos normais e EX.
 - **Janela flutuante:** exibe os relógios em Picture-in-Picture enquanto você usa o client.

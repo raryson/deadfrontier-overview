@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "DeadFrontier Overview",
-  "version": "0.9.6",
+  "version": "0.10.0",
   "description": "__MSG_description__",
   "default_locale": "en",
   "content_security_policy": {
@@ -43,7 +43,9 @@
         "page-observer.js",
         "bank-request.js",
         "xp-request.js",
-        "catalog-observer.js"
+        "catalog-observer.js",
+        "quick-buy-model.js",
+        "quick-buy-request.js"
       ],
       "run_at": "document_start",
       "world": "MAIN"
@@ -56,6 +58,17 @@
         "content.js"
       ],
       "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "https://www.dfprofiler.com/bossmap*",
+        "https://dfprofiler.com/bossmap*"
+      ],
+      "js": [
+        "bossmap-embed.js"
+      ],
+      "run_at": "document_end",
+      "all_frames": true
     }
   ],
   "web_accessible_resources": [
@@ -71,7 +84,10 @@
         "capture-controller.js",
         "ocr-parser.js",
         "ocr-environment.js",
-        "desktop-connect-ui.js"
+        "desktop-connect-ui.js",
+        "city-panel.js",
+        "city-panel.css",
+        "quick-buy-model.js"
       ],
       "matches": [
         "https://fairview.deadfrontier.com/*"

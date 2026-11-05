@@ -6,7 +6,7 @@
 
 1. No Firefox, abra `about:debugging#/runtime/this-firefox`.
 2. Clique **Carregar extensão temporária…** e selecione este arquivo ZIP diretamente. Se já o extraiu, selecione `manifest.json` da pasta.
-3. Recarregue o jogo e clique em **DeadFrontier Overview** no canto inferior direito.
+3. Recarregue o jogo. O painel **DeadFrontier Overview** abre automaticamente à direita da página.
 
 O Firefox remove instalações temporárias ao reiniciar. Para instalação permanente, este pacote precisa ser assinado pela Mozilla. Este ZIP não é um XPI assinado.
 
@@ -15,6 +15,16 @@ O Firefox remove instalações temporárias ao reiniciar. Para instalação perm
 ## Chrome
 
 Extraia o ZIP. Abra `chrome://extensions`, ative **Modo do desenvolvedor**, clique **Carregar sem compactação** e escolha a pasta extraída. Recarregue o jogo.
+
+## Painel da cidade (0.10.0)
+
+O banco e os buffs ficam no topo do painel fixo à direita. Use **−** para recolher e **+** para abrir; sua preferência é salva. **Mais ferramentas** abre as configurações e os recursos anteriores. Após mudar o idioma nas configurações, recarregue a cidade.
+
+Em telas largas, o **Bossmap** do DFProfiler aparece à esquerda, com a região leste visível inicialmente. Use a barra horizontal para explorar outras regiões. O botão **Mapa** abre ou fecha o mapa; em telas menores ele começa fechado para preservar espaço. O mapa é uma página de terceiros, com conexão direta ao DFProfiler. O link no rodapé abre a página original.
+
+Em **Compras rápidas**, clique no item desejado. O addon consulta somente o mercado da cidade atual e mostra a menor oferta de stack completa entre os resultados retornados. Munição e Gasoline usam o tamanho máximo informado pelo catálogo do jogo; comida e medicina são compradas por unidade. Confira nome, quantidade e preço e clique **Confirmar compra**. É necessário dinheiro no bolso e espaço no inventário. Não há saque automático, compras em série nem junção de ofertas parciais. Cada oferta expira em 30 segundos. Se já foi vendida, faça uma nova busca. Há limite de seis buscas por minuto nesta página.
+
+Para atualizar a extensão já instalada no Chrome, substitua os arquivos da pasta carregada, clique em **Recarregar** em `chrome://extensions` e recarregue o jogo. O novo acesso a `dfprofiler.com/bossmap` serve apenas para ajustar o mapa incorporado; o navegador pode pedir para aceitar essa permissão na atualização. As compras novas ainda precisam de validação com uma conta real; a seleção de ofertas e o envio foram testados com respostas simuladas.
 
 ## English
 

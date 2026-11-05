@@ -11,7 +11,7 @@ export async function mountCityPanel(api,onBank) {
   const preferences=await api.storage.local.get(['language','cityPanel']);
   let lang=resolveLanguage(preferences.language,navigator.languages), c=copy[lang]??copy.en;
   let state={}, balances=null, quickBusy=false, activeQuote=null, quoteTimer, selectedButton;
-  const settings={collapsed:false,mapOpen:window.innerWidth>=1780,...preferences.cityPanel};
+  const settings={collapsed:false,mapOpen:window.innerWidth>=1540,...preferences.cityPanel};
   const host=document.createElement('div');host.id='df-overview-city';
   const shadow=host.attachShadow({mode:'closed'});
   const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href=api.runtime.getURL('city-panel.css');shadow.append(stylesheet);
@@ -53,16 +53,39 @@ export async function mountCityPanel(api,onBank) {
   dialog.append(offerName,offerPrice,offerNote,el('div',null,'dialog-actions'));dialog.lastChild.append(button(c.cancel,()=>dialog.close()),accept);
   dialog.addEventListener('close',()=>{clearTimeout(quoteTimer);selectedButton?.focus();});
   shadow.append(panel,map,tools,dialog);document.documentElement.append(host);
-  // Reserve space only when there is enough width for the original fixed-width game.
-  const layoutStyle=el('style');layoutStyle.textContent='@media(min-width:1400px){html.dfov-city-open body{box-sizing:border-box;padding-right:320px!important}html.dfov-city-map body{padding-left:410px!important}}';document.documentElement.append(layoutStyle);
+  // The game's frame is a fixed-width table around both sidebar and inventory.
+  // Keep its original position and fill the actual free space on either side.
+  function gameFrame() {
+    let node=document.getElementById('block13')??document.getElementById('sidebar')??document.getElementById('htmlFlashReplace'),frame=null;
+    for(;node&&node!==document.body;node=node.parentElement) {
+      if(node.tagName!=='TABLE')continue;
+      const width=node.getAttribute('width');
+      if(!/^\d+$/.test(width??'')||Number(width)<850||Number(width)>1200)continue;
+      if(!frame||node.getBoundingClientRect().width>frame.getBoundingClientRect().width)frame=node;
+    }
+    return frame;
+  }
   function layout() {
     body.hidden=settings.collapsed;collapse.textContent=settings.collapsed?'+':'−';collapse.title=settings.collapsed?c.show:c.hide;collapse.setAttribute('aria-expanded',String(!settings.collapsed));
     panel.classList.toggle('collapsed',settings.collapsed);map.hidden=!settings.mapOpen;
     if(settings.mapOpen && !mapFrame.getAttribute('src'))mapFrame.src='https://www.dfprofiler.com/bossmap#dfov-east';
-    document.documentElement.classList.toggle('dfov-city-open',!settings.collapsed);
-    document.documentElement.classList.toggle('dfov-city-map',settings.mapOpen && window.innerWidth>=1780);
+    const bounds=gameFrame()?.getBoundingClientRect();
+    const width=document.documentElement.clientWidth;
+    const leftSpace=bounds?Math.max(0,bounds.left-8):0;
+    const rightSpace=bounds?Math.max(0,width-bounds.right-8):0;
+    // Narrow windows retain the collapsible overlay instead of covering the game
+    // with an unreadably thin dock. Desktop docks meet the game frame exactly.
+    map.style.width=leftSpace>=260?`${leftSpace}px`:'';
+    map.style.left=leftSpace>=260?'8px':'';
+    panel.style.width=rightSpace>=260&&!settings.collapsed?`${rightSpace}px`:'';
+    panel.style.right=rightSpace>=260?'8px':'';
+    host.style.setProperty('--dfov-tools-right',rightSpace>=260?`${rightSpace+16}px`:'320px');
   }
-  layout();window.addEventListener('resize',layout);
+  let layoutFrame;
+  const scheduleLayout=()=>{cancelAnimationFrame(layoutFrame);layoutFrame=requestAnimationFrame(layout);};
+  layout();window.addEventListener('resize',scheduleLayout);window.addEventListener('scroll',scheduleLayout,{passive:true});
+  const observedFrame=gameFrame();if(observedFrame)new ResizeObserver(scheduleLayout).observe(observedFrame);
+  window.addEventListener('load',scheduleLayout,{once:true});
   const pending=new Map();
   function performQuick(action,data={}) {
     if(quickBusy && action!=='context')return;

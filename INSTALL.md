@@ -20,6 +20,8 @@ Extraia o ZIP. Abra `chrome://extensions`, ative **Modo do desenvolvedor**, cliq
 
 Na **0.10.1**, o mapa passou de 310 para 390 pixels de largura. O banco rápido também inclui atalhos para sacar **$10.000**, **$50.000** e **$100.000**, além de sacar tudo.
 
+Na **0.10.2**, os dois painéis laterais ajustam a largura ao espaço disponível e encostam na moldura central do jogo. O ajuste acompanha o redimensionamento da janela, sem deslocar o jogo. Em janelas estreitas, continuam recolhíveis sobre a página.
+
 O banco e os buffs ficam no topo do painel fixo à direita. Use **−** para recolher e **+** para abrir; sua preferência é salva. **Mais ferramentas** abre as configurações e os recursos anteriores. Após mudar o idioma nas configurações, recarregue a cidade.
 
 Em telas largas, o **Bossmap** do DFProfiler aparece à esquerda, com a região leste visível inicialmente. Use a barra horizontal para explorar outras regiões. O botão **Mapa** abre ou fecha o mapa; em telas menores ele começa fechado para preservar espaço. O mapa é uma página de terceiros, com conexão direta ao DFProfiler. O link no rodapé abre a página original.

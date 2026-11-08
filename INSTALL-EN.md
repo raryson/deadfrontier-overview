@@ -11,21 +11,21 @@ The interface supports **English and Portuguese**. Select **English** from the l
 
 ## 1. Download
 
-The new **0.10.0 city panel** is also available by building the current source with `scripts/package-chrome.ps1` / `scripts/package.ps1`. The pinned release links below remain the previously published downloads until the new release is available.
+The **0.10.2 city panel** is included in the extension downloads below. Desktop downloads have their own version numbers.
 
 These are the published builds used in this guide:
 
 | Download | Version | File |
 | --- | --- | --- |
-| [Chrome extension](https://github.com/raryson/deadfrontier-overview/releases/download/v0.9.6/deadfrontier-overview-chrome.zip) | 0.9.6 | `deadfrontier-overview-chrome.zip` |
-| [Firefox extension](https://github.com/raryson/deadfrontier-overview/releases/download/v0.9.6/deadfrontier-overview.zip) | 0.9.6 | `deadfrontier-overview.zip` |
+| [Chrome extension](https://github.com/raryson/deadfrontier-overview/releases/download/v0.10.2/deadfrontier-overview-chrome.zip) | 0.10.2 | `deadfrontier-overview-chrome.zip` |
+| [Firefox extension](https://github.com/raryson/deadfrontier-overview/releases/download/v0.10.2/deadfrontier-overview.zip) | 0.10.2 | `deadfrontier-overview.zip` |
 | [Windows app (x64)](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.9.1/deadfrontier-overview-windows-0.9.1.zip) | 0.9.1 | `deadfrontier-overview-windows-0.9.1.zip` |
 | [Linux x64 installer · experimental](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.9.1/deadfrontier-overview-linux-x64-0.9.1.deb) | 0.9.1 | Debian/Ubuntu package, X11 only |
 | [Linux x64 portable · experimental](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.9.1/deadfrontier-overview-linux-x64-0.9.1.tar.gz) | 0.9.1 | Portable tar.gz |
 | [macOS Apple Silicon · experimental](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.9.1/deadfrontier-overview-macos-arm64-0.9.1.zip) | 0.9.1 | M-series Macs |
 | [macOS Intel · experimental](https://github.com/raryson/deadfrontier-overview/releases/download/desktop-v0.9.1/deadfrontier-overview-macos-x64-0.9.1.zip) | 0.9.1 | Intel Macs |
 
-Check the [Releases page](https://github.com/raryson/deadfrontier-overview/releases) for newer builds. Extension releases use tags such as `v0.9.6`; Desktop releases use tags such as `desktop-v0.9.1`. Each component has its own version number.
+Check the [Releases page](https://github.com/raryson/deadfrontier-overview/releases) for newer builds. Extension releases use tags such as `v0.10.2`; Desktop releases use tags such as `desktop-v0.9.1`. Each component has its own version number.
 
 You do not need Node.js, npm or developer tools to run the downloaded desktop app or install the packaged extension.
 
